@@ -4,12 +4,12 @@ import (
 	"context"
 	"time"
 
-	"git.vanti.co.uk/smartcore/sc-api/go/traits"
-	scTime "git.vanti.co.uk/smartcore/sc-api/go/types/time"
-	"git.vanti.co.uk/smartcore/sc-golang/pkg/memory"
-	"git.vanti.co.uk/smartcore/sc-golang/pkg/router"
-	"git.vanti.co.uk/smartcore/sc-golang/pkg/server"
-	"git.vanti.co.uk/smartcore/sc-golang/pkg/wrap"
+	"github.com/smart-core-os/sc-api/go/traits"
+	scTime "github.com/smart-core-os/sc-api/go/types/time"
+	"github.com/smart-core-os/sc-golang/pkg/memory"
+	"github.com/smart-core-os/sc-golang/pkg/router"
+	"github.com/smart-core-os/sc-golang/pkg/server"
+	"github.com/smart-core-os/sc-golang/pkg/wrap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

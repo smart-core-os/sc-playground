@@ -3,8 +3,8 @@ package run
 import (
 	"net/http"
 
-	"git.vanti.co.uk/smartcore/sc-golang/pkg/server"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
+	"github.com/smart-core-os/sc-golang/pkg/server"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"

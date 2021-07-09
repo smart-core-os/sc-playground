@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"git.vanti.co.uk/smartcore/sc-golang/pkg/server"
+	"github.com/smart-core-os/sc-golang/pkg/server"
 	"github.com/soheilhy/cmux"
 )
 

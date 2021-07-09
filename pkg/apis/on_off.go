@@ -4,11 +4,11 @@ import (
 	"log"
 	"math/rand"
 
-	"git.vanti.co.uk/smartcore/sc-api/go/traits"
-	"git.vanti.co.uk/smartcore/sc-golang/pkg/memory"
-	"git.vanti.co.uk/smartcore/sc-golang/pkg/router"
-	"git.vanti.co.uk/smartcore/sc-golang/pkg/server"
-	"git.vanti.co.uk/smartcore/sc-golang/pkg/wrap"
+	"github.com/smart-core-os/sc-api/go/traits"
+	"github.com/smart-core-os/sc-golang/pkg/memory"
+	"github.com/smart-core-os/sc-golang/pkg/router"
+	"github.com/smart-core-os/sc-golang/pkg/server"
+	"github.com/smart-core-os/sc-golang/pkg/wrap"
 )
 
 func OnOffApi() server.GrpcApi {

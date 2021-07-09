@@ -5,8 +5,8 @@ import (
 	"flag"
 	"log"
 
-	"git.vanti.co.uk/smartcore/sc-playground/pkg/apis"
-	"git.vanti.co.uk/smartcore/sc-playground/pkg/run"
+	"github.com/smart-core-os/sc-playground/pkg/apis"
+	"github.com/smart-core-os/sc-playground/pkg/run"
 )
 
 var (
@@ -26,6 +26,7 @@ func Run() error {
 		apis.BookingApi(),
 		apis.OccupancyApi(),
 		apis.OnOffApi(),
+		apis.PowerSupplyApi(),
 	)
 	return app.ServeAddress(*bind)
 }
