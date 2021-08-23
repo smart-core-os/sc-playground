@@ -58,7 +58,6 @@ func Serve(opts ...ConfigOption) error {
 				*cert,
 			},
 		}
-		addRunMsg(grpcLis.Addr(), "Self-signed gRPC")
 		grpcOpts = append(grpcOpts, grpc.Creds(credentials.NewTLS(config.grpcTlsConfig)))
 		if err != nil {
 			return err
