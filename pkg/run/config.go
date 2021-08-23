@@ -1,0 +1,147 @@
+package run
+
+import (
+	"context"
+	"crypto/tls"
+	"io/fs"
+	"os"
+
+	"github.com/smart-core-os/sc-golang/pkg/server"
+)
+
+type Config struct {
+	ctx context.Context
+
+	grpcApis []server.GrpcApi
+
+	grpcAddress  string
+	httpAddress  string // includes http hosting and grpc-web over http
+	httpsAddress string // includes https hosting and grpc-web over https
+
+	hostedFS       fs.FS  // serve these files over http
+	httpHealthPath string // expose this http path as a simple health api
+
+	insecure      bool // don't generate tls certs when they aren't provided
+	grpcTlsConfig *tls.Config
+	httpTlsConfig *tls.Config // If nil will use grpcTlsConfig instead
+
+	noHealth       bool // don't configure the health service
+	noReflection   bool // don't configure the reflection service
+	noGrpcWeb      bool // don't serve the grpc-web adapter
+	noPlainGrpcWeb bool // don't serve grpc-web over plain http
+}
+
+type ConfigOption func(*Config)
+
+var DefaultOpts = []ConfigOption{
+	WithContext(context.Background()),
+	WithGrpcAddress(":9090"),
+	WithHttpAddress(":8080"),
+	WithHttpsAddress(":8443"),
+}
+var NilConfigOption ConfigOption = func(config *Config) {
+	// do nothing
+}
+
+func WithContext(ctx context.Context) ConfigOption {
+	return func(config *Config) {
+		config.ctx = ctx
+	}
+}
+
+func WithApis(api ...server.GrpcApi) ConfigOption {
+	return func(config *Config) {
+		config.grpcApis = append(config.grpcApis, api...)
+	}
+}
+
+func WithGrpcAddress(address string) ConfigOption {
+	if address == "" {
+		return NilConfigOption
+	}
+	return func(config *Config) {
+		config.grpcAddress = address
+	}
+}
+
+func WithHttpAddress(address string) ConfigOption {
+	if address == "" {
+		return NilConfigOption
+	}
+	return func(config *Config) {
+		config.httpAddress = address
+	}
+}
+
+func WithHttpsAddress(address string) ConfigOption {
+	if address == "" {
+		return NilConfigOption
+	}
+	return func(config *Config) {
+		config.httpsAddress = address
+	}
+}
+
+func WithHostedDir(dir string) ConfigOption {
+	if dir == "" {
+		return NilConfigOption
+	}
+	return WithHostedFS(os.DirFS(dir))
+}
+
+func WithHttpHealth(path string) ConfigOption {
+	if path == "" {
+		return NilConfigOption
+	}
+	return func(config *Config) {
+		config.httpHealthPath = path
+	}
+}
+
+func WithHostedFS(fs fs.FS) ConfigOption {
+	return func(config *Config) {
+		config.hostedFS = fs
+	}
+}
+
+func WithInsecure() ConfigOption {
+	return func(config *Config) {
+		config.insecure = true
+	}
+}
+
+func WithGrpcTls(c *tls.Config) ConfigOption {
+	return func(config *Config) {
+		config.grpcTlsConfig = c
+	}
+}
+
+func WithHttpTls(c *tls.Config) ConfigOption {
+	return func(config *Config) {
+		config.httpTlsConfig = c
+	}
+}
+
+func NoHealth() ConfigOption {
+	return func(config *Config) {
+		config.noHealth = true
+	}
+}
+
+func NoReflection() ConfigOption {
+	return func(config *Config) {
+		config.noReflection = true
+	}
+}
+
+func NoGrpcWeb() ConfigOption {
+	return func(config *Config) {
+		config.noGrpcWeb = true
+	}
+}
+
+func NoPlainGrpcWeb() ConfigOption {
+	return func(config *Config) {
+		config.noPlainGrpcWeb = true
+	}
+}

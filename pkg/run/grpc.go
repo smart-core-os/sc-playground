@@ -5,13 +5,14 @@ import (
 
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/smart-core-os/sc-golang/pkg/server"
+	"golang.org/x/net/http2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 )
 
-func SetupGrpcServer(apis ...server.GrpcApi) *grpc.Server {
+func (a *App) SetupGrpcServer(apis ...server.GrpcApi) *grpc.Server {
 	grpcServer := grpc.NewServer()
 	healthApi := health.NewServer()
 	grpc_health_v1.RegisterHealthServer(grpcServer, healthApi)
@@ -23,10 +24,11 @@ func SetupGrpcServer(apis ...server.GrpcApi) *grpc.Server {
 }
 
 func SetupHttpServer(server *grpc.Server) *http.Server {
-	grpcWebServer := grpcweb.WrapServer(server, grpcweb.WithOriginFunc(func(origin string) bool {
-		return true
-	}))
-	httpServer := http.Server{
+	grpcWebServer := grpcweb.WrapServer(server,
+		grpcweb.WithOriginFunc(func(origin string) bool {
+			return true
+		}))
+	httpServer := &http.Server{
 		Handler: http.HandlerFunc(func(response http.ResponseWriter, req *http.Request) {
 			if grpcWebServer.IsAcceptableGrpcCorsRequest(req) || grpcWebServer.IsGrpcWebRequest(req) {
 				grpcWebServer.ServeHTTP(response, req)
@@ -37,5 +39,10 @@ func SetupHttpServer(server *grpc.Server) *http.Server {
 			http.DefaultServeMux.ServeHTTP(response, req)
 		}),
 	}
-	return &httpServer
+
+	err := http2.ConfigureServer(httpServer, nil)
+	if err != nil {
+		panic(err)
+	}
+	return httpServer
 }
