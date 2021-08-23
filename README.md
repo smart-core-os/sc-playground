@@ -5,7 +5,9 @@ Tools for playing with Smart Core.
 This repository creates a virtual smart building you can connect to and write your client applications against.
 
 Run using `go run ./cmd/playground`, the Smart Core server will be hosted on port `23557` and secured using a self
-signed cert.
+signed cert. The playground ui will be hosted at https://localhost:8443
+
+Use the program argument `--help` for configuration options (ssl certs, ports, etc).
 
 ## Developers
 
