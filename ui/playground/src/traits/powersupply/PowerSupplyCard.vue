@@ -3,13 +3,14 @@
     <v-card-title>
       <span>{{ deviceId }}</span>
       <v-spacer/>
-      <span title="Free / Rating" v-if="capacity">{{ capacity.free.toFixed(1) }} free of {{
-          capacity.rating.toFixed(1)
-        }} A</span>
+      <span title="Free / Rating" v-if="capacity">
+        {{ capacity.free.toFixed(1) }} free of {{ capacity.rating.toFixed(1) }} A
+      </span>
     </v-card-title>
     <v-card-text>
       <power-supply-bar v-bind="capacity" v-if="capacity"/>
     </v-card-text>
+    <v-card-subtitle>Adjust Device</v-card-subtitle>
     <v-card-text>
       <power-supply-settings-editor v-if="settings" v-bind.sync="settings" class="settings-editor"/>
     </v-card-text>
@@ -33,6 +34,7 @@ import {
 import {FieldMask} from 'google-protobuf/google/protobuf/field_mask_pb.js';
 import PowerSupplyBar from './PowerSupplyBar.vue';
 import PowerSupplySettingsEditor from './PowerSupplySettingsEditor.vue';
+import {grpcWebEndpoint} from '../../util/api.js';
 
 export default {
   name: 'PowerSupplyCard',
@@ -41,10 +43,6 @@ export default {
     deviceId: {
       type: String,
       default: 'POW-001'
-    },
-    serverEndpoint: {
-      type: String,
-      default: 'https://localhost:8443'
     }
   },
   data() {
@@ -68,7 +66,8 @@ export default {
       async handler(v) {
         const old = this.serverSettings || {};
         console.debug('settings updated:', old, '->', v);
-        const settingsApi = new MemorySettingsApiPromiseClient(this.serverEndpoint, null, null);
+        const serverEndpoint = await grpcWebEndpoint();
+        const settingsApi = new MemorySettingsApiPromiseClient(serverEndpoint, null, null);
         const changed = [];
         const newSettings = new MemorySettings();
         if (v.rating !== old.rating) {
@@ -103,7 +102,8 @@ export default {
   methods: {
     async pull() {
       if (this.capacityStream) this.capacityStream.cancel();
-      const api = new PowerSupplyApiPromiseClient(this.serverEndpoint, null, null);
+      const serverEndpoint = await grpcWebEndpoint();
+      const api = new PowerSupplyApiPromiseClient(serverEndpoint, null, null);
       const capacityRes = await api.getPowerCapacity(new GetPowerCapacityRequest().setName(this.deviceId));
       this.capacity = capacityRes.toObject();
       const capacityStream = api.pullPowerCapacity(new PullPowerCapacityRequest().setName(this.deviceId));
@@ -118,7 +118,7 @@ export default {
       });
 
       if (this.settingsStream) this.settingsStream.cancel();
-      const settingsApi = new MemorySettingsApiPromiseClient(this.serverEndpoint, null, null);
+      const settingsApi = new MemorySettingsApiPromiseClient(serverEndpoint, null, null);
       const settingsRes = await settingsApi.getSettings(new GetMemorySettingsReq().setName(this.deviceId), undefined);
       this.settings = settingsRes.toObject();
       this.serverSettings = settingsRes.toObject();

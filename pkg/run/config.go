@@ -3,6 +3,7 @@ package run
 import (
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"io/fs"
 	"os"
 
@@ -29,6 +30,22 @@ type Config struct {
 	noReflection   bool // don't configure the reflection service
 	noGrpcWeb      bool // don't serve the grpc-web adapter
 	noPlainGrpcWeb bool // don't serve grpc-web over plain http
+}
+
+func (c *Config) MarshalJSON() ([]byte, error) {
+	type jt struct {
+		GrpcAddress  string `json:"grpcAddress"`
+		HttpAddress  string `json:"httpAddress"`
+		HttpsAddress string `json:"httpsAddress"`
+		Insecure     bool   `json:"insecure,omitempty"`
+	}
+	jo := jt{
+		GrpcAddress:  c.grpcAddress,
+		HttpAddress:  c.httpAddress,
+		HttpsAddress: c.httpsAddress,
+		Insecure:     c.insecure,
+	}
+	return json.Marshal(jo)
 }
 
 type ConfigOption func(*Config)

@@ -3,6 +3,7 @@ package run
 import (
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
@@ -10,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
+	"github.com/rs/cors"
 	"github.com/smart-core-os/sc-golang/pkg/server"
 	"github.com/soheilhy/cmux"
 	"google.golang.org/grpc"
@@ -49,6 +51,7 @@ func Serve(opts ...ConfigOption) error {
 		grpcOpts = append(grpcOpts, grpc.Creds(credentials.NewTLS(config.grpcTlsConfig)))
 	} else if !config.insecure {
 		// generate a cert to use
+		fmt.Println("Generating self-signed server certificate...")
 		cert, err := genServerCert()
 		if err != nil {
 			return err
@@ -101,13 +104,15 @@ func Serve(opts ...ConfigOption) error {
 
 		// use a ServeMux to allow for future (non-hosted) http endpoints
 		mux := http.NewServeMux()
+		// expose the config used to start the app
+		mux.Handle("/__/playground/config.json", configJsonHandler(config))
+		// expose the simple http health endpoint
+		if config.httpHealthPath != "" {
+			mux.Handle(config.httpHealthPath, httpHealthHandler())
+		}
+		// expose the hosted FS
 		if config.hostedFS != nil {
 			mux.Handle("/", http.FileServer(http.FS(config.hostedFS)))
-		}
-		if config.httpHealthPath != "" {
-			mux.Handle(config.httpHealthPath, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				_, _ = fmt.Fprintf(w, "ok, %v %v %v%v %v", r.Method, r.Proto, r.Host, r.RequestURI, r.Header)
-			}))
 		}
 
 		httpServer.Handler = InterceptHttp(mux, interceptors...)
@@ -185,6 +190,29 @@ func registerHealth(grpcServer *grpc.Server) {
 		healthServer.SetServingStatus(name, grpc_health_v1.HealthCheckResponse_SERVING)
 	}
 	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)
+}
+
+func httpHealthHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = fmt.Fprintf(w, "ok, %v %v %v%v %v", r.Method, r.Proto, r.Host, r.RequestURI, r.Header)
+	})
+}
+
+func configJsonHandler(config *Config) http.Handler {
+	configCors := cors.New(cors.Options{
+		AllowedMethods: []string{"GET"},
+	})
+	return configCors.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		err := json.NewEncoder(w).Encode(config)
+		if err != nil {
+			log.Printf("ERR: json encode")
+		}
+	}))
 }
 
 type App struct {
