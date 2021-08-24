@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
@@ -52,6 +53,7 @@ func Serve(opts ...ConfigOption) error {
 	} else if !config.insecure {
 		// generate a cert to use
 		fmt.Println("Generating self-signed server certificate...")
+		fmt.Println("Use --server-certfile and --server-keyfile to provide your own")
 		cert, err := genServerCert()
 		if err != nil {
 			return err
@@ -88,6 +90,7 @@ func Serve(opts ...ConfigOption) error {
 
 	go func() { done <- grpcServer.Serve(grpcLis) }()
 
+	var webPageUrl *url.URL
 	noHttp := config.noGrpcWeb && config.hostedFS == nil && config.httpHealthPath == ""
 	if !noHttp {
 		httpServer := http.Server{}
@@ -133,6 +136,10 @@ func Serve(opts ...ConfigOption) error {
 		}
 
 		addRunMsg(httpLis.Addr(), "HTTP")
+		webPageUrl, err = url.Parse("http://" + httpLis.Addr().String())
+		if err != nil {
+			return fmt.Errorf("parse %v: %w", httpLis.Addr(), err)
+		}
 		if !config.noGrpcWeb {
 			addRunMsg(httpLis.Addr(), "grpc-web")
 		}
@@ -144,6 +151,10 @@ func Serve(opts ...ConfigOption) error {
 				return fmt.Errorf("https: %w", err)
 			}
 			addRunMsg(httpsLis.Addr(), "HTTPS")
+			webPageUrl, err = url.Parse("https://" + httpsLis.Addr().String())
+			if err != nil {
+				return fmt.Errorf("parse %v: %w", httpsLis.Addr(), err)
+			}
 			if !config.noGrpcWeb {
 				addRunMsg(httpsLis.Addr(), "grpc-web")
 			}
@@ -157,6 +168,19 @@ func Serve(opts ...ConfigOption) error {
 		lines = append(lines, fmt.Sprintf("%v : %v", strings.Join(protocols, ", "), addr))
 	}
 	fmt.Printf("Server started serving\n  %v\n", strings.Join(lines, "\n  "))
+	if webPageUrl != nil {
+		if webPageUrl.Hostname() == "::" {
+			if port := webPageUrl.Port(); port != "" {
+				webPageUrl.Host = fmt.Sprintf("localhost:%v", webPageUrl.Port())
+			} else {
+				webPageUrl.Host = "localhost"
+			}
+		}
+		if webPageUrl.Path == "" {
+			webPageUrl.Path = "/"
+		}
+		fmt.Printf("Admin page: %v\n", webPageUrl)
+	}
 
 	select {
 	case err := <-done:
