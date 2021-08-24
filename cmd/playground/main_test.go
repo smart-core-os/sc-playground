@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"io"
 	"math/rand"
@@ -35,6 +36,8 @@ func TestRun(t *testing.T) {
 	httpsPortStr := fmt.Sprintf(":%d", httpsPort)
 	httpsBind = &httpsPortStr
 
+	*mTlsEnabled = true
+
 	ctx, done := context.WithCancel(context.Background())
 	t.Cleanup(done)
 	// run the server
@@ -50,12 +53,17 @@ func TestRun(t *testing.T) {
 	// setup client tls
 	// caCert := readCaCertFromFile(t, caCertFile)
 	caCert := readCaCertFromUrl(t, fmt.Sprintf("http://localhost:%v/__/playground/ca-cert.pem", httpPort))
-	clientCerts := x509.NewCertPool()
-	if !clientCerts.AppendCertsFromPEM(caCert) {
+	caPool := x509.NewCertPool()
+	if !caPool.AppendCertsFromPEM(caCert) {
 		t.Fatal(fmt.Errorf("credentials: failed to append certificates"))
 	}
+
 	clientTlsConfig := &tls.Config{
-		RootCAs: clientCerts,
+		RootCAs: caPool,
+	}
+	if *mTlsEnabled {
+		clientCert := readClientTlsFromUrl(t, fmt.Sprintf("http://localhost:%v/__/playground/client.pem", httpPort))
+		clientTlsConfig.Certificates = []tls.Certificate{clientCert}
 	}
 
 	// setup a grpc client
@@ -110,6 +118,43 @@ func readCaCertFromUrl(t *testing.T, caCertUrl string) []byte {
 		t.Fatal(err)
 	}
 	return bytes
+}
+func readClientTlsFromUrl(t *testing.T, url string) tls.Certificate {
+	resp, err := http.Get(url)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	bytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var block, keyBlock, certBlock *pem.Block
+	for len(bytes) > 0 && (keyBlock == nil || certBlock == nil) {
+		block, bytes = pem.Decode(bytes)
+		if block == nil {
+			break
+		}
+		switch block.Type {
+		case "CERTIFICATE":
+			certBlock = block
+		case "RSA PRIVATE KEY":
+			keyBlock = block
+		}
+	}
+	if keyBlock == nil {
+		t.Fatal("Missing client key block")
+	}
+	if certBlock == nil {
+		t.Fatal("Missing client cert block")
+	}
+
+	keyPair, err := tls.X509KeyPair(pem.EncodeToMemory(certBlock), pem.EncodeToMemory(keyBlock))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return keyPair
 }
 
 func testGrpcCall(t *testing.T, ctx context.Context, clientTlsConfig *tls.Config) {

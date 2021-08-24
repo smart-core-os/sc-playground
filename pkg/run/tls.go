@@ -7,72 +7,108 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"errors"
 	"fmt"
+	"io"
 	"math/big"
 	"net"
 	"time"
 )
 
-func genServerCert() (caCert, serverCert *tls.Certificate, err error) {
-	keyUsage := x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment
+// ca manages and generates certificates for use by TLS.
+type ca struct {
+	key        *rsa.PrivateKey
+	cert       *x509.Certificate
+	x509Cert   []byte          // contains cert, signed by key
+	certPem    []byte          // encoded x509Cert
+	keyPem     []byte          // encoded key
+	tlsKeyPair tls.Certificate // combines certPem and keyPem
+
+	serial      *big.Int // tracks certs signed by key, server and client certs
+	clientCount int      // tracks how many clients we generated, so we can give them unique names
+}
+
+func NewSelfSignedCA() (*ca, error) {
 	// CA cert
-	caClaims := &x509.Certificate{
+	ca := &ca{
+		serial: big.NewInt(0),
+	}
+	var err error
+	ca.cert = &x509.Certificate{
 		SerialNumber: big.NewInt(1),
 		Subject: pkix.Name{
-			CommonName: "sc-playground",
+			CommonName: "sc-playground-ca",
 		},
 		NotBefore: time.Now(),
 		NotAfter:  time.Now().AddDate(0, 1, 0),
-		IsCA:      true,
 
+		IsCA:                  true,
 		BasicConstraintsValid: true,
-		KeyUsage:              keyUsage | x509.KeyUsageCertSign,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment | x509.KeyUsageCertSign,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
 	}
-	caKey, err := rsa.GenerateKey(rand.Reader, 4096)
+	ca.key, err = rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {
-		return nil, nil, fmt.Errorf("ca keygen: %w", err)
+		return nil, fmt.Errorf("keygen: %w", err)
 	}
-	caCertBytes, err := x509.CreateCertificate(rand.Reader, caClaims, caClaims, caKey.Public(), caKey)
+	ca.x509Cert, err = x509.CreateCertificate(rand.Reader, ca.cert, ca.cert, ca.key.Public(), ca.key)
 	if err != nil {
-		return nil, nil, fmt.Errorf("ca certgen: %w", err)
+		return nil, fmt.Errorf("sign: %w", err)
 	}
-	caCertPem := pem.EncodeToMemory(&pem.Block{
+	ca.certPem = pem.EncodeToMemory(&pem.Block{
 		Type:  "CERTIFICATE",
-		Bytes: caCertBytes,
+		Bytes: ca.x509Cert,
 	})
-	caKeyPem := pem.EncodeToMemory(&pem.Block{
+	ca.keyPem = pem.EncodeToMemory(&pem.Block{
 		Type:  "RSA PRIVATE KEY",
-		Bytes: x509.MarshalPKCS1PrivateKey(caKey),
+		Bytes: x509.MarshalPKCS1PrivateKey(ca.key),
 	})
-	caKeyPair, err := tls.X509KeyPair(caCertPem, caKeyPem)
+	ca.tlsKeyPair, err = tls.X509KeyPair(ca.certPem, ca.keyPem)
 	if err != nil {
-		return nil, nil, fmt.Errorf("ca keypair: %w", err)
+		return nil, fmt.Errorf("ca keypair: %w", err)
 	}
-	caCert = &caKeyPair
+	return ca, nil
+}
 
+func (ca *ca) nextSerial() *big.Int {
+	return ca.serial.Add(ca.serial, big.NewInt(1))
+}
+
+func (ca *ca) Pool() (*x509.CertPool, error) {
+	pool := x509.NewCertPool()
+	if !pool.AppendCertsFromPEM(ca.certPem) {
+		return nil, errors.New("failed to append cert")
+	}
+	return pool, nil
+}
+
+func (ca *ca) WriteCACertPEM(w io.Writer) error {
+	_, err := w.Write(ca.certPem)
+	return err
+}
+
+func (ca *ca) NewServerCert() (*tls.Certificate, error) {
 	// server cert
 	serverClaims := &x509.Certificate{
-		SerialNumber: big.NewInt(1),
+		SerialNumber: ca.nextSerial(),
 		Subject: pkix.Name{
 			CommonName: "localhost",
 		},
 		IPAddresses: []net.IP{net.IPv4(127, 0, 0, 1), net.IPv6loopback},
 		DNSNames:    []string{"localhost", "localhost.localdomain", "[::1]"},
-		NotBefore:   caClaims.NotBefore,
-		NotAfter:    caClaims.NotAfter,
+		NotBefore:   time.Now(),
+		NotAfter:    time.Now().AddDate(0, 1, 0),
 
-		BasicConstraintsValid: true,
-		KeyUsage:              keyUsage,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		KeyUsage:    x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 	}
 	serverKey, err := rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {
-		return nil, nil, fmt.Errorf("server keygen: %w", err)
+		return nil, fmt.Errorf("keygen: %w", err)
 	}
-	serverCertBytes, err := x509.CreateCertificate(rand.Reader, serverClaims, caClaims, serverKey.Public(), caKey)
+	serverCertBytes, err := x509.CreateCertificate(rand.Reader, serverClaims, ca.cert, serverKey.Public(), ca.key)
 	if err != nil {
-		return nil, nil, fmt.Errorf("server cert: %w", err)
+		return nil, fmt.Errorf("sign: %w", err)
 	}
 	serverCertPem := pem.EncodeToMemory(&pem.Block{
 		Type:  "CERTIFICATE",
@@ -85,9 +121,46 @@ func genServerCert() (caCert, serverCert *tls.Certificate, err error) {
 
 	serverKeyPair, err := tls.X509KeyPair(serverCertPem, serverKeyPem)
 	if err != nil {
-		return nil, nil, fmt.Errorf("server keypair: %w", err)
+		return nil, fmt.Errorf("keypair: %w", err)
 	}
-	serverCert = &serverKeyPair
+	return &serverKeyPair, nil
+}
 
-	return caCert, serverCert, nil
+func (ca *ca) WriteClientCert(w io.Writer) error {
+	// client cert
+	ca.clientCount++
+	name := fmt.Sprintf("client-%d", ca.clientCount)
+	clientClaims := &x509.Certificate{
+		SerialNumber: ca.nextSerial(),
+		Subject: pkix.Name{
+			CommonName: name,
+		},
+		NotBefore: time.Now(),
+		NotAfter:  time.Now().AddDate(0, 1, 0),
+
+		KeyUsage:    x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
+	}
+	clientKey, err := rsa.GenerateKey(rand.Reader, 4096)
+	if err != nil {
+		return fmt.Errorf("keygen: %w", err)
+	}
+	clientCertBytes, err := x509.CreateCertificate(rand.Reader, clientClaims, ca.cert, clientKey.Public(), ca.key)
+	if err != nil {
+		return fmt.Errorf("sign: %w", err)
+	}
+	if err := pem.Encode(w, &pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: clientCertBytes,
+	}); err != nil {
+		return fmt.Errorf("write cert: %w", err)
+	}
+	if err := pem.Encode(w, &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: x509.MarshalPKCS1PrivateKey(clientKey),
+	}); err != nil {
+		return fmt.Errorf("write key: %w", err)
+	}
+
+	return nil
 }

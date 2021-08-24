@@ -22,8 +22,11 @@ type Config struct {
 	hostedFS       fs.FS  // serve these files over http
 	httpHealthPath string // expose this http path as a simple health api
 
-	insecure      bool // don't generate tls certs when they aren't provided
-	caCert        *tls.Certificate
+	insecure bool // don't generate tls certs when they aren't provided
+	mTLS     bool // turn on mutual-TLS support. Requires self-signed certs or the clientCaPEM option
+
+	ca            *ca    // for generating certification
+	clientCaPEM   []byte // CA cert used to verify client certs for mTLS
 	grpcTlsConfig *tls.Config
 	httpTlsConfig *tls.Config // If nil will use grpcTlsConfig instead
 
@@ -38,13 +41,17 @@ func (c *Config) MarshalJSON() ([]byte, error) {
 		GrpcAddress  string `json:"grpcAddress"`
 		HttpAddress  string `json:"httpAddress"`
 		HttpsAddress string `json:"httpsAddress"`
+		SelfSigned   bool   `json:"selfSigned,omitempty"`
 		Insecure     bool   `json:"insecure,omitempty"`
+		MutualTLS    bool   `json:"mutualTls,omitempty"`
 	}
 	jo := jt{
 		GrpcAddress:  c.grpcAddress,
 		HttpAddress:  c.httpAddress,
 		HttpsAddress: c.httpsAddress,
+		SelfSigned:   c.ca != nil && !c.insecure,
 		Insecure:     c.insecure,
+		MutualTLS:    c.mTLS,
 	}
 	return json.Marshal(jo)
 }
@@ -137,6 +144,12 @@ func WithGrpcTls(c *tls.Config) ConfigOption {
 func WithHttpTls(c *tls.Config) ConfigOption {
 	return func(config *Config) {
 		config.httpTlsConfig = c
+	}
+}
+
+func WithMTLS() ConfigOption {
+	return func(config *Config) {
+		config.mTLS = true
 	}
 }
 

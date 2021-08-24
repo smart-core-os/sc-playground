@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"encoding/pem"
 	"fmt"
 	"log"
 	"net"
@@ -53,23 +52,35 @@ func Serve(opts ...ConfigOption) error {
 		grpcOpts = append(grpcOpts, grpc.Creds(credentials.NewTLS(config.grpcTlsConfig)))
 	} else if !config.insecure {
 		// generate a cert to use
-		fmt.Println("Generating self-signed server certificate...")
-		fmt.Println("Use --server-certfile and --server-keyfile to provide your own")
-		caCert, serverCert, err := genServerCert()
+		fmt.Println("Generating self-signed certificates...")
+		fmt.Print("  Generating CA...")
+		config.ca, err = NewSelfSignedCA()
+		fmt.Println(" done!")
 		if err != nil {
-			return err
+			return fmt.Errorf("ca %w", err)
 		}
-		config.caCert = caCert
+
+		fmt.Print("  Generating Server Cert...")
+		serverCert, err := config.ca.NewServerCert()
+		fmt.Println(" done!")
+		if err != nil {
+			return fmt.Errorf("server %w", err)
+		}
 		config.grpcTlsConfig = &tls.Config{
 			Certificates: []tls.Certificate{
 				*serverCert,
 			},
 		}
-		grpcOpts = append(grpcOpts, grpc.Creds(credentials.NewTLS(config.grpcTlsConfig)))
-		if err != nil {
-			return err
+
+		// mTLS
+		if config.mTLS {
+			config.grpcTlsConfig.ClientCAs, err = config.ca.Pool()
+			config.grpcTlsConfig.ClientAuth = tls.RequireAndVerifyClientCert
+			addRunMsg(grpcLis.Addr(), "Self-signed mTLS gRPC")
+		} else {
+			addRunMsg(grpcLis.Addr(), "Self-signed gRPC")
 		}
-		addRunMsg(grpcLis.Addr(), "Self-signed gRPC")
+		grpcOpts = append(grpcOpts, grpc.Creds(credentials.NewTLS(config.grpcTlsConfig)))
 	} else {
 		addRunMsg(grpcLis.Addr(), "Insecure gRPC")
 	}
@@ -109,9 +120,11 @@ func Serve(opts ...ConfigOption) error {
 
 		// use a ServeMux to allow for future (non-hosted) http endpoints
 		mux := http.NewServeMux()
-		// expose the config used to start the app
+		// provided APIs used by client libraries to configure themselves
 		mux.Handle("/__/playground/config.json", configJsonHandler(config))
 		mux.Handle("/__/playground/ca-cert.pem", caCertHandler(config))
+		mux.Handle("/__/playground/client.pem", clientCertHandler(config))
+
 		// expose the simple http health endpoint
 		if config.httpHealthPath != "" {
 			mux.Handle(config.httpHealthPath, httpHealthHandler())
@@ -130,6 +143,7 @@ func Serve(opts ...ConfigOption) error {
 		tlsConfig = tlsConfig.Clone() // so we can modify settings at will
 		if tlsConfig != nil {
 			tlsConfig.NextProtos = []string{"h2"}
+			tlsConfig.ClientAuth = 0 // disable mTLS for web request
 		}
 		httpServer.TLSConfig = tlsConfig
 
@@ -168,7 +182,7 @@ func Serve(opts ...ConfigOption) error {
 	// print out what we're serving
 	var lines []string
 	for addr, protocols := range runMsg {
-		lines = append(lines, fmt.Sprintf("%v : %v", strings.Join(protocols, ", "), addr))
+		lines = append(lines, fmt.Sprintf("%v : %v", addr, strings.Join(protocols, ", ")))
 	}
 	fmt.Printf("Server started serving\n  %v\n", strings.Join(lines, "\n  "))
 	if webPageUrl != nil {
@@ -182,7 +196,16 @@ func Serve(opts ...ConfigOption) error {
 		if webPageUrl.Path == "" {
 			webPageUrl.Path = "/"
 		}
-		fmt.Printf("Admin page: %v\n", webPageUrl)
+		fmt.Println()
+		fmt.Printf("  Admin page:\t\t%v\n", webPageUrl)
+		if config.ca != nil {
+			webPageUrl.Path = "/__/playground/ca-cert.pem"
+			fmt.Printf("  CA Cert:\t\t%v\n", webPageUrl)
+			if config.mTLS {
+				webPageUrl.Path = "/__/playground/client.pem"
+				fmt.Printf("  Client credentials:\t%v  // new per request\n", webPageUrl)
+			}
+		}
 	}
 
 	select {
@@ -243,7 +266,7 @@ func configJsonHandler(config *Config) http.Handler {
 }
 
 func caCertHandler(config *Config) http.Handler {
-	if config.caCert == nil {
+	if config.ca == nil {
 		return http.NotFoundHandler()
 	}
 
@@ -256,12 +279,29 @@ func caCertHandler(config *Config) http.Handler {
 			return
 		}
 		w.Header().Set("Content-Type", "application/x-x509-ca-cert")
-		err := pem.Encode(w, &pem.Block{
-			Type:  "CERTIFICATE",
-			Bytes: config.caCert.Certificate[0],
-		})
-		if err != nil {
+		if err := config.ca.WriteCACertPEM(w); err != nil {
 			log.Printf("ca cert encode err after header send: %v", err)
+		}
+	}))
+}
+
+func clientCertHandler(config *Config) http.Handler {
+	if config.ca == nil || !config.mTLS {
+		return http.NotFoundHandler()
+	}
+
+	configCors := cors.New(cors.Options{
+		AllowedMethods: []string{"GET"},
+	})
+	return configCors.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+		w.Header().Set("Content-Type", "application/x-pem")
+		log.Printf("Generating new client auth cert...")
+		if err := config.ca.WriteClientCert(w); err != nil {
+			log.Printf("client cert encode err after header send: %v", err)
 		}
 	}))
 }
