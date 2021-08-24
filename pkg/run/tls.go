@@ -14,6 +14,7 @@ import (
 )
 
 func genServerCert() (caCert, serverCert *tls.Certificate, err error) {
+	keyUsage := x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment
 	// CA cert
 	caClaims := &x509.Certificate{
 		SerialNumber: big.NewInt(1),
@@ -23,6 +24,10 @@ func genServerCert() (caCert, serverCert *tls.Certificate, err error) {
 		NotBefore: time.Now(),
 		NotAfter:  time.Now().AddDate(0, 1, 0),
 		IsCA:      true,
+
+		BasicConstraintsValid: true,
+		KeyUsage:              keyUsage | x509.KeyUsageCertSign,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 	}
 	caKey, err := rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {
@@ -56,6 +61,10 @@ func genServerCert() (caCert, serverCert *tls.Certificate, err error) {
 		DNSNames:    []string{"localhost", "localhost.localdomain", "[::1]"},
 		NotBefore:   caClaims.NotBefore,
 		NotAfter:    caClaims.NotAfter,
+
+		BasicConstraintsValid: true,
+		KeyUsage:              keyUsage,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 	}
 	serverKey, err := rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {

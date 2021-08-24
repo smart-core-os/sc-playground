@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	"golang.org/x/net/http2"
@@ -34,10 +35,6 @@ func TestRun(t *testing.T) {
 	httpsPortStr := fmt.Sprintf(":%d", httpsPort)
 	httpsBind = &httpsPortStr
 
-	*serverCertFile = "/Users/matt/Projects/smartcore/sc-playground/scripts/server.crt"
-	*serverKeyFile = "/Users/matt/Projects/smartcore/sc-playground/scripts/server.key"
-	caCertFile := "/Users/matt/Projects/smartcore/sc-playground/scripts/ca.crt"
-
 	ctx, done := context.WithCancel(context.Background())
 	t.Cleanup(done)
 	// run the server
@@ -47,11 +44,12 @@ func TestRun(t *testing.T) {
 		}
 	}()
 
+	// wait for the server to start (most of the time is spent generating the certs)
+	time.Sleep(5 * time.Second)
+
 	// setup client tls
-	caCert, err := os.ReadFile(caCertFile)
-	if err != nil {
-		t.Fatal(err)
-	}
+	// caCert := readCaCertFromFile(t, caCertFile)
+	caCert := readCaCertFromUrl(t, fmt.Sprintf("http://localhost:%v/__/playground/ca-cert.pem", httpPort))
 	clientCerts := x509.NewCertPool()
 	if !clientCerts.AppendCertsFromPEM(caCert) {
 		t.Fatal(fmt.Errorf("credentials: failed to append certificates"))
@@ -91,6 +89,27 @@ func TestRun(t *testing.T) {
 		}
 		get(t, https2Client, fmt.Sprintf("https://localhost:%v/health", httpsPort))
 	})
+}
+
+func readCaCertFromFile(t *testing.T, caCertFile string) []byte {
+	caCert, err := os.ReadFile(caCertFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return caCert
+}
+
+func readCaCertFromUrl(t *testing.T, caCertUrl string) []byte {
+	resp, err := http.Get(caCertUrl)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	bytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return bytes
 }
 
 func testGrpcCall(t *testing.T, ctx context.Context, clientTlsConfig *tls.Config) {
