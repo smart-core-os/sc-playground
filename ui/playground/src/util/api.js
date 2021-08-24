@@ -28,3 +28,7 @@ export async function grpcWebEndpoint() {
 export function caCertPath() {
   return import.meta.env.VITE_CA_CERT_URL || '/__/playground/ca-cert.pem';
 }
+
+export function clientCertPath() {
+  return import.meta.env.VITE_CLIENT_CERT_URL || '/__/playground/client.pem';
+}
