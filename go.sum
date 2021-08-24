@@ -107,6 +107,8 @@ github.com/smart-core-os/sc-api/go v1.0.0-beta.24 h1:CIIZxcZ6PsWCFYqlsTGbllGnY8R
 github.com/smart-core-os/sc-api/go v1.0.0-beta.24/go.mod h1:ft0fsrBehTBDQK6hnl92eOvzT0CmCBJDYQGjRZVF+yM=
 github.com/smart-core-os/sc-golang v0.0.0-20210809085226-502942204249 h1:6X54NEehmLCbvVYmOE8ZLRn4zACYGjE7QwPerGmWMCs=
 github.com/smart-core-os/sc-golang v0.0.0-20210809085226-502942204249/go.mod h1:bTuNfPzfsOr3MHPCCQXoifTyN1Ys7e22NQaY+ywvXnk=
+github.com/smart-core-os/sc-golang v0.0.0-20210824084440-6e890323eff3 h1:Q0FMwPUzl0TLQ/4X1ScpxNcJCQUrWm5e5oyKOjk0a4g=
+github.com/smart-core-os/sc-golang v0.0.0-20210824084440-6e890323eff3/go.mod h1:bTuNfPzfsOr3MHPCCQXoifTyN1Ys7e22NQaY+ywvXnk=
 github.com/soheilhy/cmux v0.1.5 h1:jjzc5WVemNEDTLwv9tlmemhC73tI08BNOIGwBOo10Js=
 github.com/soheilhy/cmux v0.1.5/go.mod h1:T7TcVDs9LWfQgPlPsdngu6I6QIoyIFZDDC6sNE1GqG0=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
