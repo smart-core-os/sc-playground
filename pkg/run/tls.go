@@ -19,7 +19,7 @@ func genServerCert() (caCert, serverCert *tls.Certificate, err error) {
 	caClaims := &x509.Certificate{
 		SerialNumber: big.NewInt(1),
 		Subject: pkix.Name{
-			CommonName: "local-test",
+			CommonName: "sc-playground",
 		},
 		NotBefore: time.Now(),
 		NotAfter:  time.Now().AddDate(0, 1, 0),
