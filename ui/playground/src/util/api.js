@@ -24,3 +24,7 @@ export async function grpcWebEndpoint() {
   const protocol = (config.insecure || !config.httpsAddress) ? 'http://' : 'https://';
   return protocol + address;
 }
+
+export function caCertPath() {
+  return import.meta.env.VITE_CA_CERT_URL || '/__/playground/ca-cert.pem';
+}

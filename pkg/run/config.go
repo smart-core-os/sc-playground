@@ -23,6 +23,7 @@ type Config struct {
 	httpHealthPath string // expose this http path as a simple health api
 
 	insecure      bool // don't generate tls certs when they aren't provided
+	caCert        *tls.Certificate
 	grpcTlsConfig *tls.Config
 	httpTlsConfig *tls.Config // If nil will use grpcTlsConfig instead
 

@@ -10,7 +10,10 @@
       <template v-else>
         Smart Core API address:
         <code>{{ serverConfig.grpcAddress }}</code>
-        {{ serverConfig.insecure ? ' (insecure)' : '' }}
+        <template v-if="serverConfig.insecure">(insecure)</template>
+        <template v-else>
+          (<a :href="caCertPath" target="_blank" download>ca cert download</a>)
+        </template>
       </template>
     </v-system-bar>
     <v-main>
@@ -20,7 +23,7 @@
 </template>
 
 <script>
-import {serverConfig} from './util/api.js';
+import {caCertPath, serverConfig} from './util/api.js';
 
 export default {
   name: 'App',
@@ -30,6 +33,11 @@ export default {
       serverConfig: null,
       serverConfigError: null
     };
+  },
+  computed: {
+    caCertPath() {
+      return caCertPath();
+    }
   },
   mounted() {
     serverConfig()

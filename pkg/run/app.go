@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"log"
 	"net"
@@ -54,13 +55,14 @@ func Serve(opts ...ConfigOption) error {
 		// generate a cert to use
 		fmt.Println("Generating self-signed server certificate...")
 		fmt.Println("Use --server-certfile and --server-keyfile to provide your own")
-		cert, err := genServerCert()
+		caCert, serverCert, err := genServerCert()
 		if err != nil {
 			return err
 		}
+		config.caCert = caCert
 		config.grpcTlsConfig = &tls.Config{
 			Certificates: []tls.Certificate{
-				*cert,
+				*serverCert,
 			},
 		}
 		grpcOpts = append(grpcOpts, grpc.Creds(credentials.NewTLS(config.grpcTlsConfig)))
@@ -109,6 +111,7 @@ func Serve(opts ...ConfigOption) error {
 		mux := http.NewServeMux()
 		// expose the config used to start the app
 		mux.Handle("/__/playground/config.json", configJsonHandler(config))
+		mux.Handle("/__/playground/ca-cert.pem", caCertHandler(config))
 		// expose the simple http health endpoint
 		if config.httpHealthPath != "" {
 			mux.Handle(config.httpHealthPath, httpHealthHandler())
@@ -235,6 +238,30 @@ func configJsonHandler(config *Config) http.Handler {
 		err := json.NewEncoder(w).Encode(config)
 		if err != nil {
 			log.Printf("ERR: json encode")
+		}
+	}))
+}
+
+func caCertHandler(config *Config) http.Handler {
+	if config.caCert == nil {
+		return http.NotFoundHandler()
+	}
+
+	configCors := cors.New(cors.Options{
+		AllowedMethods: []string{"GET"},
+	})
+	return configCors.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+		w.Header().Set("Content-Type", "application/x-x509-ca-cert")
+		err := pem.Encode(w, &pem.Block{
+			Type:  "CERTIFICATE",
+			Bytes: config.caCert.Certificate[0],
+		})
+		if err != nil {
+			log.Printf("ca cert encode err after header send: %v", err)
 		}
 	}))
 }
