@@ -6,23 +6,21 @@ import (
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	scTime "github.com/smart-core-os/sc-api/go/types/time"
-	"github.com/smart-core-os/sc-golang/pkg/memory"
-	"github.com/smart-core-os/sc-golang/pkg/router"
 	"github.com/smart-core-os/sc-golang/pkg/server"
-	"github.com/smart-core-os/sc-golang/pkg/wrap"
+	"github.com/smart-core-os/sc-golang/pkg/trait/booking"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func BookingApi() server.GrpcApi {
-	r := router.NewBookingApiRouter()
+	r := booking.NewRouter()
 	r.Factory = func(name string) (traits.BookingApiClient, error) {
-		return wrap.BookingApiServer(newBookingApiServer(name)), nil
+		return booking.Wrap(newBookingApiServer(name)), nil
 	}
 	return r
 }
 
-func newBookingApiServer(name string) *memory.BookingApi {
-	api := memory.NewBookingApi()
+func newBookingApiServer(name string) *booking.MemoryDevice {
+	api := booking.NewMemoryDevice()
 
 	// we want the start of the day in local time, .Truncate(24*Hour) uses UTC
 	now := time.Now().In(time.Local)

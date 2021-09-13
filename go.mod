@@ -9,7 +9,7 @@ require (
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/rs/cors v1.7.0
 	github.com/smart-core-os/sc-api/go v1.0.0-beta.24
-	github.com/smart-core-os/sc-golang v0.0.0-20210824084440-6e890323eff3
+	github.com/smart-core-os/sc-golang v0.0.0-20210908103037-a719dd234c0e
 	github.com/soheilhy/cmux v0.1.5
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
 	google.golang.org/grpc v1.38.0
