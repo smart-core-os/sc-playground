@@ -20,7 +20,7 @@
               <v-btn v-on="on" v-bind="attrs" outlined download :href="caCertPath" class="ml-2">
                 CA Cert <v-icon right>mdi-download</v-icon></v-btn>
             </template>
-            Download a the self-signed CA certificate in PEM format.<br/>
+            Download the self-signed CA certificate in PEM format.<br/>
             Add this cert into your root-ca pool to verify the identity of the server.
           </v-tooltip>
         </template></span>
