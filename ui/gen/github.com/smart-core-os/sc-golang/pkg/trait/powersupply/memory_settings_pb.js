@@ -1,4 +1,4 @@
-// source: trait/powersupply/memory_settings.proto
+// source: github.com/smart-core-os/sc-golang/pkg/trait/powersupply/memory_settings.proto
 /**
  * @fileoverview
  * @enhanceable
@@ -155,48 +155,49 @@ if (goog.DEBUG && !COMPILED) {
 }
 
 
+
 if (jspb.Message.GENERATE_TO_OBJECT) {
-  /**
-   * Creates an object representation of this proto.
-   * Field names that are reserved in JavaScript and will be renamed to pb_name.
-   * Optional fields that are not set will be set to undefined.
-   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
-   * For the list of reserved names please see:
-   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
-   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
-   *     JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @return {!Object}
-   */
-  proto.smartcore.go.trait.powersupply.MemorySettings.prototype.toObject = function(opt_includeInstance) {
-    return proto.smartcore.go.trait.powersupply.MemorySettings.toObject(opt_includeInstance, this);
+/**
+ * Creates an object representation of this proto.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * Optional fields that are not set will be set to undefined.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+ * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+ *     JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.smartcore.go.trait.powersupply.MemorySettings.prototype.toObject = function(opt_includeInstance) {
+  return proto.smartcore.go.trait.powersupply.MemorySettings.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+ *     the JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.smartcore.go.trait.powersupply.MemorySettings} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.smartcore.go.trait.powersupply.MemorySettings.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    rating: jspb.Message.getFloatingPointFieldWithDefault(msg, 1, 0.0),
+    voltage: jspb.Message.getFloatingPointFieldWithDefault(msg, 2, 0.0),
+    load: jspb.Message.getFloatingPointFieldWithDefault(msg, 3, 0.0),
+    reserved: jspb.Message.getFloatingPointFieldWithDefault(msg, 4, 0.0),
+    maxRampDuration: (f = msg.getMaxRampDuration()) && google_protobuf_duration_pb.Duration.toObject(includeInstance, f),
+    defaultRampDuration: (f = msg.getDefaultRampDuration()) && google_protobuf_duration_pb.Duration.toObject(includeInstance, f)
   };
 
-
-  /**
-   * Static version of the {@see toObject} method.
-   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
-   *     the JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @param {!proto.smartcore.go.trait.powersupply.MemorySettings} msg The msg instance to transform.
-   * @return {!Object}
-   * @suppress {unusedLocalVariables} f is only used for nested messages
-   */
-  proto.smartcore.go.trait.powersupply.MemorySettings.toObject = function(includeInstance, msg) {
-    var f, obj = {
-      rating: jspb.Message.getFloatingPointFieldWithDefault(msg, 1, 0.0),
-      voltage: jspb.Message.getFloatingPointFieldWithDefault(msg, 2, 0.0),
-      load: jspb.Message.getFloatingPointFieldWithDefault(msg, 3, 0.0),
-      reserved: jspb.Message.getFloatingPointFieldWithDefault(msg, 4, 0.0),
-      maxRampDuration: (f = msg.getMaxRampDuration()) && google_protobuf_duration_pb.Duration.toObject(includeInstance, f),
-      defaultRampDuration: (f = msg.getDefaultRampDuration()) && google_protobuf_duration_pb.Duration.toObject(includeInstance, f)
-    };
-
-    if (includeInstance) {
-      obj.$jspbMessageInstance = msg;
-    }
-    return obj;
-  };
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
 }
 
 
@@ -226,35 +227,35 @@ proto.smartcore.go.trait.powersupply.MemorySettings.deserializeBinaryFromReader 
     }
     var field = reader.getFieldNumber();
     switch (field) {
-      case 1:
-        var value = /** @type {number} */ (reader.readFloat());
-        msg.setRating(value);
-        break;
-      case 2:
-        var value = /** @type {number} */ (reader.readFloat());
-        msg.setVoltage(value);
-        break;
-      case 3:
-        var value = /** @type {number} */ (reader.readFloat());
-        msg.setLoad(value);
-        break;
-      case 4:
-        var value = /** @type {number} */ (reader.readFloat());
-        msg.setReserved(value);
-        break;
-      case 5:
-        var value = new google_protobuf_duration_pb.Duration;
-        reader.readMessage(value, google_protobuf_duration_pb.Duration.deserializeBinaryFromReader);
-        msg.setMaxRampDuration(value);
-        break;
-      case 6:
-        var value = new google_protobuf_duration_pb.Duration;
-        reader.readMessage(value, google_protobuf_duration_pb.Duration.deserializeBinaryFromReader);
-        msg.setDefaultRampDuration(value);
-        break;
-      default:
-        reader.skipField();
-        break;
+    case 1:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setRating(value);
+      break;
+    case 2:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setVoltage(value);
+      break;
+    case 3:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setLoad(value);
+      break;
+    case 4:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setReserved(value);
+      break;
+    case 5:
+      var value = new google_protobuf_duration_pb.Duration;
+      reader.readMessage(value,google_protobuf_duration_pb.Duration.deserializeBinaryFromReader);
+      msg.setMaxRampDuration(value);
+      break;
+    case 6:
+      var value = new google_protobuf_duration_pb.Duration;
+      reader.readMessage(value,google_protobuf_duration_pb.Duration.deserializeBinaryFromReader);
+      msg.setDefaultRampDuration(value);
+      break;
+    default:
+      reader.skipField();
+      break;
     }
   }
   return msg;
@@ -284,45 +285,45 @@ proto.smartcore.go.trait.powersupply.MemorySettings.serializeBinaryToWriter = fu
   f = message.getRating();
   if (f !== 0.0) {
     writer.writeFloat(
-        1,
-        f
+      1,
+      f
     );
   }
   f = message.getVoltage();
   if (f !== 0.0) {
     writer.writeFloat(
-        2,
-        f
+      2,
+      f
     );
   }
   f = message.getLoad();
   if (f !== 0.0) {
     writer.writeFloat(
-        3,
-        f
+      3,
+      f
     );
   }
   f = message.getReserved();
   if (f !== 0.0) {
     writer.writeFloat(
-        4,
-        f
+      4,
+      f
     );
   }
   f = message.getMaxRampDuration();
   if (f != null) {
     writer.writeMessage(
-        5,
-        f,
-        google_protobuf_duration_pb.Duration.serializeBinaryToWriter
+      5,
+      f,
+      google_protobuf_duration_pb.Duration.serializeBinaryToWriter
     );
   }
   f = message.getDefaultRampDuration();
   if (f != null) {
     writer.writeMessage(
-        6,
-        f,
-        google_protobuf_duration_pb.Duration.serializeBinaryToWriter
+      6,
+      f,
+      google_protobuf_duration_pb.Duration.serializeBinaryToWriter
     );
   }
 };
@@ -406,14 +407,14 @@ proto.smartcore.go.trait.powersupply.MemorySettings.prototype.setReserved = func
  */
 proto.smartcore.go.trait.powersupply.MemorySettings.prototype.getMaxRampDuration = function() {
   return /** @type{?proto.google.protobuf.Duration} */ (
-      jspb.Message.getWrapperField(this, google_protobuf_duration_pb.Duration, 5));
+    jspb.Message.getWrapperField(this, google_protobuf_duration_pb.Duration, 5));
 };
 
 
 /**
  * @param {?proto.google.protobuf.Duration|undefined} value
  * @return {!proto.smartcore.go.trait.powersupply.MemorySettings} returns this
- */
+*/
 proto.smartcore.go.trait.powersupply.MemorySettings.prototype.setMaxRampDuration = function(value) {
   return jspb.Message.setWrapperField(this, 5, value);
 };
@@ -443,14 +444,14 @@ proto.smartcore.go.trait.powersupply.MemorySettings.prototype.hasMaxRampDuration
  */
 proto.smartcore.go.trait.powersupply.MemorySettings.prototype.getDefaultRampDuration = function() {
   return /** @type{?proto.google.protobuf.Duration} */ (
-      jspb.Message.getWrapperField(this, google_protobuf_duration_pb.Duration, 6));
+    jspb.Message.getWrapperField(this, google_protobuf_duration_pb.Duration, 6));
 };
 
 
 /**
  * @param {?proto.google.protobuf.Duration|undefined} value
  * @return {!proto.smartcore.go.trait.powersupply.MemorySettings} returns this
- */
+*/
 proto.smartcore.go.trait.powersupply.MemorySettings.prototype.setDefaultRampDuration = function(value) {
   return jspb.Message.setWrapperField(this, 6, value);
 };
@@ -474,45 +475,48 @@ proto.smartcore.go.trait.powersupply.MemorySettings.prototype.hasDefaultRampDura
 };
 
 
+
+
+
 if (jspb.Message.GENERATE_TO_OBJECT) {
-  /**
-   * Creates an object representation of this proto.
-   * Field names that are reserved in JavaScript and will be renamed to pb_name.
-   * Optional fields that are not set will be set to undefined.
-   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
-   * For the list of reserved names please see:
-   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
-   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
-   *     JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @return {!Object}
-   */
-  proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.prototype.toObject = function(opt_includeInstance) {
-    return proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.toObject(opt_includeInstance, this);
+/**
+ * Creates an object representation of this proto.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * Optional fields that are not set will be set to undefined.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+ * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+ *     JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.prototype.toObject = function(opt_includeInstance) {
+  return proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+ *     the JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    settings: (f = msg.getSettings()) && proto.smartcore.go.trait.powersupply.MemorySettings.toObject(includeInstance, f),
+    updateMask: (f = msg.getUpdateMask()) && google_protobuf_field_mask_pb.FieldMask.toObject(includeInstance, f)
   };
 
-
-  /**
-   * Static version of the {@see toObject} method.
-   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
-   *     the JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @param {!proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq} msg The msg instance to transform.
-   * @return {!Object}
-   * @suppress {unusedLocalVariables} f is only used for nested messages
-   */
-  proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.toObject = function(includeInstance, msg) {
-    var f, obj = {
-      name: jspb.Message.getFieldWithDefault(msg, 1, ''),
-      settings: (f = msg.getSettings()) && proto.smartcore.go.trait.powersupply.MemorySettings.toObject(includeInstance, f),
-      updateMask: (f = msg.getUpdateMask()) && google_protobuf_field_mask_pb.FieldMask.toObject(includeInstance, f)
-    };
-
-    if (includeInstance) {
-      obj.$jspbMessageInstance = msg;
-    }
-    return obj;
-  };
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
 }
 
 
@@ -542,23 +546,23 @@ proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.deserializeBinaryFr
     }
     var field = reader.getFieldNumber();
     switch (field) {
-      case 1:
-        var value = /** @type {string} */ (reader.readString());
-        msg.setName(value);
-        break;
-      case 2:
-        var value = new proto.smartcore.go.trait.powersupply.MemorySettings;
-        reader.readMessage(value, proto.smartcore.go.trait.powersupply.MemorySettings.deserializeBinaryFromReader);
-        msg.setSettings(value);
-        break;
-      case 3:
-        var value = new google_protobuf_field_mask_pb.FieldMask;
-        reader.readMessage(value, google_protobuf_field_mask_pb.FieldMask.deserializeBinaryFromReader);
-        msg.setUpdateMask(value);
-        break;
-      default:
-        reader.skipField();
-        break;
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setName(value);
+      break;
+    case 2:
+      var value = new proto.smartcore.go.trait.powersupply.MemorySettings;
+      reader.readMessage(value,proto.smartcore.go.trait.powersupply.MemorySettings.deserializeBinaryFromReader);
+      msg.setSettings(value);
+      break;
+    case 3:
+      var value = new google_protobuf_field_mask_pb.FieldMask;
+      reader.readMessage(value,google_protobuf_field_mask_pb.FieldMask.deserializeBinaryFromReader);
+      msg.setUpdateMask(value);
+      break;
+    default:
+      reader.skipField();
+      break;
     }
   }
   return msg;
@@ -588,24 +592,24 @@ proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.serializeBinaryToWr
   f = message.getName();
   if (f.length > 0) {
     writer.writeString(
-        1,
-        f
+      1,
+      f
     );
   }
   f = message.getSettings();
   if (f != null) {
     writer.writeMessage(
-        2,
-        f,
-        proto.smartcore.go.trait.powersupply.MemorySettings.serializeBinaryToWriter
+      2,
+      f,
+      proto.smartcore.go.trait.powersupply.MemorySettings.serializeBinaryToWriter
     );
   }
   f = message.getUpdateMask();
   if (f != null) {
     writer.writeMessage(
-        3,
-        f,
-        google_protobuf_field_mask_pb.FieldMask.serializeBinaryToWriter
+      3,
+      f,
+      google_protobuf_field_mask_pb.FieldMask.serializeBinaryToWriter
     );
   }
 };
@@ -616,7 +620,7 @@ proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.serializeBinaryToWr
  * @return {string}
  */
 proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.prototype.getName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ''));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
@@ -635,14 +639,14 @@ proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.prototype.setName =
  */
 proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.prototype.getSettings = function() {
   return /** @type{?proto.smartcore.go.trait.powersupply.MemorySettings} */ (
-      jspb.Message.getWrapperField(this, proto.smartcore.go.trait.powersupply.MemorySettings, 2));
+    jspb.Message.getWrapperField(this, proto.smartcore.go.trait.powersupply.MemorySettings, 2));
 };
 
 
 /**
  * @param {?proto.smartcore.go.trait.powersupply.MemorySettings|undefined} value
  * @return {!proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq} returns this
- */
+*/
 proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.prototype.setSettings = function(value) {
   return jspb.Message.setWrapperField(this, 2, value);
 };
@@ -672,14 +676,14 @@ proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.prototype.hasSettin
  */
 proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.prototype.getUpdateMask = function() {
   return /** @type{?proto.google.protobuf.FieldMask} */ (
-      jspb.Message.getWrapperField(this, google_protobuf_field_mask_pb.FieldMask, 3));
+    jspb.Message.getWrapperField(this, google_protobuf_field_mask_pb.FieldMask, 3));
 };
 
 
 /**
  * @param {?proto.google.protobuf.FieldMask|undefined} value
  * @return {!proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq} returns this
- */
+*/
 proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.prototype.setUpdateMask = function(value) {
   return jspb.Message.setWrapperField(this, 3, value);
 };
@@ -703,44 +707,47 @@ proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq.prototype.hasUpdate
 };
 
 
+
+
+
 if (jspb.Message.GENERATE_TO_OBJECT) {
-  /**
-   * Creates an object representation of this proto.
-   * Field names that are reserved in JavaScript and will be renamed to pb_name.
-   * Optional fields that are not set will be set to undefined.
-   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
-   * For the list of reserved names please see:
-   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
-   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
-   *     JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @return {!Object}
-   */
-  proto.smartcore.go.trait.powersupply.GetMemorySettingsReq.prototype.toObject = function(opt_includeInstance) {
-    return proto.smartcore.go.trait.powersupply.GetMemorySettingsReq.toObject(opt_includeInstance, this);
+/**
+ * Creates an object representation of this proto.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * Optional fields that are not set will be set to undefined.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+ * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+ *     JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.smartcore.go.trait.powersupply.GetMemorySettingsReq.prototype.toObject = function(opt_includeInstance) {
+  return proto.smartcore.go.trait.powersupply.GetMemorySettingsReq.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+ *     the JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.smartcore.go.trait.powersupply.GetMemorySettingsReq} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.smartcore.go.trait.powersupply.GetMemorySettingsReq.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    fields: (f = msg.getFields()) && google_protobuf_field_mask_pb.FieldMask.toObject(includeInstance, f)
   };
 
-
-  /**
-   * Static version of the {@see toObject} method.
-   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
-   *     the JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @param {!proto.smartcore.go.trait.powersupply.GetMemorySettingsReq} msg The msg instance to transform.
-   * @return {!Object}
-   * @suppress {unusedLocalVariables} f is only used for nested messages
-   */
-  proto.smartcore.go.trait.powersupply.GetMemorySettingsReq.toObject = function(includeInstance, msg) {
-    var f, obj = {
-      name: jspb.Message.getFieldWithDefault(msg, 1, ''),
-      fields: (f = msg.getFields()) && google_protobuf_field_mask_pb.FieldMask.toObject(includeInstance, f)
-    };
-
-    if (includeInstance) {
-      obj.$jspbMessageInstance = msg;
-    }
-    return obj;
-  };
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
 }
 
 
@@ -770,18 +777,18 @@ proto.smartcore.go.trait.powersupply.GetMemorySettingsReq.deserializeBinaryFromR
     }
     var field = reader.getFieldNumber();
     switch (field) {
-      case 1:
-        var value = /** @type {string} */ (reader.readString());
-        msg.setName(value);
-        break;
-      case 2:
-        var value = new google_protobuf_field_mask_pb.FieldMask;
-        reader.readMessage(value, google_protobuf_field_mask_pb.FieldMask.deserializeBinaryFromReader);
-        msg.setFields(value);
-        break;
-      default:
-        reader.skipField();
-        break;
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setName(value);
+      break;
+    case 2:
+      var value = new google_protobuf_field_mask_pb.FieldMask;
+      reader.readMessage(value,google_protobuf_field_mask_pb.FieldMask.deserializeBinaryFromReader);
+      msg.setFields(value);
+      break;
+    default:
+      reader.skipField();
+      break;
     }
   }
   return msg;
@@ -811,16 +818,16 @@ proto.smartcore.go.trait.powersupply.GetMemorySettingsReq.serializeBinaryToWrite
   f = message.getName();
   if (f.length > 0) {
     writer.writeString(
-        1,
-        f
+      1,
+      f
     );
   }
   f = message.getFields();
   if (f != null) {
     writer.writeMessage(
-        2,
-        f,
-        google_protobuf_field_mask_pb.FieldMask.serializeBinaryToWriter
+      2,
+      f,
+      google_protobuf_field_mask_pb.FieldMask.serializeBinaryToWriter
     );
   }
 };
@@ -831,7 +838,7 @@ proto.smartcore.go.trait.powersupply.GetMemorySettingsReq.serializeBinaryToWrite
  * @return {string}
  */
 proto.smartcore.go.trait.powersupply.GetMemorySettingsReq.prototype.getName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ''));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
@@ -850,14 +857,14 @@ proto.smartcore.go.trait.powersupply.GetMemorySettingsReq.prototype.setName = fu
  */
 proto.smartcore.go.trait.powersupply.GetMemorySettingsReq.prototype.getFields = function() {
   return /** @type{?proto.google.protobuf.FieldMask} */ (
-      jspb.Message.getWrapperField(this, google_protobuf_field_mask_pb.FieldMask, 2));
+    jspb.Message.getWrapperField(this, google_protobuf_field_mask_pb.FieldMask, 2));
 };
 
 
 /**
  * @param {?proto.google.protobuf.FieldMask|undefined} value
  * @return {!proto.smartcore.go.trait.powersupply.GetMemorySettingsReq} returns this
- */
+*/
 proto.smartcore.go.trait.powersupply.GetMemorySettingsReq.prototype.setFields = function(value) {
   return jspb.Message.setWrapperField(this, 2, value);
 };
@@ -881,44 +888,47 @@ proto.smartcore.go.trait.powersupply.GetMemorySettingsReq.prototype.hasFields = 
 };
 
 
+
+
+
 if (jspb.Message.GENERATE_TO_OBJECT) {
-  /**
-   * Creates an object representation of this proto.
-   * Field names that are reserved in JavaScript and will be renamed to pb_name.
-   * Optional fields that are not set will be set to undefined.
-   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
-   * For the list of reserved names please see:
-   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
-   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
-   *     JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @return {!Object}
-   */
-  proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.prototype.toObject = function(opt_includeInstance) {
-    return proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.toObject(opt_includeInstance, this);
+/**
+ * Creates an object representation of this proto.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * Optional fields that are not set will be set to undefined.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+ * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+ *     JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.prototype.toObject = function(opt_includeInstance) {
+  return proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+ *     the JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.smartcore.go.trait.powersupply.PullMemorySettingsReq} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    fields: (f = msg.getFields()) && google_protobuf_field_mask_pb.FieldMask.toObject(includeInstance, f)
   };
 
-
-  /**
-   * Static version of the {@see toObject} method.
-   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
-   *     the JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @param {!proto.smartcore.go.trait.powersupply.PullMemorySettingsReq} msg The msg instance to transform.
-   * @return {!Object}
-   * @suppress {unusedLocalVariables} f is only used for nested messages
-   */
-  proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.toObject = function(includeInstance, msg) {
-    var f, obj = {
-      name: jspb.Message.getFieldWithDefault(msg, 1, ''),
-      fields: (f = msg.getFields()) && google_protobuf_field_mask_pb.FieldMask.toObject(includeInstance, f)
-    };
-
-    if (includeInstance) {
-      obj.$jspbMessageInstance = msg;
-    }
-    return obj;
-  };
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
 }
 
 
@@ -948,18 +958,18 @@ proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.deserializeBinaryFrom
     }
     var field = reader.getFieldNumber();
     switch (field) {
-      case 1:
-        var value = /** @type {string} */ (reader.readString());
-        msg.setName(value);
-        break;
-      case 2:
-        var value = new google_protobuf_field_mask_pb.FieldMask;
-        reader.readMessage(value, google_protobuf_field_mask_pb.FieldMask.deserializeBinaryFromReader);
-        msg.setFields(value);
-        break;
-      default:
-        reader.skipField();
-        break;
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setName(value);
+      break;
+    case 2:
+      var value = new google_protobuf_field_mask_pb.FieldMask;
+      reader.readMessage(value,google_protobuf_field_mask_pb.FieldMask.deserializeBinaryFromReader);
+      msg.setFields(value);
+      break;
+    default:
+      reader.skipField();
+      break;
     }
   }
   return msg;
@@ -989,16 +999,16 @@ proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.serializeBinaryToWrit
   f = message.getName();
   if (f.length > 0) {
     writer.writeString(
-        1,
-        f
+      1,
+      f
     );
   }
   f = message.getFields();
   if (f != null) {
     writer.writeMessage(
-        2,
-        f,
-        google_protobuf_field_mask_pb.FieldMask.serializeBinaryToWriter
+      2,
+      f,
+      google_protobuf_field_mask_pb.FieldMask.serializeBinaryToWriter
     );
   }
 };
@@ -1009,7 +1019,7 @@ proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.serializeBinaryToWrit
  * @return {string}
  */
 proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.prototype.getName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ''));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
@@ -1028,14 +1038,14 @@ proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.prototype.setName = f
  */
 proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.prototype.getFields = function() {
   return /** @type{?proto.google.protobuf.FieldMask} */ (
-      jspb.Message.getWrapperField(this, google_protobuf_field_mask_pb.FieldMask, 2));
+    jspb.Message.getWrapperField(this, google_protobuf_field_mask_pb.FieldMask, 2));
 };
 
 
 /**
  * @param {?proto.google.protobuf.FieldMask|undefined} value
  * @return {!proto.smartcore.go.trait.powersupply.PullMemorySettingsReq} returns this
- */
+*/
 proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.prototype.setFields = function(value) {
   return jspb.Message.setWrapperField(this, 2, value);
 };
@@ -1059,6 +1069,7 @@ proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.prototype.hasFields =
 };
 
 
+
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
@@ -1067,44 +1078,45 @@ proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.prototype.hasFields =
 proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.repeatedFields_ = [1];
 
 
+
 if (jspb.Message.GENERATE_TO_OBJECT) {
-  /**
-   * Creates an object representation of this proto.
-   * Field names that are reserved in JavaScript and will be renamed to pb_name.
-   * Optional fields that are not set will be set to undefined.
-   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
-   * For the list of reserved names please see:
-   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
-   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
-   *     JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @return {!Object}
-   */
-  proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.prototype.toObject = function(opt_includeInstance) {
-    return proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.toObject(opt_includeInstance, this);
+/**
+ * Creates an object representation of this proto.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * Optional fields that are not set will be set to undefined.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+ * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+ *     JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.prototype.toObject = function(opt_includeInstance) {
+  return proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+ *     the JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.smartcore.go.trait.powersupply.PullMemorySettingsRes} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    changesList: jspb.Message.toObjectList(msg.getChangesList(),
+    proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.toObject, includeInstance)
   };
 
-
-  /**
-   * Static version of the {@see toObject} method.
-   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
-   *     the JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @param {!proto.smartcore.go.trait.powersupply.PullMemorySettingsRes} msg The msg instance to transform.
-   * @return {!Object}
-   * @suppress {unusedLocalVariables} f is only used for nested messages
-   */
-  proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.toObject = function(includeInstance, msg) {
-    var f, obj = {
-      changesList: jspb.Message.toObjectList(msg.getChangesList(),
-          proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.toObject, includeInstance)
-    };
-
-    if (includeInstance) {
-      obj.$jspbMessageInstance = msg;
-    }
-    return obj;
-  };
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
 }
 
 
@@ -1134,14 +1146,14 @@ proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.deserializeBinaryFrom
     }
     var field = reader.getFieldNumber();
     switch (field) {
-      case 1:
-        var value = new proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change;
-        reader.readMessage(value, proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.deserializeBinaryFromReader);
-        msg.addChanges(value);
-        break;
-      default:
-        reader.skipField();
-        break;
+    case 1:
+      var value = new proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change;
+      reader.readMessage(value,proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.deserializeBinaryFromReader);
+      msg.addChanges(value);
+      break;
+    default:
+      reader.skipField();
+      break;
     }
   }
   return msg;
@@ -1171,53 +1183,56 @@ proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.serializeBinaryToWrit
   f = message.getChangesList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
-        1,
-        f,
-        proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.serializeBinaryToWriter
+      1,
+      f,
+      proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.serializeBinaryToWriter
     );
   }
 };
 
 
+
+
+
 if (jspb.Message.GENERATE_TO_OBJECT) {
-  /**
-   * Creates an object representation of this proto.
-   * Field names that are reserved in JavaScript and will be renamed to pb_name.
-   * Optional fields that are not set will be set to undefined.
-   * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
-   * For the list of reserved names please see:
-   *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
-   * @param {boolean=} opt_includeInstance Deprecated. whether to include the
-   *     JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @return {!Object}
-   */
-  proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.prototype.toObject = function(opt_includeInstance) {
-    return proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.toObject(opt_includeInstance, this);
+/**
+ * Creates an object representation of this proto.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * Optional fields that are not set will be set to undefined.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     net/proto2/compiler/js/internal/generator.cc#kKeyword.
+ * @param {boolean=} opt_includeInstance Deprecated. whether to include the
+ *     JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.prototype.toObject = function(opt_includeInstance) {
+  return proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Deprecated. Whether to include
+ *     the JSPB instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change} msg The msg instance to transform.
+ * @return {!Object}
+ * @suppress {unusedLocalVariables} f is only used for nested messages
+ */
+proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    changeTime: (f = msg.getChangeTime()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
+    settings: (f = msg.getSettings()) && proto.smartcore.go.trait.powersupply.MemorySettings.toObject(includeInstance, f)
   };
 
-
-  /**
-   * Static version of the {@see toObject} method.
-   * @param {boolean|undefined} includeInstance Deprecated. Whether to include
-   *     the JSPB instance for transitional soy proto support:
-   *     http://goto/soy-param-migration
-   * @param {!proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change} msg The msg instance to transform.
-   * @return {!Object}
-   * @suppress {unusedLocalVariables} f is only used for nested messages
-   */
-  proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.toObject = function(includeInstance, msg) {
-    var f, obj = {
-      name: jspb.Message.getFieldWithDefault(msg, 1, ''),
-      changeTime: (f = msg.getChangeTime()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f),
-      settings: (f = msg.getSettings()) && proto.smartcore.go.trait.powersupply.MemorySettings.toObject(includeInstance, f)
-    };
-
-    if (includeInstance) {
-      obj.$jspbMessageInstance = msg;
-    }
-    return obj;
-  };
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
 }
 
 
@@ -1247,23 +1262,23 @@ proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.deserializeBin
     }
     var field = reader.getFieldNumber();
     switch (field) {
-      case 1:
-        var value = /** @type {string} */ (reader.readString());
-        msg.setName(value);
-        break;
-      case 2:
-        var value = new google_protobuf_timestamp_pb.Timestamp;
-        reader.readMessage(value, google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
-        msg.setChangeTime(value);
-        break;
-      case 3:
-        var value = new proto.smartcore.go.trait.powersupply.MemorySettings;
-        reader.readMessage(value, proto.smartcore.go.trait.powersupply.MemorySettings.deserializeBinaryFromReader);
-        msg.setSettings(value);
-        break;
-      default:
-        reader.skipField();
-        break;
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setName(value);
+      break;
+    case 2:
+      var value = new google_protobuf_timestamp_pb.Timestamp;
+      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
+      msg.setChangeTime(value);
+      break;
+    case 3:
+      var value = new proto.smartcore.go.trait.powersupply.MemorySettings;
+      reader.readMessage(value,proto.smartcore.go.trait.powersupply.MemorySettings.deserializeBinaryFromReader);
+      msg.setSettings(value);
+      break;
+    default:
+      reader.skipField();
+      break;
     }
   }
   return msg;
@@ -1293,24 +1308,24 @@ proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.serializeBinar
   f = message.getName();
   if (f.length > 0) {
     writer.writeString(
-        1,
-        f
+      1,
+      f
     );
   }
   f = message.getChangeTime();
   if (f != null) {
     writer.writeMessage(
-        2,
-        f,
-        google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
+      2,
+      f,
+      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
     );
   }
   f = message.getSettings();
   if (f != null) {
     writer.writeMessage(
-        3,
-        f,
-        proto.smartcore.go.trait.powersupply.MemorySettings.serializeBinaryToWriter
+      3,
+      f,
+      proto.smartcore.go.trait.powersupply.MemorySettings.serializeBinaryToWriter
     );
   }
 };
@@ -1321,7 +1336,7 @@ proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.serializeBinar
  * @return {string}
  */
 proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.prototype.getName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ''));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
@@ -1340,14 +1355,14 @@ proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.prototype.setN
  */
 proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.prototype.getChangeTime = function() {
   return /** @type{?proto.google.protobuf.Timestamp} */ (
-      jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 2));
+    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 2));
 };
 
 
 /**
  * @param {?proto.google.protobuf.Timestamp|undefined} value
  * @return {!proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change} returns this
- */
+*/
 proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.prototype.setChangeTime = function(value) {
   return jspb.Message.setWrapperField(this, 2, value);
 };
@@ -1377,14 +1392,14 @@ proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.prototype.hasC
  */
 proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.prototype.getSettings = function() {
   return /** @type{?proto.smartcore.go.trait.powersupply.MemorySettings} */ (
-      jspb.Message.getWrapperField(this, proto.smartcore.go.trait.powersupply.MemorySettings, 3));
+    jspb.Message.getWrapperField(this, proto.smartcore.go.trait.powersupply.MemorySettings, 3));
 };
 
 
 /**
  * @param {?proto.smartcore.go.trait.powersupply.MemorySettings|undefined} value
  * @return {!proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change} returns this
- */
+*/
 proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.prototype.setSettings = function(value) {
   return jspb.Message.setWrapperField(this, 3, value);
 };
@@ -1414,14 +1429,14 @@ proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change.prototype.hasS
  */
 proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.prototype.getChangesList = function() {
   return /** @type{!Array<!proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change>} */ (
-      jspb.Message.getRepeatedWrapperField(this, proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change, 1));
+    jspb.Message.getRepeatedWrapperField(this, proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change, 1));
 };
 
 
 /**
  * @param {!Array<!proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.Change>} value
  * @return {!proto.smartcore.go.trait.powersupply.PullMemorySettingsRes} returns this
- */
+*/
 proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.prototype.setChangesList = function(value) {
   return jspb.Message.setRepeatedWrapperField(this, 1, value);
 };

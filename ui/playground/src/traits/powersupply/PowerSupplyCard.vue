@@ -24,13 +24,13 @@ import {
   GetPowerCapacityRequest,
   PullPowerCapacityRequest
 } from '@smart-core-os/sc-api-grpc-web/traits/power_supply_pb.js';
-import {MemorySettingsApiPromiseClient} from 'gen/trait/powersupply/memory_settings_grpc_web_pb.js';
+import {MemorySettingsApiPromiseClient} from 'gen/github.com/smart-core-os/sc-golang/pkg/trait/powersupply/memory_settings_grpc_web_pb.js';
 import {
   GetMemorySettingsReq,
   MemorySettings,
   PullMemorySettingsReq,
   UpdateMemorySettingsReq
-} from 'gen/trait/powersupply/memory_settings_pb.js';
+} from 'gen/github.com/smart-core-os/sc-golang/pkg/trait/powersupply/memory_settings_pb.js';
 import {FieldMask} from 'google-protobuf/google/protobuf/field_mask_pb.js';
 import PowerSupplyBar from './PowerSupplyBar.vue';
 import PowerSupplySettingsEditor from './PowerSupplySettingsEditor.vue';

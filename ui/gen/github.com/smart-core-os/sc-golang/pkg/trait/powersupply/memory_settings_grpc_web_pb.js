@@ -11,6 +11,7 @@
 // @ts-nocheck
 
 
+
 const grpc = {};
 grpc.web = require('grpc-web');
 
@@ -36,20 +37,20 @@ proto.smartcore.go.trait.powersupply = require('./memory_settings_pb.js');
  */
 proto.smartcore.go.trait.powersupply.MemorySettingsApiClient =
     function(hostname, credentials, options) {
-      if (!options) options = {};
-      options['format'] = 'text';
+  if (!options) options = {};
+  options['format'] = 'text';
 
-      /**
-       * @private @const {!grpc.web.GrpcWebClientBase} The client
-       */
-      this.client_ = new grpc.web.GrpcWebClientBase(options);
+  /**
+   * @private @const {!grpc.web.GrpcWebClientBase} The client
+   */
+  this.client_ = new grpc.web.GrpcWebClientBase(options);
 
-      /**
-       * @private @const {string} The hostname
-       */
-      this.hostname_ = hostname;
+  /**
+   * @private @const {string} The hostname
+   */
+  this.hostname_ = hostname;
 
-    };
+};
 
 
 /**
@@ -62,20 +63,20 @@ proto.smartcore.go.trait.powersupply.MemorySettingsApiClient =
  */
 proto.smartcore.go.trait.powersupply.MemorySettingsApiPromiseClient =
     function(hostname, credentials, options) {
-      if (!options) options = {};
-      options['format'] = 'text';
+  if (!options) options = {};
+  options['format'] = 'text';
 
-      /**
-       * @private @const {!grpc.web.GrpcWebClientBase} The client
-       */
-      this.client_ = new grpc.web.GrpcWebClientBase(options);
+  /**
+   * @private @const {!grpc.web.GrpcWebClientBase} The client
+   */
+  this.client_ = new grpc.web.GrpcWebClientBase(options);
 
-      /**
-       * @private @const {string} The hostname
-       */
-      this.hostname_ = hostname;
+  /**
+   * @private @const {string} The hostname
+   */
+  this.hostname_ = hostname;
 
-    };
+};
 
 
 /**
@@ -85,18 +86,18 @@ proto.smartcore.go.trait.powersupply.MemorySettingsApiPromiseClient =
  *   !proto.smartcore.go.trait.powersupply.MemorySettings>}
  */
 const methodDescriptor_MemorySettingsApi_GetSettings = new grpc.web.MethodDescriptor(
-    '/smartcore.go.trait.powersupply.MemorySettingsApi/GetSettings',
-    grpc.web.MethodType.UNARY,
-    proto.smartcore.go.trait.powersupply.GetMemorySettingsReq,
-    proto.smartcore.go.trait.powersupply.MemorySettings,
-    /**
-     * @param {!proto.smartcore.go.trait.powersupply.GetMemorySettingsReq} request
-     * @return {!Uint8Array}
-     */
-    function(request) {
-      return request.serializeBinary();
-    },
-    proto.smartcore.go.trait.powersupply.MemorySettings.deserializeBinary
+  '/smartcore.go.trait.powersupply.MemorySettingsApi/GetSettings',
+  grpc.web.MethodType.UNARY,
+  proto.smartcore.go.trait.powersupply.GetMemorySettingsReq,
+  proto.smartcore.go.trait.powersupply.MemorySettings,
+  /**
+   * @param {!proto.smartcore.go.trait.powersupply.GetMemorySettingsReq} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.smartcore.go.trait.powersupply.MemorySettings.deserializeBinary
 );
 
 
@@ -107,15 +108,15 @@ const methodDescriptor_MemorySettingsApi_GetSettings = new grpc.web.MethodDescri
  *   !proto.smartcore.go.trait.powersupply.MemorySettings>}
  */
 const methodInfo_MemorySettingsApi_GetSettings = new grpc.web.AbstractClientBase.MethodInfo(
-    proto.smartcore.go.trait.powersupply.MemorySettings,
-    /**
-     * @param {!proto.smartcore.go.trait.powersupply.GetMemorySettingsReq} request
-     * @return {!Uint8Array}
-     */
-    function(request) {
-      return request.serializeBinary();
-    },
-    proto.smartcore.go.trait.powersupply.MemorySettings.deserializeBinary
+  proto.smartcore.go.trait.powersupply.MemorySettings,
+  /**
+   * @param {!proto.smartcore.go.trait.powersupply.GetMemorySettingsReq} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.smartcore.go.trait.powersupply.MemorySettings.deserializeBinary
 );
 
 
@@ -131,13 +132,13 @@ const methodInfo_MemorySettingsApi_GetSettings = new grpc.web.AbstractClientBase
  */
 proto.smartcore.go.trait.powersupply.MemorySettingsApiClient.prototype.getSettings =
     function(request, metadata, callback) {
-      return this.client_.rpcCall(this.hostname_ +
-          '/smartcore.go.trait.powersupply.MemorySettingsApi/GetSettings',
-          request,
-          metadata || {},
-          methodDescriptor_MemorySettingsApi_GetSettings,
-          callback);
-    };
+  return this.client_.rpcCall(this.hostname_ +
+      '/smartcore.go.trait.powersupply.MemorySettingsApi/GetSettings',
+      request,
+      metadata || {},
+      methodDescriptor_MemorySettingsApi_GetSettings,
+      callback);
+};
 
 
 /**
@@ -150,12 +151,12 @@ proto.smartcore.go.trait.powersupply.MemorySettingsApiClient.prototype.getSettin
  */
 proto.smartcore.go.trait.powersupply.MemorySettingsApiPromiseClient.prototype.getSettings =
     function(request, metadata) {
-      return this.client_.unaryCall(this.hostname_ +
-          '/smartcore.go.trait.powersupply.MemorySettingsApi/GetSettings',
-          request,
-          metadata || {},
-          methodDescriptor_MemorySettingsApi_GetSettings);
-    };
+  return this.client_.unaryCall(this.hostname_ +
+      '/smartcore.go.trait.powersupply.MemorySettingsApi/GetSettings',
+      request,
+      metadata || {},
+      methodDescriptor_MemorySettingsApi_GetSettings);
+};
 
 
 /**
@@ -165,18 +166,18 @@ proto.smartcore.go.trait.powersupply.MemorySettingsApiPromiseClient.prototype.ge
  *   !proto.smartcore.go.trait.powersupply.MemorySettings>}
  */
 const methodDescriptor_MemorySettingsApi_UpdateSettings = new grpc.web.MethodDescriptor(
-    '/smartcore.go.trait.powersupply.MemorySettingsApi/UpdateSettings',
-    grpc.web.MethodType.UNARY,
-    proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq,
-    proto.smartcore.go.trait.powersupply.MemorySettings,
-    /**
-     * @param {!proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq} request
-     * @return {!Uint8Array}
-     */
-    function(request) {
-      return request.serializeBinary();
-    },
-    proto.smartcore.go.trait.powersupply.MemorySettings.deserializeBinary
+  '/smartcore.go.trait.powersupply.MemorySettingsApi/UpdateSettings',
+  grpc.web.MethodType.UNARY,
+  proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq,
+  proto.smartcore.go.trait.powersupply.MemorySettings,
+  /**
+   * @param {!proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.smartcore.go.trait.powersupply.MemorySettings.deserializeBinary
 );
 
 
@@ -187,15 +188,15 @@ const methodDescriptor_MemorySettingsApi_UpdateSettings = new grpc.web.MethodDes
  *   !proto.smartcore.go.trait.powersupply.MemorySettings>}
  */
 const methodInfo_MemorySettingsApi_UpdateSettings = new grpc.web.AbstractClientBase.MethodInfo(
-    proto.smartcore.go.trait.powersupply.MemorySettings,
-    /**
-     * @param {!proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq} request
-     * @return {!Uint8Array}
-     */
-    function(request) {
-      return request.serializeBinary();
-    },
-    proto.smartcore.go.trait.powersupply.MemorySettings.deserializeBinary
+  proto.smartcore.go.trait.powersupply.MemorySettings,
+  /**
+   * @param {!proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.smartcore.go.trait.powersupply.MemorySettings.deserializeBinary
 );
 
 
@@ -211,13 +212,13 @@ const methodInfo_MemorySettingsApi_UpdateSettings = new grpc.web.AbstractClientB
  */
 proto.smartcore.go.trait.powersupply.MemorySettingsApiClient.prototype.updateSettings =
     function(request, metadata, callback) {
-      return this.client_.rpcCall(this.hostname_ +
-          '/smartcore.go.trait.powersupply.MemorySettingsApi/UpdateSettings',
-          request,
-          metadata || {},
-          methodDescriptor_MemorySettingsApi_UpdateSettings,
-          callback);
-    };
+  return this.client_.rpcCall(this.hostname_ +
+      '/smartcore.go.trait.powersupply.MemorySettingsApi/UpdateSettings',
+      request,
+      metadata || {},
+      methodDescriptor_MemorySettingsApi_UpdateSettings,
+      callback);
+};
 
 
 /**
@@ -230,12 +231,12 @@ proto.smartcore.go.trait.powersupply.MemorySettingsApiClient.prototype.updateSet
  */
 proto.smartcore.go.trait.powersupply.MemorySettingsApiPromiseClient.prototype.updateSettings =
     function(request, metadata) {
-      return this.client_.unaryCall(this.hostname_ +
-          '/smartcore.go.trait.powersupply.MemorySettingsApi/UpdateSettings',
-          request,
-          metadata || {},
-          methodDescriptor_MemorySettingsApi_UpdateSettings);
-    };
+  return this.client_.unaryCall(this.hostname_ +
+      '/smartcore.go.trait.powersupply.MemorySettingsApi/UpdateSettings',
+      request,
+      metadata || {},
+      methodDescriptor_MemorySettingsApi_UpdateSettings);
+};
 
 
 /**
@@ -245,18 +246,18 @@ proto.smartcore.go.trait.powersupply.MemorySettingsApiPromiseClient.prototype.up
  *   !proto.smartcore.go.trait.powersupply.PullMemorySettingsRes>}
  */
 const methodDescriptor_MemorySettingsApi_PullSettings = new grpc.web.MethodDescriptor(
-    '/smartcore.go.trait.powersupply.MemorySettingsApi/PullSettings',
-    grpc.web.MethodType.SERVER_STREAMING,
-    proto.smartcore.go.trait.powersupply.PullMemorySettingsReq,
-    proto.smartcore.go.trait.powersupply.PullMemorySettingsRes,
-    /**
-     * @param {!proto.smartcore.go.trait.powersupply.PullMemorySettingsReq} request
-     * @return {!Uint8Array}
-     */
-    function(request) {
-      return request.serializeBinary();
-    },
-    proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.deserializeBinary
+  '/smartcore.go.trait.powersupply.MemorySettingsApi/PullSettings',
+  grpc.web.MethodType.SERVER_STREAMING,
+  proto.smartcore.go.trait.powersupply.PullMemorySettingsReq,
+  proto.smartcore.go.trait.powersupply.PullMemorySettingsRes,
+  /**
+   * @param {!proto.smartcore.go.trait.powersupply.PullMemorySettingsReq} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.deserializeBinary
 );
 
 
@@ -267,15 +268,15 @@ const methodDescriptor_MemorySettingsApi_PullSettings = new grpc.web.MethodDescr
  *   !proto.smartcore.go.trait.powersupply.PullMemorySettingsRes>}
  */
 const methodInfo_MemorySettingsApi_PullSettings = new grpc.web.AbstractClientBase.MethodInfo(
-    proto.smartcore.go.trait.powersupply.PullMemorySettingsRes,
-    /**
-     * @param {!proto.smartcore.go.trait.powersupply.PullMemorySettingsReq} request
-     * @return {!Uint8Array}
-     */
-    function(request) {
-      return request.serializeBinary();
-    },
-    proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.deserializeBinary
+  proto.smartcore.go.trait.powersupply.PullMemorySettingsRes,
+  /**
+   * @param {!proto.smartcore.go.trait.powersupply.PullMemorySettingsReq} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.deserializeBinary
 );
 
 
@@ -288,12 +289,12 @@ const methodInfo_MemorySettingsApi_PullSettings = new grpc.web.AbstractClientBas
  */
 proto.smartcore.go.trait.powersupply.MemorySettingsApiClient.prototype.pullSettings =
     function(request, metadata) {
-      return this.client_.serverStreaming(this.hostname_ +
-          '/smartcore.go.trait.powersupply.MemorySettingsApi/PullSettings',
-          request,
-          metadata || {},
-          methodDescriptor_MemorySettingsApi_PullSettings);
-    };
+  return this.client_.serverStreaming(this.hostname_ +
+      '/smartcore.go.trait.powersupply.MemorySettingsApi/PullSettings',
+      request,
+      metadata || {},
+      methodDescriptor_MemorySettingsApi_PullSettings);
+};
 
 
 /**
@@ -305,12 +306,12 @@ proto.smartcore.go.trait.powersupply.MemorySettingsApiClient.prototype.pullSetti
  */
 proto.smartcore.go.trait.powersupply.MemorySettingsApiPromiseClient.prototype.pullSettings =
     function(request, metadata) {
-      return this.client_.serverStreaming(this.hostname_ +
-          '/smartcore.go.trait.powersupply.MemorySettingsApi/PullSettings',
-          request,
-          metadata || {},
-          methodDescriptor_MemorySettingsApi_PullSettings);
-    };
+  return this.client_.serverStreaming(this.hostname_ +
+      '/smartcore.go.trait.powersupply.MemorySettingsApi/PullSettings',
+      request,
+      metadata || {},
+      methodDescriptor_MemorySettingsApi_PullSettings);
+};
 
 
 module.exports = proto.smartcore.go.trait.powersupply;
