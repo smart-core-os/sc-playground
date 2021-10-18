@@ -8,8 +8,8 @@ require (
 	github.com/improbable-eng/grpc-web v0.14.0
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/rs/cors v1.7.0
-	github.com/smart-core-os/sc-api/go v1.0.0-beta.24
-	github.com/smart-core-os/sc-golang v0.0.0-20210908103037-a719dd234c0e
+	github.com/smart-core-os/sc-api/go v1.0.0-beta.25
+	github.com/smart-core-os/sc-golang v0.0.0-20211018131204-a8fef1f5f5e6
 	github.com/soheilhy/cmux v0.1.5
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
 	google.golang.org/grpc v1.38.0

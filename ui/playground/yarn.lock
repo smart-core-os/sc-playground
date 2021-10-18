@@ -390,6 +390,14 @@
     google-protobuf "^3.13.0"
     grpc-web "^1.2.1"
 
+"@smart-core-os/sc-api-grpc-web@^1.0.0-beta.25":
+  version "1.0.0-beta.25"
+  resolved "https://nexus.vanti.co.uk/repository/npm-public/@smart-core-os/sc-api-grpc-web/-/sc-api-grpc-web-1.0.0-beta.25.tgz#19be36a999ac0050daa9c09b9ba44ad484caffe8"
+  integrity sha512-bRxX3sKYXlE24cZeeRTq2/mpwi3jC05XrCF0/5u7QSotJ+EvHQ0MFJo/VtNtQfnzaH7Htm/UDuj+ZaZOxVluaQ==
+  dependencies:
+    google-protobuf "^3.13.0"
+    grpc-web "^1.2.1"
+
 "@types/google-protobuf@^3.15.3":
   version "3.15.3"
   resolved "https://nexus.vanti.co.uk/repository/npm-public/@types/google-protobuf/-/google-protobuf-3.15.3.tgz#054fb37aecb34d7dec826e1ce2b40cc27ec3d06a"

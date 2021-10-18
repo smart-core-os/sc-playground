@@ -4,7 +4,7 @@
     <div class="bar load" :style="styles.load" :title="`Load: ${load.toFixed(1)} A`"/>
     <div class="bar reserved" :style="styles.reserved" :title="`Reserved: ${reserved.toFixed(1)} A`"/>
     <div class="bar free" :style="styles.free" :title="`Free: ${free.toFixed(1)} A`"/>
-    <div class="bar notified" :style="styles.notified"/>
+    <div class="bar notified" :style="styles.notified" :title="`Notified: ${notified.toFixed(1)} A`"/>
   </div>
 </template>
 
@@ -55,7 +55,7 @@ export default {
         width: Math.max(0, linearConversion(0, this.rating, 0, 100, this.free))
       };
       styles.notified = {
-        left: styles.free.left + styles.free.width,
+        left: styles.free.left,
         width: linearConversion(0, this.rating, 0, 100, this.notified)
       };
 
@@ -111,5 +111,11 @@ export default {
   background: #0001;
   top: 0;
   height: 100%;
+}
+
+.power-supply-bar .notified {
+  background: #F4433670;
+  top: 50%;
+  height: 25%;
 }
 </style>

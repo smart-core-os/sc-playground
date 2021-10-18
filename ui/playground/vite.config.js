@@ -5,6 +5,12 @@ import rollupPluginVuetify from 'rollup-plugin-vuetify';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  optimizeDeps: {
+    include: [
+      '@smart-core-os/sc-api-grpc-web/traits/power_supply_pb.js',
+      '@smart-core-os/sc-api-grpc-web/traits/power_supply_grpc_web_pb.js'
+    ]
+  },
   plugins: [
     createVuePlugin(),
     VitePluginComponents({
@@ -14,5 +20,10 @@ export default defineConfig({
       ]
     }),
     rollupPluginVuetify()
-  ]
+  ],
+  server: {
+    fs: {
+      allow: ['..']
+    }
+  }
 })
