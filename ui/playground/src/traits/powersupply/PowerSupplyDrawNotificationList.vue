@@ -5,7 +5,7 @@
         <v-icon>mdi-chart-line-variant</v-icon>
       </v-list-item-icon>
       <v-list-item-content>
-        <v-list-item-title>{{ item.maxDraw }} A for {{ item.remainingSeconds }} s</v-list-item-title>
+        <v-list-item-title>{{ item.maxDraw }}&nbsp;A for {{ item.remainingSeconds }}&nbsp;s</v-list-item-title>
       </v-list-item-content>
       <v-btn icon @click="$emit('click:remove', item.id)">
         <v-icon>mdi-delete</v-icon>

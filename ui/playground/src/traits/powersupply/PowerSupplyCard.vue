@@ -4,7 +4,7 @@
       <span>{{ deviceId }}</span>
       <v-spacer/>
       <span title="Free / Rating" v-if="capacity">
-        {{ capacity.free.toFixed(1) }} free of {{ capacity.rating.toFixed(1) }} A
+        {{ capacity.free.toFixed(1) }} free of {{ capacity.rating.toFixed(1) }}&nbsp;A
       </span>
     </v-card-title>
     <v-card-text>
