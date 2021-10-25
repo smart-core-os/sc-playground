@@ -20,11 +20,15 @@
                     v-model.number="draw.min"/>
       <v-btn @click="addDrawNotification">Notify</v-btn>
     </v-card-actions>
+    <v-card-actions class="align-center pt-0 pb-4">
+      <v-checkbox v-model="draw.force" class="ms-2" label="Force" hide-details dense/>
+    </v-card-actions>
     <v-expand-transition>
       <v-card-text v-if="draw.message" key="notifyMsg">
         {{ draw.message }}
       </v-card-text>
     </v-expand-transition>
+    <v-divider/>
     <v-card-subtitle>Adjust Device</v-card-subtitle>
     <v-card-text>
       <power-supply-settings-editor v-if="settings" v-bind.sync="settings" class="settings-editor"/>
@@ -84,6 +88,7 @@ export default {
         clearMessageHandle: 0,
         max: 20,
         min: 0,
+        force: false,
         durationSec: 30
       }
     };
@@ -222,6 +227,7 @@ export default {
         if (this.draw.min) n.setMinDraw(this.draw.min);
         n.setMaxDraw(this.draw.max);
         n.setRampDuration(new Duration().setSeconds(this.draw.durationSec));
+        if (this.draw.force) n.setForce(this.draw.force);
         const req = new CreateDrawNotificationRequest()
             .setName(this.deviceId)
             .setDrawNotification(n);

@@ -103,10 +103,10 @@ github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:
 github.com/rs/cors v1.7.0 h1:+88SsELBHx5r+hZ8TCkggzSstaWNbDvThkVK8H6f9ik=
 github.com/rs/cors v1.7.0/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=
 github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6MwdIuYE2rE=
-github.com/smart-core-os/sc-api/go v1.0.0-beta.25 h1:5OTGsLfRicwd/zuMY23ChCHUuhH4dUkwewhAuIhCQe4=
-github.com/smart-core-os/sc-api/go v1.0.0-beta.25/go.mod h1:ft0fsrBehTBDQK6hnl92eOvzT0CmCBJDYQGjRZVF+yM=
-github.com/smart-core-os/sc-golang v0.0.0-20211018131204-a8fef1f5f5e6 h1:LJaZxiy9xCE4UHB5tGtly3ddVO1WtgRwRtvlXJEl4uY=
-github.com/smart-core-os/sc-golang v0.0.0-20211018131204-a8fef1f5f5e6/go.mod h1:KQEVhUV4IhQIKM9FsdYFCZqyItTc/Qo7vdxkJSQjd2M=
+github.com/smart-core-os/sc-api/go v1.0.0-beta.26 h1:/iDYSEXODaYlI48o6rQrEA9tRr4IgAfsBbw3MKm27Do=
+github.com/smart-core-os/sc-api/go v1.0.0-beta.26/go.mod h1:ft0fsrBehTBDQK6hnl92eOvzT0CmCBJDYQGjRZVF+yM=
+github.com/smart-core-os/sc-golang v0.0.0-20211025094731-4496ddbbd1f0 h1:iPLW4LPvXztctNc0/59LRXRdhODSEu3/dUZIA6ZRf8g=
+github.com/smart-core-os/sc-golang v0.0.0-20211025094731-4496ddbbd1f0/go.mod h1:IwDgPx4SncsGviGj/ej+CTRnIbgYeYIR8XH6p8+dZX4=
 github.com/soheilhy/cmux v0.1.5 h1:jjzc5WVemNEDTLwv9tlmemhC73tI08BNOIGwBOo10Js=
 github.com/soheilhy/cmux v0.1.5/go.mod h1:T7TcVDs9LWfQgPlPsdngu6I6QIoyIFZDDC6sNE1GqG0=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
