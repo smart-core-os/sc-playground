@@ -47,6 +47,7 @@ func runCtx(ctx context.Context) error {
 		run.WithContext(ctx),
 		run.WithApis(
 			apis.BookingApi(),
+			apis.ElectricApi(),
 			apis.OccupancyApi(),
 			apis.OnOffApi(),
 			apis.PowerSupplyApi(),

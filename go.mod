@@ -16,3 +16,8 @@ require (
 	google.golang.org/protobuf v1.26.0
 	nhooyr.io/websocket v1.8.7 // indirect
 )
+
+replace (
+	github.com/smart-core-os/sc-api/go => github.com/smart-core-os/sc-api/go v1.0.0-beta.26.0.20211129083553-12fbc9816ef7
+	github.com/smart-core-os/sc-golang => github.com/smart-core-os/sc-golang v0.0.0-20211202091942-cfaaba2b5da4
+)
