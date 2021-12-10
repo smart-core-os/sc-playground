@@ -1,4 +1,4 @@
-package demand
+package dynamic
 
 import (
 	"github.com/google/go-cmp/cmp"

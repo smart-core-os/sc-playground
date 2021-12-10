@@ -1,4 +1,4 @@
-package demand
+package dynamic
 
 import (
 	"github.com/smart-core-os/sc-api/go/traits"
