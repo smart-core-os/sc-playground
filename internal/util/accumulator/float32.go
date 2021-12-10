@@ -1,3 +1,4 @@
+// Package accumulator implements helper types for iterative computations.
 package accumulator
 
 // Float32 implements a reduction operation over float32 using an arbitrary reduction function

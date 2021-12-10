@@ -20,8 +20,9 @@ const rampDuration = 5 * time.Second
 
 // ElectricSink is a simulation wrapper for an electric device that consumes power and doesn't distribute it
 // to any other Smart Core electric devices (it sinks power). In other words, it represents the leaf nodes of the power
-// distribution tree. The ElectricSink is designed to be backed by an electric.MemoryDevice from sc-golang, but any device
-// that implements the electric API and the electric memory settings API correctly could be used.
+// distribution tree.
+// The ElectricSink does not store its own state - it is designed to be backed by an electric.MemoryDevice from sc-golang,
+// but any device that implements the electric API and the electric memory settings API correctly could be used.
 type ElectricSink struct {
 	api    traits.ElectricApiClient
 	memory electric.MemorySettingsApiClient
@@ -43,7 +44,7 @@ func NewElectricSink(c clock.Clock, api traits.ElectricApiClient, memory electri
 		api:    api,
 		memory: memory,
 		name:   name,
-		load:   dynamic.NewScalar(0, c),
+		load:   dynamic.NewValue(0, c),
 	}
 
 	return s
