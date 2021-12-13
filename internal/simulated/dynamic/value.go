@@ -2,7 +2,6 @@ package dynamic
 
 import (
 	"context"
-	"github.com/smart-core-os/sc-playground/internal/simulated"
 	"github.com/smart-core-os/sc-playground/internal/util/broadcast"
 	"github.com/smart-core-os/sc-playground/internal/util/clock"
 	"sync"
@@ -87,14 +86,14 @@ func (l *Value) startInterpolation(ctx context.Context, target float32, d time.D
 	startTime := l.clock.Now()
 
 	go func() {
-		every := l.clock.Every(simulated.UpdateRate)
+		every := l.clock.Every(UpdateRate)
 		defer every.Stop()
 		defer cancel()
 
 		for {
 			select {
-			case <-every.C():
-				runDuration := l.clock.Now().Sub(startTime)
+			case now := <-every.C():
+				runDuration := now.Sub(startTime)
 				proportion := float32(runDuration) / float32(d)
 				if proportion > 1 {
 					proportion = 1

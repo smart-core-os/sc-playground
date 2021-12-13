@@ -2,7 +2,3 @@
 // testbed for software that interacts with Smart Core, it is necessary to model some dynamic behaviour
 // that you would expect from devices.
 package simulated
-
-import "time"
-
-const UpdateRate = 100 * time.Millisecond
