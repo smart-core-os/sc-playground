@@ -20,7 +20,9 @@ func ExampleSink() {
 	defer cancel()
 
 	// connect sink to control the device and create a mode
-	sink := NewSink(clk, api, mem, "ELEC-001")
+	sink := NewSink(api, mem, "ELEC-001",
+		WithClock(clk),
+		WithRampDuration(0))
 	go func() {
 		err := sink.Simulate(ctx)
 		if err != nil && !errors.Is(err, context.Canceled) {

@@ -16,7 +16,19 @@ import (
 	"time"
 )
 
-const DefaultRampDuration = 5 * time.Second
+const (
+	DefaultRampDuration   = 1 * time.Second
+	DefaultUpdateInterval = dynamic.DefaultUpdateInterval
+)
+
+type SinkOption func(sink *Sink)
+
+var DefaultSinkOptions = []SinkOption{
+	WithRampDuration(DefaultRampDuration),
+	WithInitialLoad(0),
+	WithClock(clock.Real()),
+	WithUpdateInterval(DefaultUpdateInterval),
+}
 
 // Sink is a simulation wrapper for an electric device that consumes power and doesn't distribute it
 // to any other Smart Core electric devices (it sinks power). In other words, it represents the leaf nodes of the power
@@ -24,10 +36,19 @@ const DefaultRampDuration = 5 * time.Second
 // The Sink does not store its own state - it is designed to be backed by an electric.MemoryDevice from sc-golang,
 // but any device that implements the electric API and the electric memory settings API correctly could be used.
 type Sink struct {
+	// fields required for trait access
 	api    traits.ElectricApiClient
 	memory electric.MemorySettingsApiClient
 	name   string
-	load   *dynamic.Value
+
+	// fields configured with options
+	rampDuration   time.Duration
+	clock          clock.Clock
+	initialLoad    float32
+	updateInterval time.Duration
+
+	// keeps track of the load value during operation
+	load *dynamic.Value
 
 	createNormal sync.Once // used to ensure the default mode is created only once
 	normalId     string
@@ -39,13 +60,21 @@ type Sink struct {
 // The clock c must provide time that is consistent with any timestamps etc. returned by calls to the gRPC APIs.
 // When interacting with a remote device not under the control of local simulation, you likely need to use
 // clock.Real.
-func NewSink(c clock.Clock, api traits.ElectricApiClient, memory electric.MemorySettingsApiClient, name string) *Sink {
+func NewSink(api traits.ElectricApiClient, memory electric.MemorySettingsApiClient, name string, options ...SinkOption) *Sink {
 	s := &Sink{
 		api:    api,
 		memory: memory,
 		name:   name,
-		load:   dynamic.NewValue(0, c),
 	}
+
+	for _, opt := range DefaultSinkOptions {
+		opt(s)
+	}
+	for _, opt := range options {
+		opt(s)
+	}
+
+	s.load = dynamic.NewValue(s.initialLoad, s.clock, s.updateInterval)
 
 	return s
 }
@@ -267,6 +296,33 @@ func (s *Sink) simulateMode(ctx context.Context, mode *traits.ElectricMode) erro
 	profile := DeviceModeFromProto(mode).Profile
 	_ = s.load.StartProfile(ctx, profile, DefaultRampDuration)
 	return nil
+}
+
+func WithRampDuration(duration time.Duration) SinkOption {
+	if duration < 0 {
+		panic("duration is negative")
+	}
+	return func(sink *Sink) {
+		sink.rampDuration = duration
+	}
+}
+
+func WithInitialLoad(load float32) SinkOption {
+	return func(sink *Sink) {
+		sink.initialLoad = load
+	}
+}
+
+func WithClock(clk clock.Clock) SinkOption {
+	return func(sink *Sink) {
+		sink.clock = clk
+	}
+}
+
+func WithUpdateInterval(interval time.Duration) SinkOption {
+	return func(sink *Sink) {
+		sink.updateInterval = interval
+	}
 }
 
 // DeviceMode is equivalent to a traits.ElectricMode, but with irrelevant fields removed and

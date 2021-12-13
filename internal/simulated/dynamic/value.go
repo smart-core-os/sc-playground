@@ -10,18 +10,20 @@ import (
 
 // Value is a float32 that can change over time.
 type Value struct {
-	value *broadcast.Variable
-	clock clock.Clock
+	value    *broadcast.Variable
+	clock    clock.Clock
+	interval time.Duration
 
 	stopInterp  context.CancelFunc
 	stopProfile context.CancelFunc
 	stopM       sync.RWMutex
 }
 
-func NewValue(initial float32, c clock.Clock) *Value {
+func NewValue(initial float32, c clock.Clock, updateInterval time.Duration) *Value {
 	return &Value{
-		value: broadcast.NewVariable(c, initial),
-		clock: c,
+		value:    broadcast.NewVariable(c, initial),
+		clock:    c,
+		interval: updateInterval,
 	}
 }
 
@@ -86,7 +88,7 @@ func (l *Value) startInterpolation(ctx context.Context, target float32, d time.D
 	startTime := l.clock.Now()
 
 	go func() {
-		every := l.clock.Every(UpdateRate)
+		every := l.clock.Every(l.interval)
 		defer every.Stop()
 		defer cancel()
 

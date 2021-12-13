@@ -4,4 +4,4 @@ package dynamic
 
 import "time"
 
-const UpdateRate = 100 * time.Millisecond
+const DefaultUpdateInterval = 100 * time.Millisecond
