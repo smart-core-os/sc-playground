@@ -9,17 +9,12 @@ require (
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/olebedev/emitter v0.0.0-20190110104742-e8d1457e6aee
 	github.com/rs/cors v1.7.0
-	github.com/smart-core-os/sc-api/go v1.0.0-beta.26
-	github.com/smart-core-os/sc-golang v0.0.0-20211207173133-6f842bd5575a
+	github.com/smart-core-os/sc-api/go v1.0.0-beta.27
+	github.com/smart-core-os/sc-golang v0.0.0-20211213113914-38dc24e383ce
 	github.com/soheilhy/cmux v0.1.5
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	google.golang.org/grpc v1.38.0
 	google.golang.org/protobuf v1.26.0
 	nhooyr.io/websocket v1.8.7 // indirect
-)
-
-replace (
-	github.com/smart-core-os/sc-api/go => github.com/smart-core-os/sc-api/go v1.0.0-beta.26.0.20211129083553-12fbc9816ef7
-	github.com/smart-core-os/sc-golang => github.com/smart-core-os/sc-golang v0.0.0-20211207173133-6f842bd5575a
 )

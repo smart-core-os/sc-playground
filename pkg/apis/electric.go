@@ -18,10 +18,11 @@ func ElectricApi() server.GrpcApi {
 		log.Printf("Creating ElectricClient(%v)", name)
 		device := electric.NewMemoryDevice()
 		// seed with a random load
+		var voltage float32 = 240
 		_, _ = device.UpdateDemand(context.Background(), &electric.UpdateDemandRequest{
 			Demand: &traits.ElectricDemand{
 				Rating:  60,
-				Voltage: 240,
+				Voltage: &voltage,
 				Current: float32(math.Round(rand.Float64()*40*100) / 100),
 			},
 		})
