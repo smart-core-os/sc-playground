@@ -12,6 +12,7 @@ require (
 	github.com/smart-core-os/sc-api/go v1.0.0-beta.27
 	github.com/smart-core-os/sc-golang v0.0.0-20211213113914-38dc24e383ce
 	github.com/soheilhy/cmux v0.1.5
+	go.uber.org/zap v1.19.1
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	google.golang.org/grpc v1.38.0

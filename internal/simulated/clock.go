@@ -206,3 +206,35 @@ func (t ticker) Stop() {
 	t.stop <- struct{}{}
 	close(t.stop)
 }
+
+// SimulateFor will advance the simulated clock through the total duration specified.
+// The clock will only ever be advanced to its next event. If the clock has no pending event, then it will be advanced
+// by defaultStep.
+// SimulateFor does not insert any real-time delays, so the simulation will complete as fast as possible.
+// This function is useful in tests, or offline simulations.
+func SimulateFor(clk *Clock, duration time.Duration, defaultStep time.Duration) {
+	var next time.Duration
+	for duration > 0 {
+		duration -= next
+
+		var ok bool
+		next, ok = clk.Advance(next)
+		if !ok {
+			next = defaultStep
+		}
+	}
+}
+
+// SimulateUntilIdle will repeatedly advance the clock to the next pending event, until there are no more pending
+// events.
+func SimulateUntilIdle(clk *Clock) {
+	var next time.Duration
+	for {
+		var ok bool
+		next, ok = clk.Advance(next)
+
+		if !ok {
+			break
+		}
+	}
+}

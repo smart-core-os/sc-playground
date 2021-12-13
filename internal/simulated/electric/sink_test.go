@@ -2,20 +2,23 @@ package electric
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
+	"github.com/smart-core-os/sc-playground/internal/simulated"
 	"github.com/smart-core-os/sc-playground/internal/simulated/dynamic"
-	"github.com/smart-core-os/sc-playground/internal/util/clock"
+	"go.uber.org/zap"
 	"time"
 )
 
 func ExampleSink() {
+	zap.ReplaceGlobals(zap.NewExample())
+
 	// create device
 	dev := electric.NewMemoryDevice()
 	api := electric.Wrap(dev)
 	mem := electric.WrapMemorySettings(dev)
-	clk := clock.Real()
+	clk := simulated.NewClock(time.Now())
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -23,12 +26,6 @@ func ExampleSink() {
 	sink := NewSink(api, mem, "ELEC-001",
 		WithClock(clk),
 		WithRampDuration(100*time.Millisecond))
-	go func() {
-		err := sink.Simulate(ctx)
-		if err != nil && !errors.Is(err, context.Canceled) {
-			panic(err)
-		}
-	}()
 
 	mode, err := sink.CreateMode(ctx, DeviceMode{
 		Title:       "On",
@@ -47,7 +44,15 @@ func ExampleSink() {
 		panic(err)
 	}
 
+	go func() {
+		err := sink.Simulate(ctx)
+		if err != nil && !errors.Is(err, context.Canceled) {
+			panic(err)
+		}
+	}()
+
 	// wait for the mode to take effect
+	simulated.SimulateFor(clk, 1*time.Second, 100*time.Millisecond)
 	time.Sleep(1 * time.Second)
 
 	fmt.Println(sink.GetDemand())

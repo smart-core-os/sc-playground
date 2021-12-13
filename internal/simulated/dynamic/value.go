@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/smart-core-os/sc-playground/internal/util/broadcast"
 	"github.com/smart-core-os/sc-playground/internal/util/clock"
+	"go.uber.org/zap"
 	"sync"
 	"time"
 )
@@ -13,6 +14,7 @@ type Float32Option func(value *Float32)
 var DefaultFloat32Options = []Float32Option{
 	WithUpdateInterval(DefaultUpdateInterval),
 	WithClock(clock.Real()),
+	WithLogger(zap.NewNop()), // logging output from a Float32 is not useful in most cases so discard by default
 }
 
 // Float32 is a float32 that can change over time.
@@ -22,6 +24,7 @@ type Float32 struct {
 	// configuration options
 	clock    clock.Clock
 	interval time.Duration
+	logger   *zap.Logger
 
 	// manages running interpolations and profiles
 	stopInterp  context.CancelFunc
@@ -64,6 +67,9 @@ func (f *Float32) Get() float32 {
 
 // Set will change this Float32 to a constant level. Any interpolations or profiles currently running will be stopped.
 func (f *Float32) Set(value float32) {
+	f.logger.Debug("set value of Float32 to constant",
+		zap.Float32("value", value))
+
 	f.Stop()
 	f.variable.Set(value)
 }
@@ -117,15 +123,23 @@ func (f *Float32) startInterpolation(ctx context.Context, target float32, d time
 				if proportion > 1 {
 					proportion = 1
 				}
-				newLoad := startPoint + proportion*(target-startPoint)
+				newValue := startPoint + proportion*(target-startPoint)
 
-				f.variable.Set(newLoad)
+				f.logger.Debug("interpolated Float32",
+					zap.Float32("proportion", proportion),
+					zap.Float32("value", newValue))
 
-				if runDuration > d {
+				f.variable.Set(newValue)
+
+				if proportion >= 1 {
 					// cancel once we reach the end
+					f.logger.Debug("interpolation complete",
+						zap.Duration("runDuration", runDuration))
 					return
 				}
 			case <-ctx.Done():
+				f.logger.Debug("context cancelled",
+					zap.Error(ctx.Err()))
 				return
 			}
 		}
@@ -199,5 +213,11 @@ func WithClock(clk clock.Clock) Float32Option {
 func WithUpdateInterval(interval time.Duration) Float32Option {
 	return func(f *Float32) {
 		f.interval = interval
+	}
+}
+
+func WithLogger(logger *zap.Logger) Float32Option {
+	return func(f *Float32) {
+		f.logger = logger
 	}
 }

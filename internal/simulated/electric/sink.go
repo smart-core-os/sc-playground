@@ -9,6 +9,7 @@ import (
 	"github.com/smart-core-os/sc-playground/internal/simulated/dynamic"
 	"github.com/smart-core-os/sc-playground/internal/util/broadcast"
 	"github.com/smart-core-os/sc-playground/internal/util/clock"
+	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"log"
@@ -28,6 +29,7 @@ var DefaultSinkOptions = []SinkOption{
 	WithInitialLoad(0),
 	WithClock(clock.Real()),
 	WithUpdateInterval(DefaultUpdateInterval),
+	WithLogger(zap.L()),
 }
 
 // Sink is a simulation wrapper for an electric device that consumes power and doesn't distribute it
@@ -46,6 +48,7 @@ type Sink struct {
 	clock          clock.Clock
 	initialLoad    float32
 	updateInterval time.Duration
+	logger         *zap.Logger
 
 	// keeps track of the load value during operation
 	load *dynamic.Float32
@@ -211,8 +214,12 @@ func (s *Sink) runUpdateDemand(ctx context.Context) error {
 			return ctx.Err()
 
 		case event := <-listener.C:
+			current := event.NewValue.(float32)
+			s.logger.Debug("sink device load changed",
+				zap.Float32("load", current))
+
 			update := &traits.ElectricDemand{
-				Current: event.NewValue.(float32),
+				Current: current,
 			}
 
 			mask, err := fieldmaskpb.New(update, "current")
@@ -253,6 +260,8 @@ func (s *Sink) runUpdateMode(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("can't get initial mode: %w", err)
 	}
+	s.logger.Debug("simulating initial mode",
+		zap.Any("mode", res))
 
 	// start the simulation of the initial mode
 	currentMode := res.Id
@@ -287,6 +296,9 @@ func (s *Sink) runUpdateMode(ctx context.Context) error {
 
 			// simulate the new mode
 			currentMode = newMode.Id
+			s.logger.Debug("sink switching mode",
+				zap.Any("mode", newMode))
+
 			err = s.simulateMode(ctx, newMode)
 			if err != nil {
 				return fmt.Errorf("can't simulate the new mode: %w", err)
@@ -325,6 +337,12 @@ func WithClock(clk clock.Clock) SinkOption {
 func WithUpdateInterval(interval time.Duration) SinkOption {
 	return func(sink *Sink) {
 		sink.updateInterval = interval
+	}
+}
+
+func WithLogger(logger *zap.Logger) SinkOption {
+	return func(sink *Sink) {
+		sink.logger = logger
 	}
 }
 
