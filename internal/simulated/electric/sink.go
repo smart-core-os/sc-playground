@@ -48,7 +48,7 @@ type Sink struct {
 	updateInterval time.Duration
 
 	// keeps track of the load value during operation
-	load *dynamic.Value
+	load *dynamic.Float32
 
 	createNormal sync.Once // used to ensure the default mode is created only once
 	normalId     string
@@ -57,9 +57,9 @@ type Sink struct {
 // NewSink constructs a Sink.
 // The gRPC clients api and memory must control the same underlying device when provided with the same device name.
 // The Sink is designed for use with an electric.MemoryDevice, which does this.
-// The clock c must provide time that is consistent with any timestamps etc. returned by calls to the gRPC APIs.
+// If a clock is configured with WithClock, its timestamps must be consistent with those returned by the gRPC clients.
 // When interacting with a remote device not under the control of local simulation, you likely need to use
-// clock.Real.
+// clock.Real, which is the default.
 func NewSink(api traits.ElectricApiClient, memory electric.MemorySettingsApiClient, name string, options ...SinkOption) *Sink {
 	s := &Sink{
 		api:    api,
@@ -74,7 +74,10 @@ func NewSink(api traits.ElectricApiClient, memory electric.MemorySettingsApiClie
 		opt(s)
 	}
 
-	s.load = dynamic.NewValue(s.initialLoad, s.clock, s.updateInterval)
+	s.load = dynamic.NewFloat32(s.initialLoad,
+		dynamic.WithUpdateInterval(s.updateInterval),
+		dynamic.WithClock(s.clock),
+	)
 
 	return s
 }

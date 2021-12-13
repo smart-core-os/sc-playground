@@ -22,7 +22,7 @@ func ExampleSink() {
 	// connect sink to control the device and create a mode
 	sink := NewSink(api, mem, "ELEC-001",
 		WithClock(clk),
-		WithRampDuration(0))
+		WithRampDuration(100*time.Millisecond))
 	go func() {
 		err := sink.Simulate(ctx)
 		if err != nil && !errors.Is(err, context.Canceled) {
