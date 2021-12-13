@@ -1,4 +1,4 @@
-package simulated
+package electric
 
 import (
 	"context"
@@ -16,14 +16,14 @@ import (
 	"time"
 )
 
-const rampDuration = 5 * time.Second
+const DefaultRampDuration = 5 * time.Second
 
-// ElectricSink is a simulation wrapper for an electric device that consumes power and doesn't distribute it
+// Sink is a simulation wrapper for an electric device that consumes power and doesn't distribute it
 // to any other Smart Core electric devices (it sinks power). In other words, it represents the leaf nodes of the power
 // distribution tree.
-// The ElectricSink does not store its own state - it is designed to be backed by an electric.MemoryDevice from sc-golang,
+// The Sink does not store its own state - it is designed to be backed by an electric.MemoryDevice from sc-golang,
 // but any device that implements the electric API and the electric memory settings API correctly could be used.
-type ElectricSink struct {
+type Sink struct {
 	api    traits.ElectricApiClient
 	memory electric.MemorySettingsApiClient
 	name   string
@@ -33,14 +33,14 @@ type ElectricSink struct {
 	normalId     string
 }
 
-// NewElectricSink constructs an ElectricSink.
+// NewSink constructs a Sink.
 // The gRPC clients api and memory must control the same underlying device when provided with the same device name.
-// The ElectricSink is designed for use with an electric.MemoryDevice, which does this.
+// The Sink is designed for use with an electric.MemoryDevice, which does this.
 // The clock c must provide time that is consistent with any timestamps etc. returned by calls to the gRPC APIs.
 // When interacting with a remote device not under the control of local simulation, you likely need to use
 // clock.Real.
-func NewElectricSink(c clock.Clock, api traits.ElectricApiClient, memory electric.MemorySettingsApiClient, name string) *ElectricSink {
-	s := &ElectricSink{
+func NewSink(c clock.Clock, api traits.ElectricApiClient, memory electric.MemorySettingsApiClient, name string) *Sink {
+	s := &Sink{
 		api:    api,
 		memory: memory,
 		name:   name,
@@ -52,7 +52,7 @@ func NewElectricSink(c clock.Clock, api traits.ElectricApiClient, memory electri
 
 // SetNormalMode updates (and creates if necessary) the normal mode for the device.
 // Each electric device is permitted to have at most one mode annotated as normal - this API modifies that mode.
-func (s *ElectricSink) SetNormalMode(ctx context.Context, mode ElectricDeviceMode) (*traits.ElectricMode, error) {
+func (s *Sink) SetNormalMode(ctx context.Context, mode DeviceMode) (*traits.ElectricMode, error) {
 	var err error
 	// create the default mode if it has not already been created
 	s.createNormal.Do(func() {
@@ -72,7 +72,7 @@ func (s *ElectricSink) SetNormalMode(ctx context.Context, mode ElectricDeviceMod
 	if err != nil {
 		return nil, fmt.Errorf("failed to create a normal mode: %w", err)
 	} else if s.normalId == "" {
-		return nil, errors.New("the first call to SetNormalMode failed to create the mode; create a new ElectricSink")
+		return nil, errors.New("the first call to SetNormalMode failed to create the mode; create a new Sink")
 	}
 
 	protoMode := mode.ToProto()
@@ -96,9 +96,21 @@ func (s *ElectricSink) SetNormalMode(ctx context.Context, mode ElectricDeviceMod
 	return protoMode, nil
 }
 
+// CreateMode will add a new mode to the device. The mode is a non-normal mode.
+// Returns the populated protobuf traits.ElectricMode, which contains the new mode's ID.
+func (s *Sink) CreateMode(ctx context.Context, mode DeviceMode) (*traits.ElectricMode, error) {
+	req := &electric.CreateModeRequest{
+		Name: s.name,
+		Mode: mode.ToProto(),
+	}
+
+	created, err := s.memory.CreateMode(ctx, req)
+	return created, err
+}
+
 // ChangeMode will switch to the mode with ID modeId. If that mode does not exist on the device, an error
 // will result. Mode IDs are not guaranteed to be consistent from run to run.
-func (s *ElectricSink) ChangeMode(ctx context.Context, modeId string) (*traits.ElectricMode, error) {
+func (s *Sink) ChangeMode(ctx context.Context, modeId string) (*traits.ElectricMode, error) {
 	mode := &traits.ElectricMode{Id: modeId}
 	mask, err := fieldmaskpb.New(mode, "id")
 	if err != nil {
@@ -120,22 +132,27 @@ func (s *ElectricSink) ChangeMode(ctx context.Context, modeId string) (*traits.E
 
 // ClearMode will switch the device to its normal mode. It is an error to clear a device
 // if its normal mode has not been set.
-func (s *ElectricSink) ClearMode(ctx context.Context) (*traits.ElectricMode, error) {
+func (s *Sink) ClearMode(ctx context.Context) (*traits.ElectricMode, error) {
 	mode, err := s.api.ClearActiveMode(ctx, &traits.ClearActiveModeRequest{
 		Name: s.name,
 	})
 	return mode, err
 }
 
+// GetDemand gets the demand, in Amps, that this device is currently placing on the electricity network.
+func (s *Sink) GetDemand() float32 {
+	return s.load.Get()
+}
+
 // ListenDemand creates a listener that issues updates every time the underlying load changes.
 // The values are always float32.
-func (s *ElectricSink) ListenDemand() *broadcast.Listener {
+func (s *Sink) ListenDemand() *broadcast.Listener {
 	return s.load.Listen()
 }
 
 // Simulate will run profiles in real time when the underlying memory device changes modes, and will
 // update the memory device's demand accordingly. Blocks until the context is cancelled or an error occurs.
-func (s *ElectricSink) Simulate(ctx context.Context) error {
+func (s *Sink) Simulate(ctx context.Context) error {
 	var group *errgroup.Group
 	group, ctx = errgroup.WithContext(ctx)
 
@@ -152,7 +169,7 @@ func (s *ElectricSink) Simulate(ctx context.Context) error {
 
 // runUpdateDemand spawns a worker goroutine that updates the Memory Device with the new demand
 // whenever the simulated load value changes.
-func (s *ElectricSink) runUpdateDemand(ctx context.Context) error {
+func (s *Sink) runUpdateDemand(ctx context.Context) error {
 	listener := s.load.Listen()
 
 	defer listener.Close()
@@ -188,7 +205,7 @@ func (s *ElectricSink) runUpdateDemand(ctx context.Context) error {
 // runUpdateMode spawns a worker goroutine that changes the profile being simulated by the load
 // based on the mode selected by the memory device.
 // Runs until an error occurs or the context is cancelled.
-func (s *ElectricSink) runUpdateMode(ctx context.Context) error {
+func (s *Sink) runUpdateMode(ctx context.Context) error {
 	// open a stream to get mode changes
 	stream, err := s.api.PullActiveMode(ctx, &traits.PullActiveModeRequest{
 		Name: s.name,
@@ -246,29 +263,29 @@ func (s *ElectricSink) runUpdateMode(ctx context.Context) error {
 	}
 }
 
-func (s *ElectricSink) simulateMode(ctx context.Context, mode *traits.ElectricMode) error {
-	profile := ElectricDeviceModeFromProto(mode).Profile
-	_ = s.load.StartProfile(ctx, profile, rampDuration)
+func (s *Sink) simulateMode(ctx context.Context, mode *traits.ElectricMode) error {
+	profile := DeviceModeFromProto(mode).Profile
+	_ = s.load.StartProfile(ctx, profile, DefaultRampDuration)
 	return nil
 }
 
-// ElectricDeviceMode is equivalent to a traits.ElectricMode, but with irrelevant fields removed and
+// DeviceMode is equivalent to a traits.ElectricMode, but with irrelevant fields removed and
 // using a dynamic.Profile.
-type ElectricDeviceMode struct {
+type DeviceMode struct {
 	Title       string
 	Description string
 	Profile     dynamic.Profile
 }
 
-func ElectricDeviceModeFromProto(mode *traits.ElectricMode) ElectricDeviceMode {
-	return ElectricDeviceMode{
+func DeviceModeFromProto(mode *traits.ElectricMode) DeviceMode {
+	return DeviceMode{
 		Title:       mode.Title,
 		Description: mode.Description,
 		Profile:     dynamic.ProfileFromProto(mode),
 	}
 }
 
-func (m *ElectricDeviceMode) ToProto() *traits.ElectricMode {
+func (m *DeviceMode) ToProto() *traits.ElectricMode {
 	return &traits.ElectricMode{
 		Title:       m.Title,
 		Description: m.Description,
