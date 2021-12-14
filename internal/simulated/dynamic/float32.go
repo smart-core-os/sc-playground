@@ -86,7 +86,7 @@ func (f *Float32) Listen() *broadcast.Listener {
 // their place.
 // Cancel ctx to halt the interpolation - the Float32 will freeze as-is.
 // The returned context (which inherits from the provided ctx) will be cancelled when the interpolation stops.
-func (f *Float32) StartInterpolation(ctx context.Context, target float32, d time.Duration) context.Context {
+func (f *Float32) StartInterpolation(ctx context.Context, target float32, d time.Duration) Completion {
 	return f.startInterpolation(ctx, target, d, true)
 }
 
@@ -154,7 +154,7 @@ func (f *Float32) startInterpolation(ctx context.Context, target float32, d time
 // Cancel ctx to stop the profile from running. The value will be frozen as-is.
 // The returned context.Context (which inherits from ctx) will be cancelled once the profile has finished simulating
 // and the Float32 has reached profile.FinalLevel
-func (f *Float32) StartProfile(ctx context.Context, profile Profile, change time.Duration) context.Context {
+func (f *Float32) StartProfile(ctx context.Context, profile Profile, change time.Duration) Completion {
 	ctx, cancel := context.WithCancel(ctx)
 	func() {
 		f.stopM.Lock()
