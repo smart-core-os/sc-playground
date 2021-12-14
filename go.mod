@@ -8,6 +8,7 @@ require (
 	github.com/improbable-eng/grpc-web v0.14.0
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/olebedev/emitter v0.0.0-20190110104742-e8d1457e6aee
+	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.7.0
 	github.com/smart-core-os/sc-api/go v1.0.0-beta.27
 	github.com/smart-core-os/sc-golang v0.0.0-20211213113914-38dc24e383ce
