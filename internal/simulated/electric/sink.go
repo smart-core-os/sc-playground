@@ -80,6 +80,7 @@ func NewSink(api traits.ElectricApiClient, memory electric.MemorySettingsApiClie
 	s.load = dynamic.NewFloat32(s.initialLoad,
 		dynamic.WithUpdateInterval(s.updateInterval),
 		dynamic.WithClock(s.clock),
+		dynamic.WithLogger(s.logger),
 	)
 
 	return s
@@ -101,7 +102,14 @@ func (s *Sink) SetNormalMode(ctx context.Context, mode DeviceMode) (*traits.Elec
 			},
 		})
 
+		if err != nil {
+			return
+		}
+
 		s.normalId = created.Id
+
+		s.logger.Info("created normal electric mode",
+			zap.String("modeId", created.Id))
 	})
 
 	if err != nil {
@@ -128,6 +136,7 @@ func (s *Sink) SetNormalMode(ctx context.Context, mode DeviceMode) (*traits.Elec
 	if err != nil {
 		return nil, fmt.Errorf("failed to update mode %s: %w", s.normalId, err)
 	}
+	s.logger.Info("updated normal mode", zap.String("modeId", protoMode.Id))
 	return protoMode, nil
 }
 
@@ -140,7 +149,11 @@ func (s *Sink) CreateMode(ctx context.Context, mode DeviceMode) (*traits.Electri
 	}
 
 	created, err := s.memory.CreateMode(ctx, req)
-	return created, err
+	if err != nil {
+		return nil, err
+	}
+	s.logger.Info("created electric mode", zap.String("modeId", created.Id))
+	return created, nil
 }
 
 // ChangeMode will switch to the mode with ID modeId. If that mode does not exist on the device, an error
@@ -162,6 +175,7 @@ func (s *Sink) ChangeMode(ctx context.Context, modeId string) (*traits.ElectricM
 	if err != nil {
 		return nil, err
 	}
+	s.logger.Info("changed active electric mode", zap.String("modeId", mode.Id))
 	return mode, nil
 }
 
@@ -171,7 +185,11 @@ func (s *Sink) ClearMode(ctx context.Context) (*traits.ElectricMode, error) {
 	mode, err := s.api.ClearActiveMode(ctx, &traits.ClearActiveModeRequest{
 		Name: s.name,
 	})
-	return mode, err
+	if err != nil {
+		return nil, err
+	}
+	s.logger.Info("changed active electric mode to default", zap.String("modeId", mode.Id))
+	return mode, nil
 }
 
 // GetDemand gets the demand, in Amps, that this device is currently placing on the electricity network.
@@ -237,6 +255,8 @@ func (s *Sink) runUpdateDemand(ctx context.Context) error {
 			if err != nil {
 				return fmt.Errorf("failed to update demand on the memory device: %w", err)
 			}
+
+			s.logger.Debug("updated electric memory device demand", zap.Float32("demand", current))
 		}
 	}
 }
@@ -260,8 +280,6 @@ func (s *Sink) runUpdateMode(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("can't get initial mode: %w", err)
 	}
-	s.logger.Debug("simulating initial mode",
-		zap.Any("mode", res))
 
 	// start the simulation of the initial mode
 	currentMode := res.Id
@@ -296,8 +314,6 @@ func (s *Sink) runUpdateMode(ctx context.Context) error {
 
 			// simulate the new mode
 			currentMode = newMode.Id
-			s.logger.Debug("sink switching mode",
-				zap.Any("mode", newMode))
 
 			err = s.simulateMode(ctx, newMode)
 			if err != nil {
@@ -308,8 +324,11 @@ func (s *Sink) runUpdateMode(ctx context.Context) error {
 }
 
 func (s *Sink) simulateMode(ctx context.Context, mode *traits.ElectricMode) error {
+	s.logger.Info("sink switching mode",
+		zap.Reflect("mode", mode))
+
 	profile := DeviceModeFromProto(mode).Profile
-	_ = s.load.StartProfile(ctx, profile, DefaultRampDuration)
+	_ = s.load.StartProfile(ctx, profile, s.rampDuration)
 	return nil
 }
 
@@ -342,7 +361,7 @@ func WithUpdateInterval(interval time.Duration) SinkOption {
 
 func WithLogger(logger *zap.Logger) SinkOption {
 	return func(sink *Sink) {
-		sink.logger = logger
+		sink.logger = logger.With(zap.String("deviceName", sink.name))
 	}
 }
 

@@ -177,6 +177,7 @@ func (f *Float32) StartProfile(ctx context.Context, profile Profile, change time
 			select {
 			case <-f.clock.At(nextTime):
 			case <-ctx.Done():
+				f.logger.Debug("profile cancelled", zap.Error(ctx.Err()))
 				return
 			}
 
@@ -190,6 +191,12 @@ func (f *Float32) StartProfile(ctx context.Context, profile Profile, change time
 				c = segment.Duration
 			}
 
+			f.logger.Debug("starting new segment",
+				zap.Float32("level", segment.Level),
+				zap.Duration("duration", segment.Duration),
+				zap.Duration("change", c),
+			)
+
 			_ = f.startInterpolation(ctx, segment.Level, c, false)
 
 			nextTime = nextTime.Add(segment.Duration)
@@ -197,7 +204,12 @@ func (f *Float32) StartProfile(ctx context.Context, profile Profile, change time
 		}
 
 		// interpolate to final value, wait for it to finish
+		f.logger.Debug("switching to FinalLevel",
+			zap.Float32("level", profile.FinalLevel),
+			zap.Duration("change", change),
+		)
 		<-f.startInterpolation(ctx, profile.FinalLevel, change, false).Done()
+		f.logger.Debug("profile complete")
 	}()
 
 	return ctx

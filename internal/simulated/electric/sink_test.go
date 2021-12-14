@@ -7,13 +7,10 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
 	"github.com/smart-core-os/sc-playground/internal/simulated"
 	"github.com/smart-core-os/sc-playground/internal/simulated/dynamic"
-	"go.uber.org/zap"
 	"time"
 )
 
 func ExampleSink() {
-	zap.ReplaceGlobals(zap.NewExample())
-
 	// create device
 	dev := electric.NewMemoryDevice()
 	api := electric.Wrap(dev)
