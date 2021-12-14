@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
-	"github.com/smart-core-os/sc-playground/internal/simulated"
 	"github.com/smart-core-os/sc-playground/internal/simulated/dynamic"
+	"github.com/smart-core-os/sc-playground/internal/util/clock"
 	"time"
 )
 
@@ -15,14 +15,15 @@ func ExampleSink() {
 	dev := electric.NewMemoryDevice()
 	api := electric.Wrap(dev)
 	mem := electric.WrapMemorySettings(dev)
-	clk := simulated.NewClock(time.Now())
+	clk := clock.Real()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	// connect sink to control the device and create a mode
 	sink := NewSink(api, mem, "ELEC-001",
 		WithClock(clk),
-		WithRampDuration(100*time.Millisecond))
+		WithRampDuration(100*time.Millisecond),
+	)
 
 	mode, err := sink.CreateMode(ctx, DeviceMode{
 		Title:       "On",
@@ -49,7 +50,6 @@ func ExampleSink() {
 	}()
 
 	// wait for the mode to take effect
-	simulated.SimulateFor(clk, 1*time.Second, 100*time.Millisecond)
 	time.Sleep(1 * time.Second)
 
 	fmt.Println(sink.GetDemand())

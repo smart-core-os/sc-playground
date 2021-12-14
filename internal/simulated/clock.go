@@ -11,6 +11,12 @@ import (
 // The Clock can be stopped (as defined in clock.Clock) by calling Stop. After it has been stopped, it is forbidden
 // to call any methods on the clock. You must call Stop after you have finished using the Clock, or a goroutine
 // will be leaked.
+//
+// Deprecated: Simulated clock will be replace with a timeline-based record/replay system in future iterations
+// of the playground. Known issues with Clock:
+//   - Does not allow reversing time (going back to a previous state)
+//   - Cannot be used to run a simulation as fast a possible, due to race conditions; it can
+//     only be used to accelerate / slow down real time.
 type Clock struct {
 	// state accessible directly from the clock.Clock functions, to allow Now to work.
 	timeM sync.RWMutex
