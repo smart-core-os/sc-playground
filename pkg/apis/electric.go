@@ -27,19 +27,39 @@ func ElectricApi() server.GrpcApi {
 				Current: float32(math.Round(rand.Float64()*40*100) / 100),
 			},
 		})
-		_, _ = device.CreateMode(context.Background(), &electric.CreateModeRequest{
-			Mode: &traits.ElectricMode{
-				Title:  "Normal Operation",
-				Normal: true,
-				Segments: []*traits.ElectricMode_Segment{
-					{Magnitude: rating},
-				},
-			},
-		})
-		// set the active mode to the one we just created (normal mode)
+		createElectricModes(device, rating)
+		// set the active mode to the default one we just created (normal mode)
 		_, _ = device.ClearActiveMode(context.Background(), &traits.ClearActiveModeRequest{})
 		settings.Add(name, electric.WrapMemorySettings(device))
 		return electric.Wrap(device), nil
 	}
 	return server.Collection(devices, settings)
+}
+
+func createElectricModes(device *electric.MemoryDevice, rating float32) {
+	_, _ = device.CreateMode(context.Background(), &electric.CreateModeRequest{
+		Mode: &traits.ElectricMode{
+			Title:  "Normal Operation",
+			Normal: true,
+			Segments: []*traits.ElectricMode_Segment{
+				{Magnitude: rating},
+			},
+		},
+	})
+	_, _ = device.CreateMode(context.Background(), &electric.CreateModeRequest{
+		Mode: &traits.ElectricMode{
+			Title: "Eco",
+			Segments: []*traits.ElectricMode_Segment{
+				{Magnitude: rating / 2},
+			},
+		},
+	})
+	_, _ = device.CreateMode(context.Background(), &electric.CreateModeRequest{
+		Mode: &traits.ElectricMode{
+			Title: "Quick Boot",
+			Segments: []*traits.ElectricMode_Segment{
+				{Magnitude: rating * 1.3},
+			},
+		},
+	})
 }
