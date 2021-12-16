@@ -5,10 +5,12 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"time"
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/server"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 func ElectricApi() server.GrpcApi {
@@ -50,7 +52,9 @@ func createElectricModes(device *electric.MemoryDevice, rating float32) {
 		Mode: &traits.ElectricMode{
 			Title: "Eco",
 			Segments: []*traits.ElectricMode_Segment{
-				{Magnitude: rating / 2},
+				{Magnitude: rating * 0.3, Length: durationpb.New(60 * time.Second)},
+				{Magnitude: rating * 0.9, Length: durationpb.New(10 * time.Second)},
+				{Magnitude: rating * 0.8},
 			},
 		},
 	})
@@ -58,7 +62,8 @@ func createElectricModes(device *electric.MemoryDevice, rating float32) {
 		Mode: &traits.ElectricMode{
 			Title: "Quick Boot",
 			Segments: []*traits.ElectricMode_Segment{
-				{Magnitude: rating * 1.3},
+				{Magnitude: rating * 1.3, Length: durationpb.New(30 * time.Second)},
+				{Magnitude: rating},
 			},
 		},
 	})
