@@ -4,54 +4,51 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
+	"github.com/smart-core-os/sc-api/go/traits"
+	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
-	"github.com/smart-core-os/sc-playground/internal/simulated/dynamic"
-	"github.com/smart-core-os/sc-playground/internal/util/clock"
+	"log"
 	"time"
 )
 
 func ExampleSink() {
-	// create device
-	dev := electric.NewMemoryDevice()
-	api := electric.Wrap(dev)
-	mem := electric.WrapMemorySettings(dev)
 	clk := clock.Real()
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// connect sink to control the device and create a mode
-	sink := NewSink(api, mem, "ELEC-001",
+	mem := electric.NewMemory(clk)
+	sink := NewSink(mem,
 		WithClock(clk),
 		WithRampDuration(100*time.Millisecond),
 	)
 
-	mode, err := sink.CreateMode(ctx, DeviceMode{
+	// create a new normal mode
+	mode, err := mem.CreateMode(&traits.ElectricMode{
 		Title:       "On",
 		Description: "Device is powered on",
-		Profile: dynamic.Profile{
-			FinalLevel: 10,
+		Segments: []*traits.ElectricMode_Segment{
+			{Magnitude: 10}, // maintain 10 amps indefinitely
 		},
+		Normal: true,
 	})
 	if err != nil {
 		panic(err)
 	}
+	log.Println("Mode id:", mode.Id)
 
-	// select the new mode
-	_, err = sink.ChangeMode(ctx, mode.Id)
+	// activate the normal mode
+	_, err = mem.ChangeToNormalMode()
 	if err != nil {
 		panic(err)
 	}
 
-	go func() {
-		err := sink.Simulate(ctx)
-		if err != nil && !errors.Is(err, context.Canceled) {
-			panic(err)
-		}
-	}()
+	// run the simulation for 1 second
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
 
-	// wait for the mode to take effect
-	time.Sleep(1 * time.Second)
+	err = sink.Simulate(ctx)
+	if err != nil && !errors.Is(err, context.DeadlineExceeded) {
+		panic(err) // unexpected error in simulation
+	}
 
+	// log final current
 	fmt.Println(sink.GetDemand())
 
 	// Output: 10

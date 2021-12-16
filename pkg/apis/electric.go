@@ -2,6 +2,7 @@ package apis
 
 import (
 	"context"
+	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"log"
 	"math"
 	"math/rand"
@@ -18,7 +19,8 @@ func ElectricApi() server.GrpcApi {
 	settings := electric.NewMemorySettingsRouter()
 	devices.Factory = func(name string) (traits.ElectricApiClient, error) {
 		log.Printf("Creating ElectricClient(%v)", name)
-		device := electric.NewMemoryDevice()
+		mem := electric.NewMemory(clock.Real())
+		device := electric.NewMemoryDevice(mem)
 		// seed with a random load
 		var voltage float32 = 240
 		var rating float32 = 60
