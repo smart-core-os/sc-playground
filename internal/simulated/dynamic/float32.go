@@ -2,8 +2,8 @@ package dynamic
 
 import (
 	"context"
+	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"github.com/smart-core-os/sc-playground/internal/util/broadcast"
-	"github.com/smart-core-os/sc-playground/internal/util/clock"
 	"go.uber.org/zap"
 	"sync"
 	"time"

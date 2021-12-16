@@ -1,7 +1,7 @@
 package simulated
 
 import (
-	"github.com/smart-core-os/sc-playground/internal/util/clock"
+	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"sync"
 	"time"
 )
@@ -209,6 +209,7 @@ func (t ticker) C() <-chan time.Time {
 }
 
 func (t ticker) Stop() {
+	// send through the channel before closing to synchronise Stop with the goroutine.
 	t.stop <- struct{}{}
 	close(t.stop)
 }

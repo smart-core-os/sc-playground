@@ -2,7 +2,7 @@ package broadcast
 
 import (
 	"github.com/olebedev/emitter"
-	"github.com/smart-core-os/sc-playground/internal/util/clock"
+	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"log"
 	"runtime"
 	"sync"
