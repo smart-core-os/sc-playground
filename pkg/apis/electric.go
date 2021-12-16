@@ -19,11 +19,21 @@ func ElectricApi() server.GrpcApi {
 		device := electric.NewMemoryDevice()
 		// seed with a random load
 		var voltage float32 = 240
+		var rating float32 = 60
 		_, _ = device.UpdateDemand(context.Background(), &electric.UpdateDemandRequest{
 			Demand: &traits.ElectricDemand{
-				Rating:  60,
+				Rating:  rating,
 				Voltage: &voltage,
 				Current: float32(math.Round(rand.Float64()*40*100) / 100),
+			},
+		})
+		_, _ = device.CreateMode(context.Background(), &electric.CreateModeRequest{
+			Mode: &traits.ElectricMode{
+				Title:  "Normal Operation",
+				Normal: true,
+				Segments: []*traits.ElectricMode_Segment{
+					{Magnitude: rating},
+				},
 			},
 		})
 		settings.Add(name, electric.WrapMemorySettings(device))
