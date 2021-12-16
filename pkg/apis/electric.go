@@ -36,6 +36,8 @@ func ElectricApi() server.GrpcApi {
 				},
 			},
 		})
+		// set the active mode to the one we just created (normal mode)
+		_, _ = device.ClearActiveMode(context.Background(), &traits.ClearActiveModeRequest{})
 		settings.Add(name, electric.WrapMemorySettings(device))
 		return electric.Wrap(device), nil
 	}
