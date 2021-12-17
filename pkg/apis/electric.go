@@ -3,9 +3,9 @@ package apis
 import (
 	"context"
 	"github.com/smart-core-os/sc-golang/pkg/time/clock"
+	simelectric "github.com/smart-core-os/sc-playground/internal/simulated/electric"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"log"
-	"math"
-	"math/rand"
 	"time"
 
 	"github.com/smart-core-os/sc-api/go/traits"
@@ -21,52 +21,68 @@ func ElectricApi() server.GrpcApi {
 		log.Printf("Creating ElectricClient(%v)", name)
 		mem := electric.NewMemory(clock.Real())
 		device := electric.NewMemoryDevice(mem)
-		// seed with a random load
+
+		// assign voltage and rating
 		var voltage float32 = 240
 		var rating float32 = 60
-		_, _ = device.UpdateDemand(context.Background(), &electric.UpdateDemandRequest{
-			Demand: &traits.ElectricDemand{
-				Rating:  rating,
+		_, err := mem.UpdateDemand(
+			&traits.ElectricDemand{
 				Voltage: &voltage,
-				Current: float32(math.Round(rand.Float64()*40*100) / 100),
+				Rating:  rating,
 			},
-		})
-		createElectricModes(device, rating)
+			&fieldmaskpb.FieldMask{Paths: []string{"voltage", "rating"}},
+		)
+		if err != nil {
+			log.Printf("error assigning voltage & rating to new device %s: %v", name, err)
+		}
+
+		createElectricModes(mem, rating)
+
 		// set the active mode to the default one we just created (normal mode)
-		_, _ = device.ClearActiveMode(context.Background(), &traits.ClearActiveModeRequest{})
+		_, err = mem.ChangeToNormalMode()
+		if err != nil {
+			log.Printf("error changing to the normal mode on new device %s: %v", name, err)
+		}
+
+		// start the simulation
+		go func() {
+			sink := simelectric.NewSink(mem)
+			err := sink.Simulate(context.Background())
+			if err != nil {
+				log.Printf("electric device %s stopped simulating with an error: %v", name, err)
+			}
+		}()
+
 		settings.Add(name, electric.WrapMemorySettings(device))
 		return electric.Wrap(device), nil
 	}
 	return server.Collection(devices, settings)
 }
 
-func createElectricModes(device *electric.MemoryDevice, rating float32) {
-	_, _ = device.CreateMode(context.Background(), &electric.CreateModeRequest{
-		Mode: &traits.ElectricMode{
-			Title:  "Normal Operation",
-			Normal: true,
-			Segments: []*traits.ElectricMode_Segment{
-				{Magnitude: rating},
-			},
+func createElectricModes(device *electric.Memory, rating float32) {
+	_, _ = device.CreateMode(&traits.ElectricMode{
+		Title:  "Normal Operation",
+		Normal: true,
+		Segments: []*traits.ElectricMode_Segment{
+			{Magnitude: rating},
 		},
-	})
-	_, _ = device.CreateMode(context.Background(), &electric.CreateModeRequest{
-		Mode: &traits.ElectricMode{
-			Title: "Eco",
-			Segments: []*traits.ElectricMode_Segment{
-				{Magnitude: rating * 0.3, Length: durationpb.New(60 * time.Second)},
-				{Magnitude: rating * 0.9, Length: durationpb.New(10 * time.Second)},
-				{Magnitude: rating * 0.8},
-			},
+	},
+	)
+	_, _ = device.CreateMode(&traits.ElectricMode{
+		Title: "Eco",
+		Segments: []*traits.ElectricMode_Segment{
+			{Magnitude: rating * 0.3, Length: durationpb.New(60 * time.Second)},
+			{Magnitude: rating * 0.9, Length: durationpb.New(10 * time.Second)},
+			{Magnitude: rating * 0.8},
 		},
-	})
-	_, _ = device.CreateMode(context.Background(), &electric.CreateModeRequest{
-		Mode: &traits.ElectricMode{
-			Title: "Quick Boot",
-			Segments: []*traits.ElectricMode_Segment{
-				{Magnitude: rating * 1.3, Length: durationpb.New(30 * time.Second)},
-				{Magnitude: rating},
-			},
+	},
+	)
+	_, _ = device.CreateMode(&traits.ElectricMode{
+		Title: "Quick Boot",
+		Segments: []*traits.ElectricMode_Segment{
+			{Magnitude: rating * 1.3, Length: durationpb.New(30 * time.Second)},
+			{Magnitude: rating},
 		},
-	})
+	},
+	)
 }
