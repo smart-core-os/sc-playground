@@ -3,24 +3,25 @@ package electric
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/pkg/errors"
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
-	"log"
-	"time"
 )
 
 func ExampleSink() {
 	clk := clock.Real()
-	mem := electric.NewMemory(clk)
-	sink := NewSink(mem,
+	model := electric.NewModel(clk)
+	sink := NewSink(model,
 		WithClock(clk),
 		WithRampDuration(100*time.Millisecond),
 	)
 
 	// create a new normal mode
-	mode, err := mem.CreateMode(&traits.ElectricMode{
+	mode, err := model.CreateMode(&traits.ElectricMode{
 		Title:       "On",
 		Description: "Device is powered on",
 		Segments: []*traits.ElectricMode_Segment{
@@ -34,7 +35,7 @@ func ExampleSink() {
 	log.Println("Mode id:", mode.Id)
 
 	// activate the normal mode
-	_, err = mem.ChangeToNormalMode()
+	_, err = model.ChangeToNormalMode()
 	if err != nil {
 		panic(err)
 	}
