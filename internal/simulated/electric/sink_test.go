@@ -3,7 +3,6 @@ package electric
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/pkg/errors"
@@ -20,7 +19,7 @@ func ExampleSink() {
 		WithRampDuration(100*time.Millisecond),
 	)
 
-	// create a new normal mode
+	// create a new mode
 	mode, err := model.CreateMode(&traits.ElectricMode{
 		Title:       "On",
 		Description: "Device is powered on",
@@ -32,10 +31,9 @@ func ExampleSink() {
 	if err != nil {
 		panic(err)
 	}
-	log.Println("Mode id:", mode.Id)
 
-	// activate the normal mode
-	_, err = model.ChangeToNormalMode()
+	// activate the mode
+	_, err = model.ChangeActiveMode(mode.Id)
 	if err != nil {
 		panic(err)
 	}

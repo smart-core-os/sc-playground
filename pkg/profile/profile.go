@@ -1,10 +1,12 @@
-package dynamic
+package profile
 
 import (
-	"github.com/smart-core-os/sc-api/go/traits"
-	"github.com/smart-core-os/sc-playground/internal/util/accumulator"
-	"google.golang.org/protobuf/types/known/durationpb"
 	"time"
+
+	"github.com/smart-core-os/sc-api/go/traits"
+	"google.golang.org/protobuf/types/known/durationpb"
+
+	"github.com/smart-core-os/sc-playground/internal/util/accumulator"
 )
 
 // Profile represents a piecewise-constant time series of levels. A Profile is a sequence of Segments.
@@ -12,20 +14,30 @@ import (
 // Segments that have a duration of 0 are not considered to be part of the time series. They may be removed by any
 // operation.
 type Profile struct {
-	Segments   []Segment
+	// Segments are the pieces of the profile, stored in time order. They form a time series, with Segments[0] starting
+	// at time 0, and other segments starting immediately after the previous segment's duration has elapsed.
+	Segments []Segment
+	// FinalLevel is the level of this profile after all Segments are completed. After TotalDuration has elapsed,
+	// the Profile's level will be FinalLevel forever.
 	FinalLevel float32
 }
 
 // Segment is a portion of a time series. It represents a constant Level for a given Duration.
 type Segment struct {
+	// Duration is how long this Segment is in effect for. It's relative to the end of the previous Segment
+	// in a Profile. Duration must be non-negative.
 	Duration time.Duration
 	Level    float32
 }
 
-func ProfileFromProto(electricMode *traits.ElectricMode) Profile {
+// FromProto constructs a profile from the segments in a Smart Core ElectricMode.
+// Levels are taken from ElectricMode_Segment.Magnitude.
+// The FinalLevel is the Magnitude of the final segment in the ElectricMode, if that segment has 0 duration.
+// Otherwise, FinalLevel will be 0.
+func FromProto(electricSegments []*traits.ElectricMode_Segment) Profile {
 	var result Profile
 
-	for _, segment := range electricMode.Segments {
+	for _, segment := range electricSegments {
 		duration := segment.Length.AsDuration()
 		level := segment.Magnitude
 
@@ -37,8 +49,8 @@ func ProfileFromProto(electricMode *traits.ElectricMode) Profile {
 		}
 	}
 
-	if len(electricMode.Segments) != 0 {
-		lastSegment := electricMode.Segments[len(electricMode.Segments)-1]
+	if len(electricSegments) != 0 {
+		lastSegment := electricSegments[len(electricSegments)-1]
 		if lastSegment.Length.AsDuration() == 0 {
 			result.FinalLevel = lastSegment.Magnitude
 		}
@@ -47,6 +59,7 @@ func ProfileFromProto(electricMode *traits.ElectricMode) Profile {
 	return result
 }
 
+// ToProto converts p into a slice of segments that can be used in the Segments field of an ElectricMode.
 func (p Profile) ToProto() []*traits.ElectricMode_Segment {
 	var result []*traits.ElectricMode_Segment
 
@@ -102,6 +115,8 @@ func (p Profile) MaxLevel() float32 {
 	return max
 }
 
+// TotalDuration returns the sum of the Duration in all Segments.
+// Panics if any Segment has a negative Duration.
 func (p Profile) TotalDuration() time.Duration {
 	var duration time.Duration = 0
 	for _, segment := range p.Segments {
@@ -113,6 +128,8 @@ func (p Profile) TotalDuration() time.Duration {
 	return duration
 }
 
+// LevelAfter returns the Level of the segment that is in effect at duration d past the start time of the Profile.
+// If d >= TotalDuration, then FinalLevel is returned.
 func (p Profile) LevelAfter(d time.Duration) float32 {
 	if d < 0 {
 		panic("cannot get level after a negative duration")
@@ -133,10 +150,15 @@ func (p Profile) LevelAfter(d time.Duration) float32 {
 	}
 }
 
+// IsEmpty returns true if there are no segments or all segments have 0 Duration, false otherwise.
 func (p Profile) IsEmpty() bool {
 	return len(p.Segments) == 0 || p.TotalDuration() == 0
 }
 
+// SplitAt splits a Profile into two parts at duration d after the start of the profile.
+// The before profile contains all segments entirely before d, and the after profile contains all segments entirely after
+// d. The segment on the boundary is split between before and after.
+// If p.TotalDuration() >= d, then before.TotalDuration() == d.
 func (p Profile) SplitAt(d time.Duration) (before, after Profile) {
 	before.FinalLevel = 0
 	after.FinalLevel = p.FinalLevel
@@ -200,7 +222,8 @@ func (p Profile) DelayStart(d time.Duration) Profile {
 	return result
 }
 
-func MaxProfile(profiles ...Profile) Profile {
+// Max reduces Profiles by taking the maximum Level at every instant.
+func Max(profiles ...Profile) Profile {
 	max := func(a, b float32) float32 {
 		if a > b {
 			return a
@@ -209,18 +232,22 @@ func MaxProfile(profiles ...Profile) Profile {
 		}
 	}
 
-	return ReduceProfile(max, profiles...)
+	return Reduce(max, profiles...)
 }
 
-func SumProfile(profiles ...Profile) Profile {
+// Sum adds profiles together, such that the level at every time is the sum of the levels of each profile at that time.
+func Sum(profiles ...Profile) Profile {
 	sum := func(a, b float32) float32 {
 		return a + b
 	}
 
-	return ReduceProfile(sum, profiles...)
+	return Reduce(sum, profiles...)
 }
 
-func ReduceProfile(reduce func(acc, level float32) float32, profiles ...Profile) Profile {
+// Reduce will combine profiles together using a provided reduction function.
+// The reduction function (which should be deterministic) is used to combine the values from multiple profiles together.
+// In the returned profile, the level at any instant is the reduction of all the Profiles' levels at that same instant.
+func Reduce(reduce func(acc, level float32) float32, profiles ...Profile) Profile {
 	if len(profiles) == 0 {
 		panic("cannot reduce over an empty profile list")
 	}

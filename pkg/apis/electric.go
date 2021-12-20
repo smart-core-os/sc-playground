@@ -1,12 +1,15 @@
 package apis
 
 import (
+	"context"
 	"log"
 	"math"
 	"math/rand"
 	"time"
 
 	"github.com/smart-core-os/sc-golang/pkg/time/clock"
+
+	simelectric "github.com/smart-core-os/sc-playground/internal/simulated/electric"
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/server"
@@ -17,24 +20,41 @@ import (
 func ElectricApi() server.GrpcApi {
 	devices := electric.NewRouter()
 	settings := electric.NewMemorySettingsRouter()
+
 	devices.Factory = func(name string) (traits.ElectricApiClient, error) {
 		log.Printf("Creating ElectricClient(%v)", name)
 		model := electric.NewModel(clock.Real())
+
 		// seed with a random load
 		var voltage float32 = 240
 		var rating float32 = 60
-		_, _ = model.UpdateDemand(&traits.ElectricDemand{
+		_, err := model.UpdateDemand(&traits.ElectricDemand{
 			Rating:  rating,
 			Voltage: &voltage,
 			Current: float32(math.Round(rand.Float64()*40*100) / 100),
 		})
+		if err != nil {
+			log.Printf("error assigning voltage & rating to new device %s: %v", name, err)
+		}
 		createElectricModes(model, rating)
 		// set the active mode to the default one we just created (normal mode)
-		_, _ = model.ChangeToNormalMode()
+		_, err = model.ChangeToNormalMode()
+		if err != nil {
+			log.Printf("error changing to the normal mode on new device %s: %v", name, err)
+		}
 
-		device := electric.NewModelServer(model)
-		settings.Add(name, electric.WrapMemorySettings(device))
-		return electric.Wrap(device), nil
+		// start the simulation
+		go func() {
+			sink := simelectric.NewSink(model)
+			err := sink.Simulate(context.Background())
+			if err != nil {
+				log.Printf("electric device %s stopped simulating with an error: %v", name, err)
+			}
+		}()
+
+		electricServer := electric.NewModelServer(model)
+		settings.Add(name, electric.WrapMemorySettings(electricServer))
+		return electric.Wrap(electricServer), nil
 	}
 	return server.Collection(devices, settings)
 }

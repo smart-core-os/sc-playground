@@ -1,37 +1,37 @@
-package dynamic
+package profile
 
 import (
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/smart-core-os/sc-api/go/traits"
-	"github.com/smart-core-os/sc-playground/internal/util"
-	"google.golang.org/protobuf/types/known/durationpb"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/smart-core-os/sc-api/go/traits"
+	"google.golang.org/protobuf/types/known/durationpb"
+
+	"github.com/smart-core-os/sc-playground/internal/util"
 )
 
 func TestProfileFromProto(t *testing.T) {
 	t.Parallel()
 	type testCase struct {
 		name   string
-		input  *traits.ElectricMode
+		input  []*traits.ElectricMode_Segment
 		expect Profile
 	}
 
 	cases := []testCase{
 		{
 			name: "Converts without a FinalValue",
-			input: &traits.ElectricMode{
-				Segments: []*traits.ElectricMode_Segment{
-					{
-						Length:    durationpb.New(3 * time.Hour),
-						Magnitude: 4,
-					},
-					{
-						Length:    durationpb.New(5 * time.Hour),
-						Magnitude: 6,
-					},
+			input: []*traits.ElectricMode_Segment{
+				{
+					Length:    durationpb.New(3 * time.Hour),
+					Magnitude: 4,
+				},
+				{
+					Length:    durationpb.New(5 * time.Hour),
+					Magnitude: 6,
 				},
 			},
 			expect: Profile{
@@ -44,19 +44,17 @@ func TestProfileFromProto(t *testing.T) {
 		},
 		{
 			name: "Converts with a FinalValue",
-			input: &traits.ElectricMode{
-				Segments: []*traits.ElectricMode_Segment{
-					{
-						Length:    durationpb.New(3 * time.Hour),
-						Magnitude: 4,
-					},
-					{
-						Length:    durationpb.New(5 * time.Hour),
-						Magnitude: 6,
-					},
-					{
-						Magnitude: 7,
-					},
+			input: []*traits.ElectricMode_Segment{
+				{
+					Length:    durationpb.New(3 * time.Hour),
+					Magnitude: 4,
+				},
+				{
+					Length:    durationpb.New(5 * time.Hour),
+					Magnitude: 6,
+				},
+				{
+					Magnitude: 7,
 				},
 			},
 			expect: Profile{
@@ -71,7 +69,7 @@ func TestProfileFromProto(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			actual := ProfileFromProto(c.input)
+			actual := FromProto(c.input)
 
 			if diff := cmp.Diff(c.expect, actual); diff != "" {
 				t.Error(diff)
@@ -393,8 +391,8 @@ func TestReduceProfile(t *testing.T) {
 	type testCase struct {
 		name      string
 		inputs    []Profile
-		expectMax Profile // expected value for MaxProfile
-		expectSum Profile // expected value for SumProfile
+		expectMax Profile // expected value for Max
+		expectSum Profile // expected value for Sum
 	}
 
 	cases := []testCase{
@@ -484,16 +482,16 @@ func TestReduceProfile(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			t.Run("MaxProfile", func(t *testing.T) {
-				actual := MaxProfile(c.inputs...)
+			t.Run("Max", func(t *testing.T) {
+				actual := Max(c.inputs...)
 
 				if diff := cmp.Diff(c.expectMax, actual, cmpopts.EquateEmpty()); diff != "" {
 					t.Error(diff)
 				}
 			})
 
-			t.Run("SumProfile", func(t *testing.T) {
-				actual := SumProfile(c.inputs...)
+			t.Run("Sum", func(t *testing.T) {
+				actual := Sum(c.inputs...)
 
 				if diff := cmp.Diff(c.expectSum, actual, cmpopts.EquateEmpty()); diff != "" {
 					t.Error(diff)
@@ -503,7 +501,7 @@ func TestReduceProfile(t *testing.T) {
 	}
 }
 
-// TestMaxProfile_Identity verifies that when MaxProfile is provided a single Profile, it returns the profile unchanged.
+// TestMaxProfile_Identity verifies that when Max is provided a single Profile, it returns the profile unchanged.
 // This is verified using random profiles.
 func TestMaxProfile_Identity(t *testing.T) {
 	t.Parallel()
@@ -515,7 +513,7 @@ func TestMaxProfile_Identity(t *testing.T) {
 		profile := genProfile(r)
 
 		expect := profile
-		actual := MaxProfile(profile)
+		actual := Max(profile)
 
 		if diff := cmp.Diff(expect, actual, cmpopts.EquateEmpty()); diff != "" {
 			t.Error(diff)

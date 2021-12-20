@@ -2,11 +2,15 @@ package dynamic
 
 import (
 	"context"
-	"github.com/smart-core-os/sc-golang/pkg/time/clock"
-	"github.com/smart-core-os/sc-playground/internal/util/broadcast"
-	"go.uber.org/zap"
 	"sync"
 	"time"
+
+	"github.com/smart-core-os/sc-golang/pkg/time/clock"
+
+	"github.com/smart-core-os/sc-playground/internal/util/broadcast"
+	"github.com/smart-core-os/sc-playground/pkg/profile"
+
+	"go.uber.org/zap"
 )
 
 type Float32Option func(value *Float32)
@@ -154,7 +158,7 @@ func (f *Float32) startInterpolation(ctx context.Context, target float32, d time
 // Cancel ctx to stop the profile from running. The value will be frozen as-is.
 // The returned context.Context (which inherits from ctx) will be cancelled once the profile has finished simulating
 // and the Float32 has reached profile.FinalLevel
-func (f *Float32) StartProfile(ctx context.Context, profile Profile, change time.Duration) Completion {
+func (f *Float32) StartProfile(ctx context.Context, profile profile.Profile, change time.Duration) Completion {
 	ctx, cancel := context.WithCancel(ctx)
 	func() {
 		f.stopM.Lock()
