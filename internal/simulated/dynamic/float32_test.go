@@ -2,10 +2,13 @@ package dynamic
 
 import (
 	"context"
-	"github.com/smart-core-os/sc-playground/internal/simulated"
-	"go.uber.org/zap"
 	"testing"
 	"time"
+
+	"github.com/smart-core-os/sc-playground/internal/simulated"
+	profile2 "github.com/smart-core-os/sc-playground/pkg/profile"
+
+	"go.uber.org/zap"
 )
 
 func TestFloat32_StartInterpolation(t *testing.T) {
@@ -37,8 +40,8 @@ func TestFloat32_StartProfile(t *testing.T) {
 		WithLogger(zap.NewExample()),
 	)
 
-	profile := Profile{
-		Segments: []Segment{
+	profile := profile2.Profile{
+		Segments: []profile2.Segment{
 			{time.Minute, 1},
 		},
 		FinalLevel: 2,

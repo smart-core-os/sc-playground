@@ -16,6 +16,7 @@ import (
 
 	"github.com/smart-core-os/sc-playground/internal/simulated/dynamic"
 	"github.com/smart-core-os/sc-playground/internal/util/broadcast"
+	"github.com/smart-core-os/sc-playground/pkg/profile"
 )
 
 const (
@@ -189,8 +190,8 @@ func (s *Sink) simulateMode(ctx context.Context, mode *traits.ElectricMode) erro
 	s.logger.Info("sink switching mode",
 		zap.Reflect("mode", mode))
 
-	profile := DeviceModeFromProto(mode).Profile
-	_ = s.load.StartProfile(ctx, profile, s.rampDuration)
+	prof := DeviceModeFromProto(mode).Profile
+	_ = s.load.StartProfile(ctx, prof, s.rampDuration)
 	return nil
 }
 
@@ -232,14 +233,14 @@ func WithLogger(logger *zap.Logger) SinkOption {
 type DeviceMode struct {
 	Title       string
 	Description string
-	Profile     dynamic.Profile
+	Profile     profile.Profile
 }
 
 func DeviceModeFromProto(mode *traits.ElectricMode) DeviceMode {
 	return DeviceMode{
 		Title:       mode.Title,
 		Description: mode.Description,
-		Profile:     dynamic.ProfileFromProto(mode),
+		Profile:     profile.FromProto(mode.Segments),
 	}
 }
 
