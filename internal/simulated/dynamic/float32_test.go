@@ -5,28 +5,31 @@ import (
 	"testing"
 	"time"
 
-	"github.com/smart-core-os/sc-playground/internal/simulated"
-	profile2 "github.com/smart-core-os/sc-playground/pkg/profile"
+	"github.com/smart-core-os/sc-golang/pkg/time/clock"
+
+	"github.com/smart-core-os/sc-playground/pkg/profile"
 
 	"go.uber.org/zap"
 )
 
 func TestFloat32_StartInterpolation(t *testing.T) {
-	clk := simulated.NewClock(time.Now())
+	clk := clock.Real()
 
 	f := NewFloat32(0,
 		WithClock(clk),
 		WithLogger(zap.NewExample()),
 	)
 
-	ctx := f.StartInterpolation(context.Background(), 1, 1*time.Second)
+	// start interpolation
+	var target float32 = 1
+	complete := f.StartInterpolation(context.Background(), target, 500*time.Millisecond)
+	// wait until interpolation complete
+	<-complete.Done()
 
-	simulated.SimulateFor(clk, 1100*time.Millisecond, 100*time.Millisecond)
-	<-ctx.Done()
-
+	// verify that value is the target value
 	var (
-		expect float32 = 1.0
-		actual         = f.Get()
+		expect = target
+		actual = f.Get()
 	)
 	if actual != expect {
 		t.Error(actual)
@@ -34,38 +37,36 @@ func TestFloat32_StartInterpolation(t *testing.T) {
 }
 
 func TestFloat32_StartProfile(t *testing.T) {
-	clk := simulated.NewClock(time.Now())
+	clk := clock.Real()
 	f := NewFloat32(0,
 		WithClock(clk),
 		WithLogger(zap.NewExample()),
 	)
 
-	profile := profile2.Profile{
-		Segments: []profile2.Segment{
-			{time.Minute, 1},
+	prof := profile.Profile{
+		Segments: []profile.Segment{
+			{1 * time.Second, 1},
 		},
 		FinalLevel: 2,
 	}
 
-	ctx := f.StartProfile(context.Background(), profile, time.Second)
+	complete := f.StartProfile(context.Background(), prof, 250*time.Millisecond)
 
 	// before simulation run, value should be unchanged from initial value
 	if value := f.Get(); value != 0 {
 		t.Errorf("initial value not held: f.Get() = %f", value)
 	}
 
-	// run simulation for 30 seconds puts us square in the middle of the segment
-	simulated.SimulateFor(clk, 30*time.Second, 100*time.Millisecond)
+	// run simulation for half a second puts us square in the middle of the segment
+	time.Sleep(500 * time.Millisecond)
 
 	// we should have the profile level by now
 	if value := f.Get(); value != 1 {
 		t.Errorf("not at expected profile level: f.Get() = %f", value)
 	}
 
-	// run simulation to the end
-	simulated.SimulateFor(clk, 1*time.Minute, 100*time.Millisecond)
-
-	<-ctx.Done()
+	// run simulation until the profile is done
+	<-complete.Done()
 
 	// now we should be at FinalLevel
 	if value := f.Get(); value != 2 {
