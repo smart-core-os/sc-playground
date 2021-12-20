@@ -1,7 +1,6 @@
 package apis
 
 import (
-	"context"
 	"log"
 	"math/rand"
 	"time"
@@ -14,7 +13,7 @@ import (
 func OccupancyApi() server.GrpcApi {
 	// handle random changes in occupancy
 	var devices []struct {
-		api  *occupancy.MemoryDevice
+		api  *occupancy.Model
 		name string
 	}
 	go func() {
@@ -23,7 +22,7 @@ func OccupancyApi() server.GrpcApi {
 				i := rand.Intn(len(devices))
 				o := randomOccupancy()
 				log.Printf("SetOccupancy(%v) %v (people=%v)", devices[i].name, o.State, o.PeopleCount)
-				devices[i].api.SetOccupancy(context.Background(), o)
+				_, _ = devices[i].api.SetOccupancy(o)
 			}
 		}
 	}()
@@ -32,12 +31,12 @@ func OccupancyApi() server.GrpcApi {
 	r.Factory = func(name string) (traits.OccupancySensorApiClient, error) {
 		initial := randomOccupancy()
 		log.Printf("Creating OccupancyApiClient(%v) %v (people=%v)", name, initial.State, initial.PeopleCount)
-		api := occupancy.NewMemoryDevice(initial)
+		api := occupancy.NewModel(initial)
 		devices = append(devices, struct {
-			api  *occupancy.MemoryDevice
+			api  *occupancy.Model
 			name string
 		}{api: api, name: name})
-		return occupancy.Wrap(api), nil
+		return occupancy.Wrap(occupancy.NewModelServer(api)), nil
 	}
 	return r
 }

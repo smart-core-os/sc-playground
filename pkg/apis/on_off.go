@@ -20,7 +20,7 @@ func OnOffApi() server.GrpcApi {
 			onOrOff = traits.OnOff_ON
 		}
 		log.Printf("Creating OnOffClient(%v)=%v", name, onOrOff)
-		return onoff.Wrap(onoff.NewMemoryDevice(onOrOff)), nil
+		return onoff.Wrap(onoff.NewModelServer(onoff.NewModel(onOrOff))), nil
 	}
 	return r
 }
