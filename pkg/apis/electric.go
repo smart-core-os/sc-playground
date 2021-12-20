@@ -2,11 +2,14 @@ package apis
 
 import (
 	"context"
-	"github.com/smart-core-os/sc-golang/pkg/time/clock"
-	simelectric "github.com/smart-core-os/sc-playground/internal/simulated/electric"
-	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"log"
 	"time"
+
+	"github.com/smart-core-os/sc-golang/pkg/memory"
+	"github.com/smart-core-os/sc-golang/pkg/time/clock"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
+
+	simelectric "github.com/smart-core-os/sc-playground/internal/simulated/electric"
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/server"
@@ -17,49 +20,55 @@ import (
 func ElectricApi() server.GrpcApi {
 	devices := electric.NewRouter()
 	settings := electric.NewMemorySettingsRouter()
+
+	mask, err := fieldmaskpb.New(&traits.ElectricDemand{}, "voltage", "rating")
+	if err != nil {
+		panic(err) // should be impossible unless field names changed
+	}
+
 	devices.Factory = func(name string) (traits.ElectricApiClient, error) {
 		log.Printf("Creating ElectricClient(%v)", name)
-		mem := electric.NewMemory(clock.Real())
-		device := electric.NewMemoryDevice(mem)
+		model := electric.NewModel(clock.Real())
 
 		// assign voltage and rating
 		var voltage float32 = 240
 		var rating float32 = 60
-		_, err := mem.UpdateDemand(
+		_, err := model.UpdateDemand(
 			&traits.ElectricDemand{
 				Voltage: &voltage,
 				Rating:  rating,
 			},
-			&fieldmaskpb.FieldMask{Paths: []string{"voltage", "rating"}},
+			memory.WithUpdateMask(mask),
 		)
 		if err != nil {
 			log.Printf("error assigning voltage & rating to new device %s: %v", name, err)
 		}
 
-		createElectricModes(mem, rating)
+		createElectricModes(model, rating)
 
 		// set the active mode to the default one we just created (normal mode)
-		_, err = mem.ChangeToNormalMode()
+		_, err = model.ChangeToNormalMode()
 		if err != nil {
 			log.Printf("error changing to the normal mode on new device %s: %v", name, err)
 		}
 
 		// start the simulation
 		go func() {
-			sink := simelectric.NewSink(mem)
+			sink := simelectric.NewSink(model)
 			err := sink.Simulate(context.Background())
 			if err != nil {
 				log.Printf("electric device %s stopped simulating with an error: %v", name, err)
 			}
 		}()
 
-		settings.Add(name, electric.WrapMemorySettings(device))
-		return electric.Wrap(device), nil
+		electricServer := electric.NewModelServer(model)
+		settings.Add(name, electric.WrapMemorySettings(electricServer))
+		return electric.Wrap(electricServer), nil
 	}
 	return server.Collection(devices, settings)
 }
 
-func createElectricModes(device *electric.Memory, rating float32) {
+func createElectricModes(device *electric.Model, rating float32) {
 	_, _ = device.CreateMode(&traits.ElectricMode{
 		Title:  "Normal Operation",
 		Normal: true,

@@ -3,16 +3,19 @@ package electric
 import (
 	"context"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/smart-core-os/sc-api/go/traits"
+	"github.com/smart-core-os/sc-golang/pkg/memory"
 	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
-	"github.com/smart-core-os/sc-playground/internal/simulated/dynamic"
-	"github.com/smart-core-os/sc-playground/internal/util/broadcast"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
-	"sync"
-	"time"
+
+	"github.com/smart-core-os/sc-playground/internal/simulated/dynamic"
+	"github.com/smart-core-os/sc-playground/internal/util/broadcast"
 )
 
 const (
@@ -33,9 +36,9 @@ var DefaultSinkOptions = []SinkOption{
 // Sink is a simulation wrapper for an electric memory device that consumes power and doesn't distribute it
 // to any other Smart Core electric devices (it sinks power). In other words, it represents the leaf nodes of the power
 // distribution tree.
-// The Sink does not store its own state - it is backed by an electric.Memory from sc-golang.
+// The Sink does not store its own state - it is backed by an electric.Model from sc-golang.
 type Sink struct {
-	Memory *electric.Memory
+	Model *electric.Model
 
 	// fields configured with options
 	rampDuration   time.Duration
@@ -57,10 +60,10 @@ type Sink struct {
 // If a clock is configured with WithClock, its timestamps must be consistent with those returned by the gRPC clients.
 // When interacting with a remote device not under the control of local simulation, you likely need to use
 // clock.Real, which is the default.
-func NewSink(mem *electric.Memory, options ...SinkOption) *Sink {
+func NewSink(model *electric.Model, options ...SinkOption) *Sink {
 
 	s := &Sink{
-		Memory: mem,
+		Model: model,
 	}
 
 	for _, opt := range DefaultSinkOptions {
@@ -107,7 +110,7 @@ func (s *Sink) Simulate(ctx context.Context) error {
 	return group.Wait()
 }
 
-// runUpdateDemand spawns a worker goroutine that updates Memory with the new demand
+// runUpdateDemand spawns a worker goroutine that updates Model with the new demand
 // whenever the simulated load value changes.
 func (s *Sink) runUpdateDemand(ctx context.Context) error {
 	listener := s.load.Listen()
@@ -136,7 +139,7 @@ func (s *Sink) runUpdateDemand(ctx context.Context) error {
 				panic(err)
 			}
 
-			_, err = s.Memory.UpdateDemand(update, mask)
+			_, err = s.Model.UpdateDemand(update, memory.WithUpdateMask(mask))
 			if err != nil {
 				return fmt.Errorf("failed to update demand on the memory device: %w", err)
 			}
@@ -151,11 +154,11 @@ func (s *Sink) runUpdateDemand(ctx context.Context) error {
 // Runs until an error occurs or the context is cancelled.
 func (s *Sink) runUpdateMode(ctx context.Context) error {
 	// open a stream to get mode changes
-	stream, stop := s.Memory.PullActiveMode(ctx, nil)
+	stream, stop := s.Model.PullActiveMode(ctx, nil)
 	defer stop()
 
 	// get the initial mode
-	initialMode := s.Memory.ActiveMode(nil)
+	initialMode := s.Model.ActiveMode()
 
 	// start the simulation of the initial mode
 	err := s.simulateMode(ctx, initialMode)
