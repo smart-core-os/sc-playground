@@ -11,8 +11,9 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.7.0
 	github.com/smart-core-os/sc-api/go v1.0.0-beta.27
-	github.com/smart-core-os/sc-golang v0.0.0-20211220110339-74f617cf4de9
+	github.com/smart-core-os/sc-golang v0.0.0-20211221151833-8f972034ff46
 	github.com/soheilhy/cmux v0.1.5
+	github.com/tanema/gween v0.0.0-20200427131925-c89ae23cc63c
 	go.uber.org/zap v1.19.1
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
