@@ -64,22 +64,22 @@ func createElectricModes(device *electric.Model, rating float32) {
 		Title:  "Normal Operation",
 		Normal: true,
 		Segments: []*traits.ElectricMode_Segment{
-			{Magnitude: rating},
+			{Magnitude: rating * 0.8},
 		},
 	})
 	_, _ = device.CreateMode(&traits.ElectricMode{
 		Title: "Eco",
 		Segments: []*traits.ElectricMode_Segment{
-			{Magnitude: rating * 0.3, Length: durationpb.New(60 * time.Second)},
-			{Magnitude: rating * 0.9, Length: durationpb.New(10 * time.Second)},
-			{Magnitude: rating * 0.8},
+			{Magnitude: rating * 0.2, Length: durationpb.New(60 * time.Second)},
+			{Magnitude: rating * 0.7},
 		},
 	})
 	_, _ = device.CreateMode(&traits.ElectricMode{
 		Title: "Quick Boot",
 		Segments: []*traits.ElectricMode_Segment{
-			{Magnitude: rating * 1.3, Length: durationpb.New(30 * time.Second)},
-			{Magnitude: rating},
+			{Magnitude: rating * 0.4, Length: durationpb.New(30 * time.Second)},
+			{Magnitude: rating, Length: durationpb.New(10 * time.Second)},
+			{Magnitude: rating * 0.8},
 		},
 	})
 }
