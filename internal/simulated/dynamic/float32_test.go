@@ -21,10 +21,17 @@ func TestFloat32_StartInterpolation(t *testing.T) {
 	)
 
 	// start interpolation
-	var target float32 = 1
-	complete := f.StartInterpolation(context.Background(), target, 500*time.Millisecond)
+	var (
+		target   float32 = 1
+		duration         = 500 * time.Millisecond
+	)
+	complete := f.StartInterpolation(context.Background(), target, duration)
 	// wait until interpolation complete
-	<-complete.Done()
+	select {
+	case <-time.After(duration + 10*time.Millisecond):
+		t.Fatal("test timed out")
+	case <-complete.Done():
+	}
 
 	// verify that value is the target value
 	var (
@@ -66,7 +73,11 @@ func TestFloat32_StartProfile(t *testing.T) {
 	}
 
 	// run simulation until the profile is done
-	<-complete.Done()
+	select {
+	case <-time.After(1 * time.Second):
+		t.Fatal("test timed out")
+	case <-complete.Done():
+	}
 
 	// now we should be at FinalLevel
 	if value := f.Get(); value != 2 {
