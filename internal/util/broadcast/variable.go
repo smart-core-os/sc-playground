@@ -1,12 +1,13 @@
 package broadcast
 
 import (
-	"github.com/olebedev/emitter"
-	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"log"
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/olebedev/emitter"
+	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 )
 
 const variableTopic = "variable"
@@ -76,15 +77,15 @@ func (v *Variable) Get() (value interface{}, changed time.Time) {
 
 // Listen opens a listener on the Variable which will receive events describing any future changes to
 // the Variable's value.
-func (v *Variable) Listen() *Listener {
+func (v *Variable) Listen() *VariableListener {
 	_, listener := v.GetAndListen()
 	return listener
 }
 
 // GetAndListen will return the current value of the Variable, and a listener that will receive events describing
 // future changes. This operation happens atomically, so it is guaranteed that you will not miss any changes
-// that happen to the value in between getting the value and creating the Listener.
-func (v *Variable) GetAndListen() (value interface{}, listener *Listener) {
+// that happen to the value in between getting the value and creating the VariableListener.
+func (v *Variable) GetAndListen() (value interface{}, listener *VariableListener) {
 	v.m.RLock()
 	defer v.m.RUnlock()
 
@@ -95,10 +96,10 @@ func (v *Variable) GetAndListen() (value interface{}, listener *Listener) {
 	// wrapper goroutine to convert event types
 	go func() {
 		defer close(dest)
+		defer v.em.Off(variableTopic, source)
 		for {
 			select {
 			case <-done:
-				v.em.Off(variableTopic, source)
 				return
 			case event := <-source:
 				dest <- event.Args[0].(VariableEvent)
@@ -106,23 +107,23 @@ func (v *Variable) GetAndListen() (value interface{}, listener *Listener) {
 		}
 	}()
 
-	listener = &Listener{
+	listener = &VariableListener{
 		done: done,
 		C:    dest,
 	}
 
-	runtime.SetFinalizer(listener, func(l *Listener) {
-		log.Println("logic error: broadcast.Listener was not closed before garbage collection")
+	runtime.SetFinalizer(listener, func(l *VariableListener) {
+		log.Println("logic error: broadcast.VariableListener was not closed before garbage collection")
 		_ = l.Close()
 	})
 
 	return v.value, listener
 }
 
-// Listener allows receiving notification of all changes to an associated Variable.
-// To obtain a Listener, call Variable.Listen or Variable.GetAndListen.
-// It is important to free the Listener by calling Close after it is no longer needed.
-type Listener struct {
+// VariableListener allows receiving notification of all changes to an associated Variable.
+// To obtain a VariableListener, call Variable.Listen or Variable.GetAndListen.
+// It is important to free the VariableListener by calling Close after it is no longer needed.
+type VariableListener struct {
 	closeOnce sync.Once
 	done      chan struct{}
 	C         <-chan VariableEvent
@@ -130,9 +131,10 @@ type Listener struct {
 
 // Close will free the listener. No more events will be sent on the channel.
 // The returned error is always nil - signature is for compatibility with io.Closer.
-func (l *Listener) Close() error {
+func (l *VariableListener) Close() error {
 	l.closeOnce.Do(func() {
 		runtime.SetFinalizer(l, nil)
+		// send through channel to create a synchronisation point
 		l.done <- struct{}{}
 		close(l.done)
 	})

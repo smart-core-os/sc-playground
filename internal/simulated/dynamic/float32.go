@@ -78,9 +78,9 @@ func (f *Float32) Set(value float32) {
 	f.variable.Set(value)
 }
 
-// Listen returns a Listener that sends updates whenever the Float32 changes for any reason.
+// Listen returns a VariableListener that sends updates whenever the Float32 changes for any reason.
 // The values in events will always be float32.
-func (f *Float32) Listen() *broadcast.Listener {
+func (f *Float32) Listen() *broadcast.VariableListener {
 	return f.variable.Listen()
 }
 

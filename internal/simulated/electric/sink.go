@@ -91,7 +91,7 @@ func (s *Sink) GetDemand() float32 {
 
 // ListenDemand creates a listener that issues updates every time the underlying load changes.
 // The values are always float32.
-func (s *Sink) ListenDemand() *broadcast.Listener {
+func (s *Sink) ListenDemand() *broadcast.VariableListener {
 	return s.load.Listen()
 }
 
