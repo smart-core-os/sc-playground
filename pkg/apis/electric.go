@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/smart-core-os/sc-golang/pkg/time/clock"
+	"go.uber.org/zap"
 
 	simelectric "github.com/smart-core-os/sc-playground/internal/simulated/electric"
 
@@ -20,6 +21,24 @@ import (
 func ElectricApi() server.GrpcApi {
 	devices := electric.NewRouter()
 	settings := electric.NewMemorySettingsRouter()
+	logger := zap.NewExample()
+
+	// create a Source, which all sinks will be registered to
+	sourceName := "ELEC-SOURCE"
+	sourceModel := electric.NewModel(clock.Real())
+	sourceApi := electric.NewModelServer(sourceModel)
+	devices.Add(sourceName, electric.Wrap(sourceApi))
+	source := simelectric.NewSource(sourceModel,
+		simelectric.WithSourceLogger(logger.Named("source")),
+	)
+
+	// start the Source simulation
+	go func() {
+		err := source.Simulate(context.Background())
+		if err != nil {
+			log.Printf("electric source %q stopped simulating with error %v", sourceName, err)
+		}
+	}()
 
 	devices.Factory = func(name string) (traits.ElectricApiClient, error) {
 		log.Printf("Creating ElectricClient(%v)", name)
@@ -43,9 +62,13 @@ func ElectricApi() server.GrpcApi {
 			log.Printf("error changing to the normal mode on new device %s: %v", name, err)
 		}
 
+		// register this device with the source
+		source.Downstream.Set(name, model)
+
 		// start the simulation
 		go func() {
-			sink := simelectric.NewSink(model)
+			logger := logger.Named("sink").With(zap.String("name", name))
+			sink := simelectric.NewSink(model, simelectric.WithLogger(logger))
 			err := sink.Simulate(context.Background())
 			if err != nil {
 				log.Printf("electric device %s stopped simulating with an error: %v", name, err)
@@ -80,6 +103,12 @@ func createElectricModes(device *electric.Model, rating float32) {
 			{Magnitude: rating * 0.4, Length: durationpb.New(30 * time.Second)},
 			{Magnitude: rating, Length: durationpb.New(10 * time.Second)},
 			{Magnitude: rating * 0.8},
+		},
+	})
+	_, _ = device.CreateMode(&traits.ElectricMode{
+		Title: "Standby",
+		Segments: []*traits.ElectricMode_Segment{
+			{Magnitude: rating * 0.1},
 		},
 	})
 }

@@ -7,12 +7,13 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/smart-core-os/sc-api/go/traits"
-	"golang.org/x/sync/errgroup"
-	"google.golang.org/grpc"
 	"log"
 	"os"
 	"time"
+
+	"github.com/smart-core-os/sc-api/go/traits"
+	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -66,6 +67,14 @@ func listenDemand(ctx context.Context, client traits.ElectricApiClient, name str
 	}
 	defer stream.CloseSend()
 
+	initial, err := client.GetDemand(ctx, &traits.GetDemandRequest{
+		Name: name,
+	})
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Initial demand is %f\n", initial.Current)
+
 	for {
 		res, err := stream.Recv()
 		if err != nil {
@@ -87,6 +96,14 @@ func listenActiveMode(ctx context.Context, client traits.ElectricApiClient, name
 	}
 	defer stream.CloseSend()
 
+	initial, err := client.GetActiveMode(ctx, &traits.GetActiveModeRequest{
+		Name: name,
+	})
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Initial active mode is %q - %q\n", initial.Id, initial.Title)
+
 	for {
 		res, err := stream.Recv()
 		if err != nil {
@@ -105,6 +122,13 @@ func changeModes(ctx context.Context, client traits.ElectricApiClient, name stri
 	modes, err := listModes(ctx, client, name)
 	if err != nil {
 		return err
+	}
+
+	if len(modes) == 0 {
+		// don't change any modes
+		log.Printf("Device %q has no modes", name)
+		<-ctx.Done()
+		return ctx.Err()
 	}
 
 	ticker := time.NewTicker(period)
