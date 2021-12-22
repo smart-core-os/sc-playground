@@ -21,7 +21,7 @@ func EnergyStorageApi() server.GrpcApi {
 		oscillator := sim.NewOscillator(model, sim.WithCycleStart(time.Now().Add(-randStart)))
 		go func() {
 			// loop forever
-			ticker := time.NewTicker(100 * time.Millisecond)
+			ticker := time.NewTicker(250 * time.Millisecond)
 			defer ticker.Stop()
 			for {
 				if err := oscillator.Scrub(<-ticker.C); err != nil {
