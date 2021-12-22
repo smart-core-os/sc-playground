@@ -78,7 +78,7 @@ func NewSink(model *electric.Model, options ...SinkOption) *Sink {
 	s.load = dynamic.NewFloat32(s.initialLoad,
 		dynamic.WithUpdateInterval(s.updateInterval),
 		dynamic.WithClock(s.clock),
-		dynamic.WithLogger(s.logger),
+		dynamic.WithLogger(s.logger.Named("load")),
 	)
 
 	return s

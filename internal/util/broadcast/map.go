@@ -19,6 +19,7 @@ const (
 )
 
 type MapEvent struct {
+	Key       string
 	Type      MapEventType
 	Timestamp time.Time
 	OldValue  interface{}
@@ -37,8 +38,9 @@ type Map struct {
 // NewMap constructs an empty set, using the given function to decide equality.
 func NewMap(clk clock.Clock) *Map {
 	s := &Map{
-		bus:   emitter.New(0),
-		clock: clk,
+		members: make(map[string]interface{}),
+		bus:     emitter.New(0),
+		clock:   clk,
 	}
 
 	return s
@@ -56,6 +58,7 @@ func (s *Map) Set(key string, value interface{}) (old interface{}, replaced bool
 
 	if ok {
 		s.bus.Emit(mapTopic, MapEvent{
+			Key:       key,
 			Type:      MapReplaceEvent,
 			Timestamp: s.clock.Now(),
 			OldValue:  existing,
@@ -64,6 +67,7 @@ func (s *Map) Set(key string, value interface{}) (old interface{}, replaced bool
 		return existing, true
 	} else {
 		s.bus.Emit(mapTopic, MapEvent{
+			Key:       key,
 			Type:      MapAddEvent,
 			Timestamp: s.clock.Now(),
 			NewValue:  value,
@@ -82,6 +86,7 @@ func (s *Map) Remove(key string) (removed interface{}, ok bool) {
 	}
 	delete(s.members, key)
 	s.bus.Emit(mapTopic, MapEvent{
+		Key:       key,
 		Type:      MapRemoveEvent,
 		Timestamp: s.clock.Now(),
 		OldValue:  member,

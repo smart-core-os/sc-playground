@@ -84,6 +84,11 @@ func (f *Float32) Listen() *broadcast.VariableListener {
 	return f.variable.Listen()
 }
 
+func (f *Float32) GetAndListen() (float32, *broadcast.VariableListener) {
+	val, listener := f.variable.GetAndListen()
+	return val.(float32), listener
+}
+
 // StartInterpolation will begin a real-time linear interpolation of the Float32, from the current value
 // to the target, taking place over the duration d. Only one interpolation may be in progress at a time.
 // Any other interpolations or profiles that are in progress will be stopped, and the new interpolation run in
