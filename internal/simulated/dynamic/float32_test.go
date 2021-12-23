@@ -28,7 +28,7 @@ func TestFloat32_StartInterpolation(t *testing.T) {
 	complete := f.StartInterpolation(context.Background(), target, duration)
 	// wait until interpolation complete
 	select {
-	case <-time.After(duration + 10*time.Millisecond):
+	case <-time.After(2 * duration):
 		t.Fatal("test timed out")
 	case <-complete.Done():
 	}
