@@ -7,6 +7,7 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/trait/energystorage"
 	"github.com/tanema/gween/ease"
 	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Oscillator simulates an energy storage device by cycling between charging and discharging in an infinite loop.
@@ -44,39 +45,46 @@ func (o *Oscillator) Scrub(t time.Time) error {
 	// we loop, so normalise the time within our known universe
 	totalLength := o.chargeDuration + o.fullDuration + o.dischargeDuration + o.emptyDuration
 	playbackTime := t.Sub(o.cycleStart) % totalLength
-	return o.scrub(playbackTime)
+	return o.scrub(playbackTime, t)
 }
 
-func (o *Oscillator) scrub(d time.Duration) (err error) {
+func (o *Oscillator) scrub(d time.Duration, t time.Time) (err error) {
 	switch {
 	case d < o.chargeDuration: // charging
 		dSec := float32(d.Seconds())
 		tSec := float32(o.chargeDuration.Seconds())
 
 		_, err = o.model.UpdateEnergyLevel(&traits.EnergyLevel{
-			Charging:  true,
 			PluggedIn: true,
 			Quantity: &traits.EnergyLevel_Quantity{
 				Percentage: o.chargeRamp(dSec, 0, 100, tSec),
 				EnergyKwh:  o.chargeRamp(dSec, 0, o.maxEnergyKWh, tSec),
-			},
-			UntilFull: &traits.EnergyLevel_UntilFull{
-				Time:       durationpb.New(o.chargeDuration - d),
 				DistanceKm: o.chargeRamp(dSec, 0, o.maxEnergyDistanceKm, tSec),
 			},
+			Flow: &traits.EnergyLevel_Charge{Charge: &traits.EnergyLevel_Transfer{
+				Time:       durationpb.New(o.chargeDuration - d),
+				DistanceKm: o.chargeRamp(dSec, 0, o.maxEnergyDistanceKm, tSec),
+				Target: &traits.EnergyLevel_Quantity{
+					Percentage:  100,
+					EnergyKwh:   o.maxEnergyKWh,
+					DistanceKm:  o.maxEnergyDistanceKm,
+					Descriptive: traits.EnergyLevel_Quantity_FULL,
+				},
+				StartTime: timestamppb.New(t.Add(-d)),
+			}},
 		})
 	case d < o.chargeDuration+o.fullDuration: // full
 		_, err = o.model.UpdateEnergyLevel(&traits.EnergyLevel{
-			Charging:  false,
 			PluggedIn: !o.unplugWhenNotCharging,
 			Quantity: &traits.EnergyLevel_Quantity{
-				Percentage: 100,
-				EnergyKwh:  o.maxEnergyKWh,
+				Percentage:  100,
+				EnergyKwh:   o.maxEnergyKWh,
+				DistanceKm:  o.maxEnergyDistanceKm,
+				Descriptive: traits.EnergyLevel_Quantity_FULL,
 			},
-			UntilFull: &traits.EnergyLevel_UntilFull{
-				Time:       durationpb.New(0),
-				DistanceKm: 0,
-			},
+			Flow: &traits.EnergyLevel_Idle{Idle: &traits.EnergyLevel_Steady{
+				StartTime: timestamppb.New(t.Add(-d + o.chargeDuration)),
+			}},
 		})
 	case d < o.chargeDuration+o.fullDuration+o.dischargeDuration: // discharging
 		durationDischarging := d - o.chargeDuration - o.fullDuration
@@ -84,29 +92,28 @@ func (o *Oscillator) scrub(d time.Duration) (err error) {
 		tSec := float32(o.dischargeDuration.Seconds())
 
 		_, err = o.model.UpdateEnergyLevel(&traits.EnergyLevel{
-			Charging:  false,
 			PluggedIn: !o.unplugWhenNotCharging,
 			Quantity: &traits.EnergyLevel_Quantity{
 				Percentage: 100 - o.dischargeRamp(dSec, 0, 100, tSec),
 				EnergyKwh:  o.maxEnergyKWh - o.dischargeRamp(dSec, 0, o.maxEnergyKWh, tSec),
+				DistanceKm: o.maxEnergyDistanceKm - o.chargeRamp(dSec, 0, o.maxEnergyDistanceKm, tSec),
 			},
-			Remaining: &traits.EnergyLevel_Remaining{
+			Flow: &traits.EnergyLevel_Discharge{Discharge: &traits.EnergyLevel_Transfer{
 				Time:       durationpb.New(o.dischargeDuration - durationDischarging),
 				DistanceKm: o.maxEnergyDistanceKm - o.dischargeRamp(dSec, 0, o.maxEnergyDistanceKm, tSec),
-			},
+				StartTime:  timestamppb.New(t.Add(-d + o.chargeDuration + o.fullDuration)),
+			}},
 		})
 	default: // empty
 		_, err = o.model.UpdateEnergyLevel(&traits.EnergyLevel{
-			Charging:  false,
 			PluggedIn: !o.unplugWhenNotCharging,
 			Quantity: &traits.EnergyLevel_Quantity{
-				Percentage: 0,
-				EnergyKwh:  0,
+				// all others are zero
+				Descriptive: traits.EnergyLevel_Quantity_EMPTY,
 			},
-			Remaining: &traits.EnergyLevel_Remaining{
-				Time:       durationpb.New(0),
-				DistanceKm: 0,
-			},
+			Flow: &traits.EnergyLevel_Idle{Idle: &traits.EnergyLevel_Steady{
+				StartTime: timestamppb.New(t.Add(-d + o.chargeDuration + o.fullDuration + o.dischargeDuration)),
+			}},
 		})
 	}
 	return err
