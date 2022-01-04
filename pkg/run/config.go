@@ -10,6 +10,10 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/server"
 )
 
+const (
+	CertDir = "sc-playground/certs"
+)
+
 type Config struct {
 	ctx context.Context
 
@@ -29,6 +33,9 @@ type Config struct {
 	clientCaPEM   []byte // CA cert used to verify client certs for mTLS
 	grpcTlsConfig *tls.Config
 	httpTlsConfig *tls.Config // If nil will use grpcTlsConfig instead
+
+	certCacheDir string
+	forceCertGen bool
 
 	noHealth       bool // don't configure the health service
 	noReflection   bool // don't configure the reflection service
@@ -144,6 +151,18 @@ func WithGrpcTls(c *tls.Config) ConfigOption {
 func WithHttpTls(c *tls.Config) ConfigOption {
 	return func(config *Config) {
 		config.httpTlsConfig = c
+	}
+}
+
+func WithForceCertGen() ConfigOption {
+	return func(config *Config) {
+		config.forceCertGen = true
+	}
+}
+
+func WithCertCacheDir(certCacheDir string) ConfigOption {
+	return func(config *Config) {
+		config.certCacheDir = certCacheDir
 	}
 }
 

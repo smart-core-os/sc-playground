@@ -24,6 +24,9 @@ var (
 	caCertFile     = flag.String("ca-certfile", "", "a path to the CA cert file. Used during mutual-tls to verify client connections")
 	mTlsEnabled    = flag.Bool("mtls", false, "Enable mutual TLS. Use --ca-certfile to specify a CA cert that will have signed client certs."+
 		"Or GET /__/playground/client.pem to download a new PEM encoded client cert and key pair based on the internal self-signed CA.")
+	forceCertGen = flag.Bool("force-cert-gen", false, "Force the generation of certificates, do not use cached certs. Ignored when specifying cert files")
+	certCacheDir = flag.String("cert-cache-dir", "", "Generated certificates will be placed here and loaded from here unless --force-cert-gen or cert files are specified. "+
+		"Defaults to a directory in TMP.")
 )
 
 func main() {
@@ -60,6 +63,8 @@ func runCtx(ctx context.Context) error {
 		withInsecure(),
 		withMTLS(),
 		run.WithGrpcTls(serverTlsConfig),
+		withForceCertGen(),
+		run.WithCertCacheDir(*certCacheDir),
 		run.WithHttpHealth("/health"),
 	)
 }
@@ -106,6 +111,14 @@ func withInsecure() run.ConfigOption {
 func withMTLS() run.ConfigOption {
 	if *mTlsEnabled {
 		return run.WithMTLS()
+	} else {
+		return run.NilConfigOption
+	}
+}
+
+func withForceCertGen() run.ConfigOption {
+	if *forceCertGen {
+		return run.WithForceCertGen()
 	} else {
 		return run.NilConfigOption
 	}

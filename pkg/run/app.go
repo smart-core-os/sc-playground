@@ -9,6 +9,8 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
@@ -51,18 +53,40 @@ func Serve(opts ...ConfigOption) error {
 		addRunMsg(grpcLis.Addr(), "Secure gRPC")
 		grpcOpts = append(grpcOpts, grpc.Creds(credentials.NewTLS(config.grpcTlsConfig)))
 	} else if !config.insecure {
+		var cacheDir string
+		if !config.forceCertGen {
+			// check for cached certs and use them if we can
+			dir := config.certCacheDir
+			if dir == "" {
+				dir = filepath.Join(os.TempDir(), CertDir)
+			}
+			if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+				fmt.Printf("Unable to load/cache certs: %s\n", err)
+			} else {
+				cacheDir = dir
+			}
+		}
 		// generate a cert to use
 		fmt.Println("Generating self-signed certificates...")
-		fmt.Print("  Generating CA...")
-		config.ca, err = NewSelfSignedCA()
-		fmt.Println(" done!")
+		fmt.Print("  CA...")
+		var fromCache bool
+		config.ca, fromCache, err = NewSelfSignedCA(withCacheDir(cacheDir))
+		if fromCache {
+			fmt.Printf(" loaded from %s!\n", config.ca.cacheDir)
+		} else {
+			fmt.Println(" done!")
+		}
 		if err != nil {
 			return fmt.Errorf("ca %w", err)
 		}
 
-		fmt.Print("  Generating Server Cert...")
-		serverCert, err := config.ca.NewServerCert()
-		fmt.Println(" done!")
+		fmt.Print("  Server Cert...")
+		serverCert, fromCache, err := config.ca.NewServerCert()
+		if fromCache {
+			fmt.Printf(" loaded from %s!\n", config.ca.cacheDir)
+		} else {
+			fmt.Println(" done!")
+		}
 		if err != nil {
 			return fmt.Errorf("server %w", err)
 		}
