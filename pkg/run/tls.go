@@ -59,7 +59,7 @@ func LoadOrCreateSelfSignedCA(opts ...caOption) (instance *ca, fromCache bool, e
 		}
 	}
 
-	ca.serial = big.NewInt(0)
+	ca.serial = big.NewInt(time.Now().Unix())
 	ca.cert = &x509.Certificate{
 		SerialNumber: big.NewInt(1),
 		Subject: pkix.Name{
