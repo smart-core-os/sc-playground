@@ -53,43 +53,11 @@ func Serve(opts ...ConfigOption) error {
 		addRunMsg(grpcLis.Addr(), "Secure gRPC")
 		grpcOpts = append(grpcOpts, grpc.Creds(credentials.NewTLS(config.grpcTlsConfig)))
 	} else if !config.insecure {
-		var cacheDir string
-		if !config.forceCertGen {
-			// check for cached certs and use them if we can
-			dir := config.certCacheDir
-			if dir == "" {
-				dir = filepath.Join(os.TempDir(), CertDir)
-			}
-			if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-				fmt.Printf("Unable to load/cache certs: %s\n", err)
-			} else {
-				cacheDir = dir
-			}
-		}
-		// generate a cert to use
-		fmt.Println("Generating self-signed certificates...")
-		fmt.Print("  CA...")
-		var fromCache bool
-		config.ca, fromCache, err = LoadOrCreateSelfSignedCA(withCacheDir(cacheDir))
-		if fromCache {
-			fmt.Printf(" loaded from %s!\n", config.ca.cacheDir)
-		} else {
-			fmt.Println(" done!")
-		}
+		ca, serverCert, err := loadOrCreateCerts(config.forceCertGen, config.certCacheDir)
 		if err != nil {
-			return fmt.Errorf("ca %w", err)
+			return err
 		}
-
-		fmt.Print("  Server Cert...")
-		serverCert, fromCache, err := config.ca.LoadOrCreateServerCert()
-		if fromCache {
-			fmt.Printf(" loaded from %s!\n", config.ca.cacheDir)
-		} else {
-			fmt.Println(" done!")
-		}
-		if err != nil {
-			return fmt.Errorf("server %w", err)
-		}
+		config.ca = ca
 		config.grpcTlsConfig = &tls.Config{
 			Certificates: []tls.Certificate{
 				*serverCert,
@@ -246,6 +214,47 @@ func Serve(opts ...ConfigOption) error {
 	}
 
 	return nil
+}
+
+func loadOrCreateCerts(forceCertGen bool, certCacheDir string) (*ca, *tls.Certificate, error) {
+	var cacheDir string
+	if !forceCertGen {
+		// check for cached certs and use them if we can
+		dir := certCacheDir
+		if dir == "" {
+			dir = filepath.Join(os.TempDir(), CertDir)
+		}
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			fmt.Printf("Unable to load/cache certs: %s\n", err)
+		} else {
+			cacheDir = dir
+		}
+	}
+	// generate a cert to use
+	fmt.Println("Generating self-signed certificates...")
+	fmt.Print("  CA...")
+	var fromCache bool
+	ca, fromCache, err := LoadOrCreateSelfSignedCA(withCacheDir(cacheDir))
+	if fromCache {
+		fmt.Printf(" loaded from %s!\n", ca.cacheDir)
+	} else {
+		fmt.Println(" done!")
+	}
+	if err != nil {
+		return nil, nil, fmt.Errorf("ca %w", err)
+	}
+
+	fmt.Print("  Server Cert...")
+	serverCert, fromCache, err := ca.LoadOrCreateServerCert()
+	if fromCache {
+		fmt.Printf(" loaded from %s!\n", ca.cacheDir)
+	} else {
+		fmt.Println(" done!")
+	}
+	if err != nil {
+		return nil, nil, fmt.Errorf("server %w", err)
+	}
+	return ca, serverCert, err
 }
 
 func grpcWebInterceptor(grpcWebServer *grpcweb.WrappedGrpcServer) HttpInterceptor {
