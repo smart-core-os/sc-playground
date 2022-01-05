@@ -40,7 +40,7 @@ type ca struct {
 	cacheReadFailed bool   // set to true if reading the CA from the cache failed for this instance.
 }
 
-func NewSelfSignedCA(opts ...caOption) (*ca, bool, error) {
+func NewSelfSignedCA(opts ...caOption) (instance *ca, fromCache bool, err error) {
 	// CA cert
 	ca := &ca{}
 	for _, opt := range opts {
@@ -60,7 +60,6 @@ func NewSelfSignedCA(opts ...caOption) (*ca, bool, error) {
 	}
 
 	ca.serial = big.NewInt(0)
-	var err error
 	ca.cert = &x509.Certificate{
 		SerialNumber: big.NewInt(1),
 		Subject: pkix.Name{
@@ -162,7 +161,7 @@ func (ca *ca) WriteCACertPEM(w io.Writer) error {
 	return err
 }
 
-func (ca *ca) NewServerCert() (*tls.Certificate, bool, error) {
+func (ca *ca) NewServerCert() (cert *tls.Certificate, fromCache bool, err error) {
 	serverNum := ca.serverCount
 	ca.serverCount++
 	cachedCert, err := ca.loadServerCertFromCache(serverNum)
