@@ -70,7 +70,7 @@ func Serve(opts ...ConfigOption) error {
 		fmt.Println("Generating self-signed certificates...")
 		fmt.Print("  CA...")
 		var fromCache bool
-		config.ca, fromCache, err = NewSelfSignedCA(withCacheDir(cacheDir))
+		config.ca, fromCache, err = LoadOrCreateSelfSignedCA(withCacheDir(cacheDir))
 		if fromCache {
 			fmt.Printf(" loaded from %s!\n", config.ca.cacheDir)
 		} else {
@@ -81,7 +81,7 @@ func Serve(opts ...ConfigOption) error {
 		}
 
 		fmt.Print("  Server Cert...")
-		serverCert, fromCache, err := config.ca.NewServerCert()
+		serverCert, fromCache, err := config.ca.LoadOrCreateServerCert()
 		if fromCache {
 			fmt.Printf(" loaded from %s!\n", config.ca.cacheDir)
 		} else {
