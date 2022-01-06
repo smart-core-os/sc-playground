@@ -501,6 +501,48 @@ func TestReduceProfile(t *testing.T) {
 	}
 }
 
+func TestSum_Regression(t *testing.T) {
+	// this case exposed a bug where Reduce would panic if a profile had any zero-length segments.
+	prof := []Profile{
+		{
+			Segments: []Segment{
+				{Duration: 11 * time.Second, Level: 0},
+				{Duration: 3 * time.Second, Level: 24},
+				{Duration: 10 * time.Second, Level: 60},
+			},
+			FinalLevel: 48,
+		},
+		{
+			Segments: []Segment{
+				{Duration: 7 * time.Second, Level: 0},
+			},
+			FinalLevel: 48,
+		},
+		{
+			Segments: []Segment{
+				{Duration: 0, Level: 0},
+			},
+			FinalLevel: 48,
+		},
+	}
+
+	expect := Profile{
+		Segments: []Segment{
+			{7 * time.Second, 48},
+			{4 * time.Second, 96},
+			{3 * time.Second, 120},
+			{10 * time.Second, 156},
+		},
+		FinalLevel: 144,
+	}
+
+	result := Sum(prof...)
+
+	if diff := cmp.Diff(expect, result, cmpopts.EquateEmpty()); diff != "" {
+		t.Error(diff)
+	}
+}
+
 // TestMaxProfile_Identity verifies that when Max is provided a single Profile, it returns the profile unchanged.
 // This is verified using random profiles.
 func TestMaxProfile_Identity(t *testing.T) {

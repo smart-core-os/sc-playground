@@ -281,15 +281,15 @@ func Reduce(reduce func(acc, level float32) float32, profiles ...Profile) Profil
 	return result.Normalised()
 }
 
-// shortestInitialDuration find the smallest Duration value from among the first segments (i.e. Segments[0]) of
+// shortestInitialDuration find the smallest nonzero Duration value from among the first segments (i.e. Segments[0]) of
 // the provided profiles.
 // This can be used to find an appropriate location to split up the profiles' segments, so they can be matched up
 // 1-to-1 for further processing.
-// Sets ok=true if result is valid. If none of the profiles have any segments, ok=false and the result is undefined.
+// Sets ok=true if result is valid. If all the profiles are empty, ok=false and the result is undefined.
 func shortestInitialDuration(profiles []Profile) (result time.Duration, ok bool) {
 	for _, profile := range profiles {
-		// skip profiles with no segments
-		if len(profile.Segments) == 0 {
+		// skip profiles with no segments of nonzero duration
+		if profile.IsEmpty() {
 			continue
 		}
 
@@ -321,7 +321,7 @@ func reduceInitial(profiles []Profile, reduce func(a, x float32) float32, final 
 	acc := accumulator.Float32{Reduce: reduce}
 
 	for _, profile := range profiles {
-		profile = profile.Normalised()
+		//profile = profile.Normalised()
 		if profile.IsEmpty() {
 			// continue without adding this profile to the remaining profiles slice, to ensure it is not
 			// processed further
@@ -334,7 +334,9 @@ func reduceInitial(profiles []Profile, reduce func(a, x float32) float32, final 
 			panic("logic error: found a segment shorter than d")
 		}
 
-		acc.Accumulate(prefix.Segments[0].Level)
+		if !prefix.IsEmpty() {
+			acc.Accumulate(prefix.Segments[0].Level)
+		}
 
 		remaining = append(remaining, suffix)
 	}
