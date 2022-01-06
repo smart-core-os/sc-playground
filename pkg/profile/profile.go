@@ -6,8 +6,6 @@ import (
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	"google.golang.org/protobuf/types/known/durationpb"
-
-	"github.com/smart-core-os/sc-playground/internal/util/accumulator"
 )
 
 // Profile represents a piecewise-constant time series of levels. A Profile is a sequence of Segments.
@@ -238,16 +236,14 @@ func (p Profile) DelayStart(d time.Duration) Profile {
 	}
 
 	result := p
+	result.Segments = make([]Segment, len(p.Segments)+1)
+	copy(result.Segments[1:], p.Segments)
 
 	// new initial segment
-	result.Segments = []Segment{
-		{
-			Duration: d,
-			Level:    0,
-		},
+	result.Segments[0] = Segment{
+		Duration: d,
+		Level:    0,
 	}
-
-	result.Segments = append(result.Segments, p.Segments...)
 
 	return result
 }
@@ -290,97 +286,27 @@ func Reduce(reduce func(acc, level float32) float32, profiles ...Profile) Profil
 		result.FinalLevel = reduce(result.FinalLevel, profile.FinalLevel)
 	}
 
-	// After the end of all a profile's segments, we need to reduce its FinalValue into all the subsequent segments
-	// we create. finalAcc accumulates the value to use.
-	finalAcc := accumulator.Float32{Reduce: reduce}
-	for {
-		folded, remaining := reduceInitial(profiles, reduce, &finalAcc)
-		if folded.Duration == 0 {
-			// there wasn't anything to process
-			break
+	// align the segment starts and ends of all profiles
+	profiles = Align(profiles)
+	// all profiles should now have the same number of segments, and of identical duration
+	result.Segments = make([]Segment, len(profiles[0].Segments))
+
+	for i := range result.Segments {
+		reduced := Segment{
+			Duration: profiles[0].Segments[i].Duration,
+			Level:    profiles[0].Segments[i].Level,
 		}
 
-		profiles = remaining
-
-		if finalVal, ok := finalAcc.Get(); ok {
-			folded.Level = reduce(folded.Level, finalVal)
+		// reduce the values of the aligned segments in the current position
+		for _, p := range profiles[1:] {
+			segment := p.Segments[i]
+			reduced.Level = reduce(reduced.Level, segment.Level)
 		}
-		result.Segments = append(result.Segments, folded)
+
+		result.Segments = append(result.Segments, reduced)
 	}
 
 	return result.Normalised()
-}
-
-// shortestInitialDuration find the smallest nonzero Duration value from among the first segments (i.e. Segments[0]) of
-// the provided profiles.
-// This can be used to find an appropriate location to split up the profiles' segments, so they can be matched up
-// 1-to-1 for further processing.
-// Sets ok=true if result is valid. If all the profiles are empty, ok=false and the result is undefined.
-func shortestInitialDuration(profiles []Profile) (result time.Duration, ok bool) {
-	for _, profile := range profiles {
-		// skip profiles with no segments of nonzero duration
-		if profile.IsEmpty() {
-			continue
-		}
-
-		firstSeg := profile.Segments[0]
-
-		if ok {
-			if firstSeg.Duration < result {
-				result = firstSeg.Duration
-			}
-		} else {
-			// we have no duration to compare to, so just use this segment as the minimum duration
-			result = firstSeg.Duration
-			ok = true
-		}
-	}
-
-	return
-}
-
-func reduceInitial(profiles []Profile, reduce func(a, x float32) float32, final *accumulator.Float32) (folded Segment, remaining []Profile) {
-
-	d, ok := shortestInitialDuration(profiles)
-	if !ok {
-		// if there are no segments in any profile, then return profiles unmodified
-		remaining = profiles
-		return
-	}
-
-	acc := accumulator.Float32{Reduce: reduce}
-
-	for _, profile := range profiles {
-		//profile = profile.Normalised()
-		if profile.IsEmpty() {
-			// continue without adding this profile to the remaining profiles slice, to ensure it is not
-			// processed further
-			final.Accumulate(profile.FinalLevel)
-			continue
-		}
-
-		prefix, suffix := profile.SplitAt(d)
-		if len(prefix.Segments) > 1 {
-			panic("logic error: found a segment shorter than d")
-		}
-
-		if !prefix.IsEmpty() {
-			acc.Accumulate(prefix.Segments[0].Level)
-		}
-
-		remaining = append(remaining, suffix)
-	}
-
-	level, ok := acc.Get()
-	if !ok {
-		panic("no values to reduce over")
-	}
-
-	folded = Segment{
-		Duration: d,
-		Level:    level,
-	}
-	return
 }
 
 // groupEqualLevels will merge together a contiguous block of segments at the start of the slice that all have the same

@@ -465,7 +465,6 @@ func TestReduceProfile(t *testing.T) {
 			expectMax: Profile{
 				Segments: []Segment{
 					{2 * time.Hour, 4},
-					{1 * time.Hour, 5},
 				},
 				FinalLevel: 5,
 			},
@@ -493,9 +492,7 @@ func TestReduceProfile(t *testing.T) {
 				},
 			},
 			expectMax: Profile{
-				Segments: []Segment{
-					{2 * time.Hour, 10},
-				},
+				Segments:   nil, // max is 10 all the time, folds into FinalLevel
 				FinalLevel: 10,
 			},
 			expectSum: Profile{
@@ -530,45 +527,102 @@ func TestReduceProfile(t *testing.T) {
 }
 
 func TestSum_Regression(t *testing.T) {
-	// this case exposed a bug where Reduce would panic if a profile had any zero-length segments.
-	prof := []Profile{
+	type testCase struct {
+		name   string
+		desc   string
+		input  []Profile
+		expect Profile
+	}
+
+	cases := []testCase{
 		{
-			Segments: []Segment{
-				{Duration: 11 * time.Second, Level: 0},
-				{Duration: 3 * time.Second, Level: 24},
-				{Duration: 10 * time.Second, Level: 60},
+			name: "zero-length segment",
+			desc: "Reduce previously panicked on zero-length segments",
+			input: []Profile{
+				{
+					Segments: []Segment{
+						{11 * time.Second, 0},
+						{3 * time.Second, 24},
+						{10 * time.Second, 60},
+					},
+					FinalLevel: 48,
+				},
+				{
+					Segments: []Segment{
+						{7 * time.Second, 0},
+					},
+					FinalLevel: 48,
+				},
+				{
+					Segments: []Segment{
+						{0, 0},
+					},
+					FinalLevel: 48,
+				},
 			},
-			FinalLevel: 48,
+			expect: Profile{
+				Segments: []Segment{
+					{7 * time.Second, 48},
+					{4 * time.Second, 96},
+					{3 * time.Second, 120},
+					{10 * time.Second, 156},
+				},
+				FinalLevel: 144,
+			},
 		},
 		{
-			Segments: []Segment{
-				{Duration: 7 * time.Second, Level: 0},
+			name: "panic",
+			input: []Profile{
+				{
+					Segments: []Segment{
+						{4 * time.Second, 0},
+						{60 * time.Second, 12},
+					},
+					FinalLevel: 42,
+				},
+				{
+					Segments: []Segment{
+						{0, 0},
+						{30 * time.Second, 24},
+						{10 * time.Second, 60},
+					},
+					FinalLevel: 48,
+				},
+				{
+					Segments: []Segment{
+						{2 * time.Minute, 0},
+						{30 * time.Second, 24},
+						{10 * time.Second, 60},
+					},
+					FinalLevel: 48,
+				},
 			},
-			FinalLevel: 48,
-		},
-		{
-			Segments: []Segment{
-				{Duration: 0, Level: 0},
+			expect: Profile{
+				Segments: []Segment{
+					{4 * time.Second, 24},
+					{26 * time.Second, 36},
+					{10 * time.Second, 72},
+					{24 * time.Second, 60},
+					{56 * time.Second, 90},
+					{30 * time.Second, 114},
+					{10 * time.Second, 150},
+				},
+				FinalLevel: 138,
 			},
-			FinalLevel: 48,
 		},
 	}
 
-	expect := Profile{
-		Segments: []Segment{
-			{7 * time.Second, 48},
-			{4 * time.Second, 96},
-			{3 * time.Second, 120},
-			{10 * time.Second, 156},
-		},
-		FinalLevel: 144,
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Log(c.desc)
+			result := Sum(c.input...)
+
+			if diff := cmp.Diff(c.expect, result, cmpopts.EquateEmpty()); diff != "" {
+				t.Error(diff)
+			}
+		})
 	}
 
-	result := Sum(prof...)
-
-	if diff := cmp.Diff(expect, result, cmpopts.EquateEmpty()); diff != "" {
-		t.Error(diff)
-	}
 }
 
 // TestMaxProfile_Identity verifies that when Max is provided a single Profile, it returns the profile unchanged.
