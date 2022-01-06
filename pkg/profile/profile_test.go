@@ -128,6 +128,22 @@ func TestProfile_Normalised(t *testing.T) {
 			input:  Profile{FinalLevel: 123},
 			expect: Profile{FinalLevel: 123},
 		},
+		{
+			name: "Trailing FinalLevel segments",
+			input: Profile{
+				Segments: []Segment{
+					{1 * time.Hour, 1},
+					{2 * time.Hour, 123},
+				},
+				FinalLevel: 123,
+			},
+			expect: Profile{
+				Segments: []Segment{
+					{1 * time.Hour, 1},
+				},
+				FinalLevel: 123,
+			},
+		},
 	}
 
 	for _, c := range testCases {

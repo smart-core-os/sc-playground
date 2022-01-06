@@ -80,7 +80,9 @@ func (p Profile) ToProto() []*traits.ElectricMode_Segment {
 }
 
 // Normalised creates a normalised copy of profile p.
+// The Normalised profile represents the same time series as p, but removes redundant segments.
 // A normal profile has no zero-duration Segments, and it also does not have adjacent Segments with the same Level.
+// Segments at the end of the Profile with the same Level as FinalLevel will also be removed.
 // The normalised Profile will always return the same results from MaxLevel, TotalDuration and LevelAfter as the
 // original profile p.
 func (p Profile) Normalised() Profile {
@@ -95,6 +97,15 @@ func (p Profile) Normalised() Profile {
 
 		if segment.Duration > 0 {
 			newSegs = append(newSegs, segment)
+		}
+	}
+
+	// remove trailing segments, if they are equal to FinalLevel
+	for i := len(newSegs) - 1; i >= 0; i-- {
+		if newSegs[i].Level == p.FinalLevel {
+			newSegs = newSegs[:i]
+		} else {
+			break
 		}
 	}
 
