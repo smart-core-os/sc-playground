@@ -169,17 +169,35 @@ func (p Profile) IsEmpty() bool {
 // SplitAt splits a Profile into two parts at duration d after the start of the profile.
 // The before profile contains all segments entirely before d, and the after profile contains all segments entirely after
 // d. The segment on the boundary is split between before and after.
-// If p.TotalDuration() >= d, then before.TotalDuration() == d.
+// before.TotalDuration() == d
 func (p Profile) SplitAt(d time.Duration) (before, after Profile) {
 	before.FinalLevel = 0
 	after.FinalLevel = p.FinalLevel
+
+	total := p.TotalDuration()
+	if d > total {
+		extra := d - total
+		// Include the extra beyond the end in before,
+		// so that before.TotalDuration() == d even if p is shorter than that
+		// This will mean after is empty
+		before.Segments = make([]Segment, len(p.Segments))
+		copy(before.Segments, p.Segments)
+
+		before.Segments = append(before.Segments, Segment{
+			Duration: extra,
+			Level:    p.FinalLevel,
+		})
+		return
+	}
 
 	segs := p.Segments
 
 	// process whole segments
 	for len(segs) > 0 && segs[0].Duration <= d {
 		d -= segs[0].Duration
-		before.Segments = append(before.Segments, segs[0])
+		if segs[0].Duration > 0 {
+			before.Segments = append(before.Segments, segs[0])
+		}
 		segs = segs[1:]
 	}
 

@@ -366,6 +366,18 @@ func TestProfile_SplitAt(t *testing.T) {
 				{1 * time.Hour, 1},
 			}},
 		},
+		{
+			name: "Zero-length",
+			input: Profile{
+				Segments: []Segment{
+					{0, 1},
+				},
+				FinalLevel: 2,
+			},
+			d:            0,
+			expectBefore: Profile{},
+			expectAfter:  Profile{FinalLevel: 2},
+		},
 	}
 
 	for _, c := range cases {
