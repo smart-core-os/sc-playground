@@ -1,6 +1,7 @@
 package profile
 
 import (
+	"sort"
 	"time"
 
 	"github.com/smart-core-os/sc-api/go/traits"
@@ -409,4 +410,66 @@ func groupEqualLevels(segments []Segment) (Segment, []Segment) {
 	}
 
 	return grouped, segments
+}
+
+// Align will produce a slice of Profiles representing the same time series as the input, but with all profiles
+// having the same number of segments and all segments in the same position having the same duration.
+// This makes it easier to
+func Align(profiles []Profile) []Profile {
+	edges := segmentEdges(profiles)
+	results := make([]Profile, 0, len(profiles))
+
+	for _, p := range profiles {
+		result := p
+		result.Segments = make([]Segment, 0, len(edges))
+
+		for j, start := range edges[:len(edges)-1] {
+			end := edges[j+1]
+			length := end - start
+			segment := Segment{
+				Duration: length,
+				Level:    p.LevelAfter(start),
+			}
+			result.Segments = append(result.Segments, segment)
+		}
+
+		results = append(results, result)
+	}
+
+	return results
+}
+
+func segmentEdges(profiles []Profile) []time.Duration {
+	// gather all of the segment start times, as offsets from the start of their respective profiles
+	var edges []time.Duration
+	for _, p := range profiles {
+		var offset time.Duration = 0
+		for _, s := range p.Segments {
+			edges = append(edges, offset)
+			offset += s.Duration
+		}
+
+		// also add the end of the last segment
+		edges = append(edges, offset)
+	}
+
+	// remove duplicates
+	seen := make(map[time.Duration]bool)
+	i := 0
+	for _, start := range edges {
+		_, present := seen[start]
+		if !present {
+			edges[i] = start
+			seen[start] = true
+			i++
+		}
+	}
+	edges = edges[:i]
+
+	// sort the start times
+	sort.Slice(edges, func(i, j int) bool {
+		return edges[i] < edges[j]
+	})
+
+	return edges
 }

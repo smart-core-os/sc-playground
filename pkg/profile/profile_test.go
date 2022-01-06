@@ -625,6 +625,51 @@ func TestProfile_DelayStart(t *testing.T) {
 	}
 }
 
+func TestAlign_Random(t *testing.T) {
+	r := rand.New(util.TestRandSource(t))
+
+	profiles := make([]Profile, 10)
+	for i := range profiles {
+		profiles[i] = genProfile(r)
+	}
+
+	aligned := Align(profiles)
+
+	t.Run("same time series", func(t *testing.T) {
+		for i := range profiles {
+			expect := profiles[i].Normalised()
+			actual := aligned[i].Normalised()
+
+			if diff := cmp.Diff(expect, actual, cmpopts.EquateEmpty()); diff != "" {
+				t.Errorf("profile %d: %s", i, diff)
+			}
+		}
+	})
+
+	t.Run("number of segments match", func(t *testing.T) {
+		expect := len(aligned[0].Segments)
+		for i, p := range aligned {
+			actual := len(p.Segments)
+			if actual != expect {
+				t.Errorf("expected profile %d to have %d segments, but it has %d", i, expect, actual)
+			}
+		}
+	})
+
+	t.Run("segment durations match", func(t *testing.T) {
+		for i := range aligned[0].Segments {
+			expect := aligned[0].Segments[i].Duration
+			for j, p := range aligned {
+				actual := p.Segments[i].Duration
+				if actual != expect {
+					t.Errorf("expected segment %d in profile %d to have duration %v, but it is %v",
+						i, j, expect, actual)
+				}
+			}
+		}
+	})
+}
+
 func genProfile(r *rand.Rand) Profile {
 	var profile Profile
 	profile.Segments = make([]Segment, r.Intn(20))
