@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "gen": "protomod protoc -- --js_out=import_style=commonjs:. --grpc-web_out=import_style=commonjs,mode=grpcwebtext:. trait/powersupply/memory_settings.proto"
+    "gen": "protomod protoc -- --js_out=import_style=commonjs:. --grpc-web_out=import_style=commonjs+dts,mode=grpcwebtext:. trait/powersupply/memory_settings.proto"
   },
   "dependencies": {
     "@smart-core-os/sc-api-grpc-web": "^1.0.0-beta.24",

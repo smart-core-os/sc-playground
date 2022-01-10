@@ -169,6 +169,7 @@ if (goog.DEBUG && !COMPILED) {
 }
 
 
+
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
    * Creates an object representation of this proto.
@@ -1073,12 +1074,14 @@ proto.smartcore.go.trait.powersupply.PullMemorySettingsReq.prototype.hasFields =
 };
 
 
+
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
  * @const
  */
 proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.repeatedFields_ = [1];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
