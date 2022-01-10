@@ -10,7 +10,7 @@ import (
 )
 
 func OnOffApi() server.GrpcApi {
-	r := onoff.NewRouter()
+	r := onoff.NewApiRouter()
 	r.Factory = func(name string) (traits.OnOffApiClient, error) {
 		var onOrOff traits.OnOff_State
 		n := rand.Intn(10)
@@ -20,7 +20,7 @@ func OnOffApi() server.GrpcApi {
 			onOrOff = traits.OnOff_ON
 		}
 		log.Printf("Creating OnOffClient(%v)=%v", name, onOrOff)
-		return onoff.Wrap(onoff.NewModelServer(onoff.NewModel(onOrOff))), nil
+		return onoff.WrapApi(onoff.NewModelServer(onoff.NewModel(onOrOff))), nil
 	}
 	return r
 }

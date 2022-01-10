@@ -19,15 +19,15 @@ import (
 )
 
 func ElectricApi() server.GrpcApi {
-	devices := electric.NewRouter()
-	settings := electric.NewMemorySettingsRouter()
+	devices := electric.NewApiRouter()
+	settings := electric.NewMemorySettingsApiRouter()
 	logger := zap.NewExample()
 
 	// create a Source, which all sinks will be registered to
 	sourceName := "ELEC-SOURCE"
 	sourceModel := electric.NewModel(clock.Real())
 	sourceApi := electric.NewModelServer(sourceModel)
-	devices.Add(sourceName, electric.Wrap(sourceApi))
+	devices.Add(sourceName, electric.WrapApi(sourceApi))
 	source := simelectric.NewSource(sourceModel,
 		simelectric.WithSourceLogger(logger.Named("source")),
 	)
@@ -76,8 +76,8 @@ func ElectricApi() server.GrpcApi {
 		}()
 
 		electricServer := electric.NewModelServer(model)
-		settings.Add(name, electric.WrapMemorySettings(electricServer))
-		return electric.Wrap(electricServer), nil
+		settings.Add(name, electric.WrapMemorySettingsApi(electricServer))
+		return electric.WrapApi(electricServer), nil
 	}
 	return server.Collection(devices, settings)
 }

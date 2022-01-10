@@ -12,7 +12,7 @@ import (
 )
 
 func EnergyStorageApi() server.GrpcApi {
-	r := energystorage.NewRouter()
+	r := energystorage.NewApiRouter()
 	r.Factory = func(name string) (traits.EnergyStorageApiClient, error) {
 		log.Printf("Creating EnergyStorageClient(%v)", name)
 		model := energystorage.NewModel()
@@ -30,7 +30,7 @@ func EnergyStorageApi() server.GrpcApi {
 			}
 		}()
 
-		return energystorage.Wrap(energystorage.NewModelServer(model, energystorage.ReadOnly())), nil
+		return energystorage.WrapApi(energystorage.NewModelServer(model, energystorage.ReadOnly())), nil
 	}
 	return r
 }

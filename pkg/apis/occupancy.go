@@ -7,13 +7,13 @@ import (
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/server"
-	"github.com/smart-core-os/sc-golang/pkg/trait/occupancy"
+	"github.com/smart-core-os/sc-golang/pkg/trait/occupancysensor"
 )
 
 func OccupancyApi() server.GrpcApi {
 	// handle random changes in occupancy
 	var devices []struct {
-		api  *occupancy.Model
+		api  *occupancysensor.Model
 		name string
 	}
 	go func() {
@@ -27,16 +27,16 @@ func OccupancyApi() server.GrpcApi {
 		}
 	}()
 
-	r := occupancy.NewRouter()
+	r := occupancysensor.NewApiRouter()
 	r.Factory = func(name string) (traits.OccupancySensorApiClient, error) {
 		initial := randomOccupancy()
 		log.Printf("Creating OccupancyApiClient(%v) %v (people=%v)", name, initial.State, initial.PeopleCount)
-		api := occupancy.NewModel(initial)
+		api := occupancysensor.NewModel(initial)
 		devices = append(devices, struct {
-			api  *occupancy.Model
+			api  *occupancysensor.Model
 			name string
 		}{api: api, name: name})
-		return occupancy.Wrap(occupancy.NewModelServer(api)), nil
+		return occupancysensor.WrapApi(occupancysensor.NewModelServer(api)), nil
 	}
 	return r
 }
