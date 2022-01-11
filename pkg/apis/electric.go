@@ -19,18 +19,21 @@ import (
 )
 
 func ElectricApi() server.GrpcApi {
-	devices := electric.NewApiRouter()
-	settings := electric.NewMemorySettingsApiRouter()
 	logger := zap.NewExample()
 
 	// create a Source, which all sinks will be registered to
 	sourceName := "ELEC-SOURCE"
 	sourceModel := electric.NewModel(clock.Real())
 	sourceApi := electric.NewModelServer(sourceModel)
-	devices.Add(sourceName, electric.WrapApi(sourceApi))
 	source := simelectric.NewSource(sourceModel,
 		simelectric.WithSourceLogger(logger.Named("source")),
 	)
+
+	settings := electric.NewMemorySettingsApiRouter()
+	devices := electric.NewApiRouter(
+		electric.WithElectricApiClientFactory(electricClientFactory(source, settings, logger)),
+	)
+	devices.Add(sourceName, electric.WrapApi(sourceApi))
 
 	// start the Source simulation
 	go func() {
@@ -40,7 +43,11 @@ func ElectricApi() server.GrpcApi {
 		}
 	}()
 
-	devices.Factory = func(name string) (traits.ElectricApiClient, error) {
+	return server.Collection(devices, settings)
+}
+
+func electricClientFactory(source *simelectric.Source, settings *electric.MemorySettingsApiRouter, logger *zap.Logger) func(name string) (traits.ElectricApiClient, error) {
+	return func(name string) (traits.ElectricApiClient, error) {
 		log.Printf("Creating ElectricClient(%v)", name)
 		model := electric.NewModel(clock.Real())
 
@@ -79,7 +86,6 @@ func ElectricApi() server.GrpcApi {
 		settings.Add(name, electric.WrapMemorySettingsApi(electricServer))
 		return electric.WrapApi(electricServer), nil
 	}
-	return server.Collection(devices, settings)
 }
 
 func createElectricModes(device *electric.Model, rating float32) {

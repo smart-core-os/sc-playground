@@ -10,17 +10,18 @@ import (
 )
 
 func OnOffApi() server.GrpcApi {
-	r := onoff.NewApiRouter()
-	r.Factory = func(name string) (traits.OnOffApiClient, error) {
-		var onOrOff traits.OnOff_State
-		n := rand.Intn(10)
-		if n < 5 {
-			onOrOff = traits.OnOff_OFF
-		} else {
-			onOrOff = traits.OnOff_ON
-		}
-		log.Printf("Creating OnOffClient(%v)=%v", name, onOrOff)
-		return onoff.WrapApi(onoff.NewModelServer(onoff.NewModel(onOrOff))), nil
-	}
+	r := onoff.NewApiRouter(
+		onoff.WithOnOffApiClientFactory(func(name string) (traits.OnOffApiClient, error) {
+			var onOrOff traits.OnOff_State
+			n := rand.Intn(10)
+			if n < 5 {
+				onOrOff = traits.OnOff_OFF
+			} else {
+				onOrOff = traits.OnOff_ON
+			}
+			log.Printf("Creating OnOffClient(%v)=%v", name, onOrOff)
+			return onoff.WrapApi(onoff.NewModelServer(onoff.NewModel(onOrOff))), nil
+		}),
+	)
 	return r
 }

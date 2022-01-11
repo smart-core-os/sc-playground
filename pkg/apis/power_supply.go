@@ -11,15 +11,16 @@ import (
 )
 
 func PowerSupplyApi() server.GrpcApi {
-	devices := powersupply.NewApiRouter()
 	settings := powersupply.NewMemorySettingsApiRouter()
-	devices.Factory = func(name string) (traits.PowerSupplyApiClient, error) {
-		log.Printf("Creating PowerSupplyClient(%v)", name)
-		device := powersupply.NewMemoryDevice()
-		// seed with a random load
-		device.SetLoad(float32(math.Round(rand.Float64()*40*100) / 100))
-		settings.Add(name, powersupply.WrapMemorySettingsApi(device))
-		return powersupply.WrapApi(device), nil
-	}
+	devices := powersupply.NewApiRouter(
+		powersupply.WithPowerSupplyApiClientFactory(func(name string) (traits.PowerSupplyApiClient, error) {
+			log.Printf("Creating PowerSupplyClient(%v)", name)
+			device := powersupply.NewMemoryDevice()
+			// seed with a random load
+			device.SetLoad(float32(math.Round(rand.Float64()*40*100) / 100))
+			settings.Add(name, powersupply.WrapMemorySettingsApi(device))
+			return powersupply.WrapApi(device), nil
+		}),
+	)
 	return server.Collection(devices, settings)
 }

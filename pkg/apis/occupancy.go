@@ -27,17 +27,18 @@ func OccupancyApi() server.GrpcApi {
 		}
 	}()
 
-	r := occupancysensor.NewApiRouter()
-	r.Factory = func(name string) (traits.OccupancySensorApiClient, error) {
-		initial := randomOccupancy()
-		log.Printf("Creating OccupancyApiClient(%v) %v (people=%v)", name, initial.State, initial.PeopleCount)
-		api := occupancysensor.NewModel(initial)
-		devices = append(devices, struct {
-			api  *occupancysensor.Model
-			name string
-		}{api: api, name: name})
-		return occupancysensor.WrapApi(occupancysensor.NewModelServer(api)), nil
-	}
+	r := occupancysensor.NewApiRouter(
+		occupancysensor.WithOccupancySensorApiClientFactory(func(name string) (traits.OccupancySensorApiClient, error) {
+			initial := randomOccupancy()
+			log.Printf("Creating OccupancyApiClient(%v) %v (people=%v)", name, initial.State, initial.PeopleCount)
+			api := occupancysensor.NewModel(initial)
+			devices = append(devices, struct {
+				api  *occupancysensor.Model
+				name string
+			}{api: api, name: name})
+			return occupancysensor.WrapApi(occupancysensor.NewModelServer(api)), nil
+		}),
+	)
 	return r
 }
 

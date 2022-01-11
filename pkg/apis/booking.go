@@ -12,10 +12,11 @@ import (
 )
 
 func BookingApi() server.GrpcApi {
-	r := booking.NewApiRouter()
-	r.Factory = func(name string) (traits.BookingApiClient, error) {
-		return booking.WrapApi(newBookingApiServer(name)), nil
-	}
+	r := booking.NewApiRouter(
+		booking.WithBookingApiClientFactory(func(name string) (traits.BookingApiClient, error) {
+			return booking.WrapApi(newBookingApiServer(name)), nil
+		}),
+	)
 	return r
 }
 
