@@ -48,6 +48,7 @@ func runCtx(ctx context.Context) error {
 
 	return run.Serve(
 		run.WithContext(ctx),
+		run.WithDefaultName("scos/apps/playground"),
 		run.WithApis(
 			apis.BookingApi(),
 			apis.ElectricApi(),
