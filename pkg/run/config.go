@@ -17,7 +17,8 @@ const (
 type Config struct {
 	ctx context.Context
 
-	grpcApis []server.GrpcApi
+	defaultName string
+	grpcApis    []server.GrpcApi
 
 	grpcAddress  string
 	httpAddress  string // includes http hosting and grpc-web over http
@@ -78,6 +79,14 @@ var NilConfigOption ConfigOption = func(config *Config) {
 func WithContext(ctx context.Context) ConfigOption {
 	return func(config *Config) {
 		config.ctx = ctx
+	}
+}
+
+// WithDefaultName configures the application with a default Smart Core name.
+// The defaultName will be used as the default for requests that don't specify a name.
+func WithDefaultName(defaultName string) ConfigOption {
+	return func(config *Config) {
+		config.defaultName = defaultName
 	}
 }
 

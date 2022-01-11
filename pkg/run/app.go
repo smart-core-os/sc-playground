@@ -15,6 +15,7 @@ import (
 
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/rs/cors"
+	"github.com/smart-core-os/sc-golang/pkg/middleware/name"
 	"github.com/smart-core-os/sc-golang/pkg/server"
 	"github.com/soheilhy/cmux"
 	"google.golang.org/grpc"
@@ -49,6 +50,12 @@ func Serve(opts ...ConfigOption) error {
 		return fmt.Errorf("grpc: %w", err)
 	}
 	var grpcOpts []grpc.ServerOption
+	if config.defaultName != "" {
+		grpcOpts = append(grpcOpts,
+			grpc.UnaryInterceptor(name.IfAbsentUnaryInterceptor(config.defaultName)),
+			grpc.StreamInterceptor(name.IfAbsentStreamInterceptor(config.defaultName)),
+		)
+	}
 	if config.grpcTlsConfig != nil {
 		addRunMsg(grpcLis.Addr(), "Secure gRPC")
 		grpcOpts = append(grpcOpts, grpc.Creds(credentials.NewTLS(config.grpcTlsConfig)))
