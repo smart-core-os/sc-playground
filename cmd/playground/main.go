@@ -9,7 +9,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/parent"
 	"github.com/smart-core-os/sc-playground/pkg/apis"
 	"github.com/smart-core-os/sc-playground/pkg/run"
@@ -54,7 +53,6 @@ func runCtx(ctx context.Context) error {
 	serverDeviceName := "scos/apps/playground"
 	// register the server traits
 	parentApi := apis.ParentApi(traiter)
-	traiter.Trait(serverDeviceName, trait.Parent)
 	parentApi.Add(serverDeviceName, parent.WrapApi(parent.NewModelServer(devices)))
 
 	return run.Serve(
