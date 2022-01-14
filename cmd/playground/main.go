@@ -9,6 +9,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/smart-core-os/sc-golang/pkg/trait"
+	"github.com/smart-core-os/sc-golang/pkg/trait/parent"
 	"github.com/smart-core-os/sc-playground/pkg/apis"
 	"github.com/smart-core-os/sc-playground/pkg/run"
 	"github.com/smart-core-os/sc-playground/ui"
@@ -46,16 +48,26 @@ func runCtx(ctx context.Context) error {
 		return err
 	}
 
+	devices := parent.NewModel()
+	traiter := &deviceTraiter{devices}
+
+	serverDeviceName := "scos/apps/playground"
+	// register the server traits
+	parentApi := apis.ParentApi(traiter)
+	traiter.Trait(serverDeviceName, trait.Parent)
+	parentApi.Add(serverDeviceName, parent.WrapApi(parent.NewModelServer(devices)))
+
 	return run.Serve(
 		run.WithContext(ctx),
-		run.WithDefaultName("scos/apps/playground"),
+		run.WithDefaultName(serverDeviceName),
 		run.WithApis(
-			apis.BookingApi(),
-			apis.ElectricApi(),
-			apis.EnergyStorageApi(),
-			apis.OccupancyApi(),
-			apis.OnOffApi(),
-			apis.PowerSupplyApi(),
+			parentApi,
+			apis.BookingApi(traiter),
+			apis.ElectricApi(traiter),
+			apis.EnergyStorageApi(traiter),
+			apis.OccupancyApi(traiter),
+			apis.OnOffApi(traiter),
+			apis.PowerSupplyApi(traiter),
 		),
 		run.WithGrpcAddress(*grpcBind),
 		run.WithHttpAddress(*httpBind),
@@ -123,4 +135,12 @@ func withForceCertGen() run.ConfigOption {
 	} else {
 		return run.NilConfigOption
 	}
+}
+
+type deviceTraiter struct {
+	parent *parent.Model
+}
+
+func (d *deviceTraiter) Trait(name string, traits ...string) {
+	d.parent.AddChildTrait(name, traits...)
 }

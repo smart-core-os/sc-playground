@@ -7,13 +7,15 @@ import (
 	"github.com/smart-core-os/sc-api/go/traits"
 	scTime "github.com/smart-core-os/sc-api/go/types/time"
 	"github.com/smart-core-os/sc-golang/pkg/server"
+	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/booking"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func BookingApi() server.GrpcApi {
+func BookingApi(traiter Traiter) server.GrpcApi {
 	r := booking.NewApiRouter(
 		booking.WithBookingApiClientFactory(func(name string) (traits.BookingApiClient, error) {
+			traiter.Trait(name, trait.Booking)
 			return booking.WrapApi(newBookingApiServer(name)), nil
 		}),
 	)

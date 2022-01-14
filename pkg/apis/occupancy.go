@@ -7,10 +7,11 @@ import (
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/server"
+	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/occupancysensor"
 )
 
-func OccupancyApi() server.GrpcApi {
+func OccupancyApi(traiter Traiter) server.GrpcApi {
 	// handle random changes in occupancy
 	var devices []struct {
 		api  *occupancysensor.Model
@@ -29,6 +30,7 @@ func OccupancyApi() server.GrpcApi {
 
 	r := occupancysensor.NewApiRouter(
 		occupancysensor.WithOccupancySensorApiClientFactory(func(name string) (traits.OccupancySensorApiClient, error) {
+			traiter.Trait(name, trait.OccupancySensor)
 			initial := randomOccupancy()
 			log.Printf("Creating OccupancyApiClient(%v) %v (people=%v)", name, initial.State, initial.PeopleCount)
 			api := occupancysensor.NewModel(initial)

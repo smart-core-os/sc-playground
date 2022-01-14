@@ -7,14 +7,16 @@ import (
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/server"
+	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/energystorage"
 	sim "github.com/smart-core-os/sc-playground/internal/simulated/energystorage"
 )
 
-func EnergyStorageApi() server.GrpcApi {
+func EnergyStorageApi(traiter Traiter) server.GrpcApi {
 	r := energystorage.NewApiRouter(
 		energystorage.WithEnergyStorageApiClientFactory(func(name string) (traits.EnergyStorageApiClient, error) {
 			log.Printf("Creating EnergyStorageClient(%v)", name)
+			traiter.Trait(name, trait.EnergyStorage)
 			model := energystorage.NewModel()
 
 			randStart := time.Duration(rand.Int63n(int64(10 * time.Minute)))

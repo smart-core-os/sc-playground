@@ -6,12 +6,14 @@ import (
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/server"
+	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/onoff"
 )
 
-func OnOffApi() server.GrpcApi {
+func OnOffApi(traiter Traiter) server.GrpcApi {
 	r := onoff.NewApiRouter(
 		onoff.WithOnOffApiClientFactory(func(name string) (traits.OnOffApiClient, error) {
+			traiter.Trait(name, trait.OnOff)
 			var onOrOff traits.OnOff_State
 			n := rand.Intn(10)
 			if n < 5 {

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/smart-core-os/sc-golang/pkg/time/clock"
+	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"go.uber.org/zap"
 
 	simelectric "github.com/smart-core-os/sc-playground/internal/simulated/electric"
@@ -18,7 +19,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
-func ElectricApi() server.GrpcApi {
+func ElectricApi(traiter Traiter) server.GrpcApi {
 	logger := zap.NewExample()
 
 	// create a Source, which all sinks will be registered to
@@ -31,7 +32,7 @@ func ElectricApi() server.GrpcApi {
 
 	settings := electric.NewMemorySettingsApiRouter()
 	devices := electric.NewApiRouter(
-		electric.WithElectricApiClientFactory(electricClientFactory(source, settings, logger)),
+		electric.WithElectricApiClientFactory(electricClientFactory(source, settings, logger, traiter)),
 	)
 	devices.Add(sourceName, electric.WrapApi(sourceApi))
 
@@ -46,9 +47,10 @@ func ElectricApi() server.GrpcApi {
 	return server.Collection(devices, settings)
 }
 
-func electricClientFactory(source *simelectric.Source, settings *electric.MemorySettingsApiRouter, logger *zap.Logger) func(name string) (traits.ElectricApiClient, error) {
+func electricClientFactory(source *simelectric.Source, settings *electric.MemorySettingsApiRouter, logger *zap.Logger, traiter Traiter) func(name string) (traits.ElectricApiClient, error) {
 	return func(name string) (traits.ElectricApiClient, error) {
 		log.Printf("Creating ElectricClient(%v)", name)
+		traiter.Trait(name, trait.Electric)
 		model := electric.NewModel(clock.Real())
 
 		// seed with a random load
