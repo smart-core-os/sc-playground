@@ -20,17 +20,26 @@
 <script>
 
 import PowerSupplyCard from '../../traits/powersupply/PowerSupplyCard.vue';
+import {grpcWebEndpoint} from "../../util/api.js";
+import {ParentApiPromiseClient} from "@smart-core-os/sc-api-grpc-web/traits/parent_grpc_web_pb.js";
+import {ListChildrenRequest, PullChildrenRequest} from "@smart-core-os/sc-api-grpc-web/traits/parent_pb.js";
+import Vue from "vue";
 
 export default {
   name: 'Home',
   components: {PowerSupplyCard},
   data() {
     return {
-      devices: ['POW-001'],
+      serverName: '',
+      childrenStream: null,
+      children: [],
       manualNextDeviceId: null
     };
   },
   computed: {
+    devices() {
+      return this.children.map(c => c.name);
+    },
     nextDeviceId: {
       get() {
         if (this.manualNextDeviceId != null) {
@@ -44,10 +53,65 @@ export default {
       }
     }
   },
+  mounted() {
+    this.pull()
+        .catch(err => console.error('during initial pull', err));
+  },
+  beforeDestroy() {
+    if (this.childrenStream) this.childrenStream.cancel();
+  },
   methods: {
-    addDevice() {
-      this.devices.push(this.nextDeviceId);
+    async addDevice() {
+      const serverEndpoint = await grpcWebEndpoint();
+      const api = new ParentApiPromiseClient(serverEndpoint, null, null);
+      await api.listChildren(new ListChildrenRequest().setName(this.nextDeviceId)); // used to trigger a new device
       this.manualNextDeviceId = null;
+    },
+    async pull() {
+      await Promise.all([
+        this.pullChildren()
+      ]);
+    },
+    async pullChildren() {
+      const serverEndpoint = await grpcWebEndpoint();
+      const api = new ParentApiPromiseClient(serverEndpoint, null, null);
+      // children
+      if (this.childrenStream) this.childrenStream.cancel();
+      // get
+      let childrenRes = await api.listChildren(new ListChildrenRequest().setName(this.serverName));
+      this.children = childrenRes.getChildrenList().map(c => c.toObject());
+      while (childrenRes.getNextPageToken()) {
+        childrenRes = await api.listChildren(new ListChildrenRequest()
+            .setName(this.serverName)
+            .setPageToken(childrenRes.getNextPageToken()));
+        this.children.push(...childrenRes.getChildrenList().map(c => c.toObject()))
+      }
+      // pull
+      const childrenStream = api.pullChildren(new PullChildrenRequest().setName(this.serverName));
+      this.childrenStream = childrenStream;
+      childrenStream.on('data', res => {
+        /** @type {PullChildrenResponse.Change[]} */
+        const changes = res.getChangesList();
+        for (const change of changes) {
+          if (!change.getNewValue()) {
+            // value was removed
+            const old = change.getOldValue();
+            if (!old) continue; // sanity check
+            const oldIndex = this.children.findIndex(c => c.name === old.getName());
+            if (oldIndex >= 0) {
+              this.children.splice(oldIndex, 1);
+            }
+          } else {
+            const newValue = change.getNewValue().toObject()
+            const index = this.children.findIndex(c => c.name === newValue.name);
+            if (index < 0) {
+              this.children.push(newValue)
+            } else {
+              Vue.set(this.children, index, newValue)
+            }
+          }
+        }
+      });
     }
   }
 };

@@ -7,6 +7,8 @@ import rollupPluginVuetify from 'rollup-plugin-vuetify';
 export default defineConfig({
   optimizeDeps: {
     include: [
+      '@smart-core-os/sc-api-grpc-web/traits/parent_pb.js',
+      '@smart-core-os/sc-api-grpc-web/traits/parent_grpc_web_pb.js',
       '@smart-core-os/sc-api-grpc-web/traits/power_supply_pb.js',
       '@smart-core-os/sc-api-grpc-web/traits/power_supply_grpc_web_pb.js'
     ]
