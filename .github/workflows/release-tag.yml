@@ -18,6 +18,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           cache: yarn
+          cache-dependency-path: ui/**/yarn.lock
       - working-directory: ./playground/ui
         run: yarn install
       - working-directory: ./playground/ui
