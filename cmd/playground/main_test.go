@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"net"
 	"net/http"
 	"os"
 	"testing"
@@ -48,7 +49,9 @@ func TestRun(t *testing.T) {
 	}()
 
 	// wait for the server to start (most of the time is spent generating the certs)
-	time.Sleep(5 * time.Second)
+	if err := waitForServerStart(httpPort, 15*time.Second); err != nil {
+		t.Fatal(fmt.Errorf("waiting for server start: %w", err))
+	}
 
 	// setup client tls
 	// caCert := readCaCertFromFile(t, caCertFile)
@@ -97,6 +100,20 @@ func TestRun(t *testing.T) {
 		}
 		get(t, https2Client, fmt.Sprintf("https://localhost:%v/health", httpsPort))
 	})
+}
+
+// waitForServerStart waits for the given duration until localhost:{port} accepts a connection
+func waitForServerStart(port int, d time.Duration) (err error) {
+	now := time.Now()
+	for deadline := now.Add(d); time.Now().Before(deadline); now = time.Now() {
+		var conn net.Conn
+		conn, err = net.DialTimeout("tcp", fmt.Sprintf("localhost:%v", port), deadline.Sub(now))
+		if err == nil {
+			_ = conn.Close()
+			return nil
+		}
+	}
+	return err
 }
 
 func readCaCertFromFile(t *testing.T, caCertFile string) []byte {
