@@ -1,4 +1,4 @@
-package main
+package playground
 
 import (
 	"context"
@@ -30,7 +30,7 @@ var (
 		"Defaults to a directory in TMP.")
 )
 
-func main() {
+func Main() {
 	if err := Run(); err != nil {
 		log.Printf("Exiting: %v", err)
 	}
