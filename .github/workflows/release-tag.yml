@@ -23,7 +23,7 @@ jobs:
         run: |
           npm set always-auth true
           npm set @smart-core-os:registry https://nexus.vanti.co.uk/repository/npm-releases
-          npm set //nexus.vanti.co.uk/repository/npm-releases/:auth_token ${{ secrets.NEXUS_TOKEN }}
+          npm set //nexus.vanti.co.uk/repository/npm-releases/:_authToken ${{ secrets.NEXUS_TOKEN }}
       - working-directory: ./ui/playground
         run: yarn install
       - working-directory: ./ui/playground
