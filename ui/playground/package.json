@@ -8,9 +8,9 @@
     "serve": "vite preview"
   },
   "dependencies": {
-    "@smart-core-os/sc-api-grpc-web": "^1.0.0-beta.29",
+    "@smart-core-os/sc-api-grpc-web": "^1.0.0-beta.30",
     "gen": "file:../gen",
-    "google-protobuf": "^3.17.3",
+    "google-protobuf": "^3.19.3",
     "vue": "^2.6.14",
     "vue-router": "^3.5.2",
     "vuetify": "^2.5.8"
