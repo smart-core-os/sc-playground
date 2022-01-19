@@ -22,11 +22,7 @@ jobs:
       - name: Nexus Auth
         run: |
           npm config set always-auth true
-          npm login --registry https://nexus.vanti.co.uk/repository/npm-public --scope=@smart-core-os -e matt.nathan@vanti.co.uk << EOF
-          ${{ secrets.NEXUS_USER }}
-          ${{ secrets.NEXUS_PASS }}
-          ${{ secrets.NEXUS_USER }}@vanti.co.uk
-          EOF
+          echo -e "${{ secrets.NEXUS_USER }}\n${{ secrets.NEXUS_PASS }}\n${{ secrets.NEXUS_USER }}@vanti.co.uk" | npm login --registry https://nexus.vanti.co.uk/repository/npm-public --scope=@smart-core-os -e ${{ secrets.NEXUS_USER }}@vanti.co.uk
       - working-directory: ./ui/playground
         run: yarn install
       - working-directory: ./ui/playground
