@@ -20,6 +20,8 @@ snapshot:
 release:
   # if the tag has a suffix (v1.0.0-beta), mark as prerelease
   prerelease: auto
+  footer: |
+    **Full Changelog**: https://github.com/smart-core-os/sc-playground/compare/{{ .PreviousTag }}...{{ .Tag }}
 changelog:
   sort: asc
   groups:
@@ -34,5 +36,5 @@ changelog:
   filters:
     exclude:
       - '^test:'
-      - '^chore:'
       - '^typo:'
+      - '^chore'
