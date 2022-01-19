@@ -25,7 +25,7 @@ jobs:
           npm set @smart-core-os:registry https://nexus.vanti.co.uk/repository/npm-releases
           npm set //nexus.vanti.co.uk/repository/npm-releases/:_authToken ${{ secrets.NEXUS_TOKEN }}
       - working-directory: ./ui/playground
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - working-directory: ./ui/playground
         run: yarn build
 
@@ -33,6 +33,8 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: 1.17.x
+      - name: Private repo auth
+        run: git config --global url."https://${{ secrets.GO_MOD_TOKEN }}:x-oauth-basic@github.com/smart-core-os".insteadOf "https://github.com/smart-core-os"
       - uses: actions/cache@v2
         with:
           path: |
