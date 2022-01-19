@@ -21,8 +21,9 @@ jobs:
           cache-dependency-path: ui/**/yarn.lock
       - name: Nexus Auth
         run: |
-          npm config set always-auth true
-          echo -e "${{ secrets.NEXUS_USER }}\n${{ secrets.NEXUS_PASS }}\n${{ secrets.NEXUS_USER }}@vanti.co.uk" | npm login --registry https://nexus.vanti.co.uk/repository/npm-public --scope=@smart-core-os -e ${{ secrets.NEXUS_USER }}@vanti.co.uk
+          npm set always-auth true
+          npm set @smart-core-os:registry https://nexus.vanti.co.uk/repository/npm-releases
+          npm set //nexus.vanti.co.uk/repository/npm-releases/:auth_token ${{ secrets.NEXUS_TOKEN }}
       - working-directory: ./ui/playground
         run: yarn install
       - working-directory: ./ui/playground
