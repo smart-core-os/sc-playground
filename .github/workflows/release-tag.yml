@@ -5,13 +5,13 @@ on:
     tags:
       - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
 
-# $GITHUB_REF_NAME - https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
-
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # so past tags will work
 
       # Build the playground ui
       - uses: actions/setup-node@v2
