@@ -26,3 +26,8 @@ cd ../.. # back to the root folder
 # build the go app, outputs sc-playground.exe (or similar)
 go build .
 ```
+
+### Releasing
+
+Tag and push a commit with a `v1.2.3` style version to trigger the release process. Versions with a `v1.2.3-beta` suffix
+will produce prerelease versions.
