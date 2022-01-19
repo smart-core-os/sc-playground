@@ -30,7 +30,7 @@ proto.smartcore.go.trait.powersupply = require('./memory_settings_pb.js');
 /**
  * @param {string} hostname
  * @param {?Object} credentials
- * @param {?Object} options
+ * @param {?grpc.web.ClientOptions} options
  * @constructor
  * @struct
  * @final
@@ -38,7 +38,7 @@ proto.smartcore.go.trait.powersupply = require('./memory_settings_pb.js');
 proto.smartcore.go.trait.powersupply.MemorySettingsApiClient =
     function(hostname, credentials, options) {
       if (!options) options = {};
-      options['format'] = 'text';
+      options.format = 'text';
 
       /**
        * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -56,7 +56,7 @@ proto.smartcore.go.trait.powersupply.MemorySettingsApiClient =
 /**
  * @param {string} hostname
  * @param {?Object} credentials
- * @param {?Object} options
+ * @param {?grpc.web.ClientOptions} options
  * @constructor
  * @struct
  * @final
@@ -64,7 +64,7 @@ proto.smartcore.go.trait.powersupply.MemorySettingsApiClient =
 proto.smartcore.go.trait.powersupply.MemorySettingsApiPromiseClient =
     function(hostname, credentials, options) {
       if (!options) options = {};
-      options['format'] = 'text';
+      options.format = 'text';
 
       /**
        * @private @const {!grpc.web.GrpcWebClientBase} The client
@@ -102,30 +102,11 @@ const methodDescriptor_MemorySettingsApi_GetSettings = new grpc.web.MethodDescri
 
 
 /**
- * @const
- * @type {!grpc.web.AbstractClientBase.MethodInfo<
- *   !proto.smartcore.go.trait.powersupply.GetMemorySettingsReq,
- *   !proto.smartcore.go.trait.powersupply.MemorySettings>}
- */
-const methodInfo_MemorySettingsApi_GetSettings = new grpc.web.AbstractClientBase.MethodInfo(
-    proto.smartcore.go.trait.powersupply.MemorySettings,
-    /**
-     * @param {!proto.smartcore.go.trait.powersupply.GetMemorySettingsReq} request
-     * @return {!Uint8Array}
-     */
-    function(request) {
-      return request.serializeBinary();
-    },
-    proto.smartcore.go.trait.powersupply.MemorySettings.deserializeBinary
-);
-
-
-/**
  * @param {!proto.smartcore.go.trait.powersupply.GetMemorySettingsReq} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.Error, ?proto.smartcore.go.trait.powersupply.MemorySettings)}
+ * @param {function(?grpc.web.RpcError, ?proto.smartcore.go.trait.powersupply.MemorySettings)}
  *     callback The callback function(error, response)
  * @return {!grpc.web.ClientReadableStream<!proto.smartcore.go.trait.powersupply.MemorySettings>|undefined}
  *     The XHR Node Readable Stream
@@ -144,7 +125,7 @@ proto.smartcore.go.trait.powersupply.MemorySettingsApiClient.prototype.getSettin
 /**
  * @param {!proto.smartcore.go.trait.powersupply.GetMemorySettingsReq} request The
  *     request proto
- * @param {?Object<string, string>} metadata User defined
+ * @param {?Object<string, string>=} metadata User defined
  *     call metadata
  * @return {!Promise<!proto.smartcore.go.trait.powersupply.MemorySettings>}
  *     Promise that resolves to the response
@@ -182,30 +163,11 @@ const methodDescriptor_MemorySettingsApi_UpdateSettings = new grpc.web.MethodDes
 
 
 /**
- * @const
- * @type {!grpc.web.AbstractClientBase.MethodInfo<
- *   !proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq,
- *   !proto.smartcore.go.trait.powersupply.MemorySettings>}
- */
-const methodInfo_MemorySettingsApi_UpdateSettings = new grpc.web.AbstractClientBase.MethodInfo(
-    proto.smartcore.go.trait.powersupply.MemorySettings,
-    /**
-     * @param {!proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq} request
-     * @return {!Uint8Array}
-     */
-    function(request) {
-      return request.serializeBinary();
-    },
-    proto.smartcore.go.trait.powersupply.MemorySettings.deserializeBinary
-);
-
-
-/**
  * @param {!proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.Error, ?proto.smartcore.go.trait.powersupply.MemorySettings)}
+ * @param {function(?grpc.web.RpcError, ?proto.smartcore.go.trait.powersupply.MemorySettings)}
  *     callback The callback function(error, response)
  * @return {!grpc.web.ClientReadableStream<!proto.smartcore.go.trait.powersupply.MemorySettings>|undefined}
  *     The XHR Node Readable Stream
@@ -224,7 +186,7 @@ proto.smartcore.go.trait.powersupply.MemorySettingsApiClient.prototype.updateSet
 /**
  * @param {!proto.smartcore.go.trait.powersupply.UpdateMemorySettingsReq} request The
  *     request proto
- * @param {?Object<string, string>} metadata User defined
+ * @param {?Object<string, string>=} metadata User defined
  *     call metadata
  * @return {!Promise<!proto.smartcore.go.trait.powersupply.MemorySettings>}
  *     Promise that resolves to the response
@@ -262,27 +224,8 @@ const methodDescriptor_MemorySettingsApi_PullSettings = new grpc.web.MethodDescr
 
 
 /**
- * @const
- * @type {!grpc.web.AbstractClientBase.MethodInfo<
- *   !proto.smartcore.go.trait.powersupply.PullMemorySettingsReq,
- *   !proto.smartcore.go.trait.powersupply.PullMemorySettingsRes>}
- */
-const methodInfo_MemorySettingsApi_PullSettings = new grpc.web.AbstractClientBase.MethodInfo(
-    proto.smartcore.go.trait.powersupply.PullMemorySettingsRes,
-    /**
-     * @param {!proto.smartcore.go.trait.powersupply.PullMemorySettingsReq} request
-     * @return {!Uint8Array}
-     */
-    function(request) {
-      return request.serializeBinary();
-    },
-    proto.smartcore.go.trait.powersupply.PullMemorySettingsRes.deserializeBinary
-);
-
-
-/**
  * @param {!proto.smartcore.go.trait.powersupply.PullMemorySettingsReq} request The request proto
- * @param {?Object<string, string>} metadata User defined
+ * @param {?Object<string, string>=} metadata User defined
  *     call metadata
  * @return {!grpc.web.ClientReadableStream<!proto.smartcore.go.trait.powersupply.PullMemorySettingsRes>}
  *     The XHR Node Readable Stream
@@ -299,7 +242,7 @@ proto.smartcore.go.trait.powersupply.MemorySettingsApiClient.prototype.pullSetti
 
 /**
  * @param {!proto.smartcore.go.trait.powersupply.PullMemorySettingsReq} request The request proto
- * @param {?Object<string, string>} metadata User defined
+ * @param {?Object<string, string>=} metadata User defined
  *     call metadata
  * @return {!grpc.web.ClientReadableStream<!proto.smartcore.go.trait.powersupply.PullMemorySettingsRes>}
  *     The XHR Node Readable Stream

@@ -6,8 +6,8 @@
     "gen": "protomod protoc -- --js_out=import_style=commonjs:. --grpc-web_out=import_style=commonjs+dts,mode=grpcwebtext:. trait/powersupply/memory_settings.proto"
   },
   "dependencies": {
-    "@smart-core-os/sc-api-grpc-web": "^1.0.0-beta.24",
-    "google-protobuf": "^3.17.3"
+    "@smart-core-os/sc-api-grpc-web": "^1.0.0-beta.30",
+    "google-protobuf": "^3.19.3"
   },
   "devDependencies": {
     "@types/google-protobuf": "^3.15.3"

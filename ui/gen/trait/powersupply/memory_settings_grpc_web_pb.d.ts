@@ -11,14 +11,14 @@ export class MemorySettingsApiClient {
   getSettings(
       request: trait_powersupply_memory_settings_pb.GetMemorySettingsReq,
       metadata: grpcWeb.Metadata | undefined,
-      callback: (err: grpcWeb.Error,
+      callback: (err: grpcWeb.RpcError,
                  response: trait_powersupply_memory_settings_pb.MemorySettings) => void
   ): grpcWeb.ClientReadableStream<trait_powersupply_memory_settings_pb.MemorySettings>;
 
   updateSettings(
       request: trait_powersupply_memory_settings_pb.UpdateMemorySettingsReq,
       metadata: grpcWeb.Metadata | undefined,
-      callback: (err: grpcWeb.Error,
+      callback: (err: grpcWeb.RpcError,
                  response: trait_powersupply_memory_settings_pb.MemorySettings) => void
   ): grpcWeb.ClientReadableStream<trait_powersupply_memory_settings_pb.MemorySettings>;
 
