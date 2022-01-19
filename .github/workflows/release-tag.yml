@@ -30,6 +30,9 @@ jobs:
         run: yarn build
 
       # Build the go playground app, and release it
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.17.x
       - uses: actions/cache@v2
         with:
           path: |
