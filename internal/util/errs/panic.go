@@ -1,15 +1,14 @@
-package util
+package errs
 
 import "io"
 
 func CloseOrPanic(closer io.Closer) {
-	err := closer.Close()
-	if err != nil {
+	if err := closer.Close(); err != nil {
 		panic(err)
 	}
 }
 
-func PanicError(err error) {
+func Panic(err error) {
 	if err != nil {
 		panic(err)
 	}
