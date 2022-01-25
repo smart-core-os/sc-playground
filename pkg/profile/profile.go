@@ -165,6 +165,48 @@ func (p Profile) IsEmpty() bool {
 	return len(p.Segments) == 0 || p.TotalDuration() == 0
 }
 
+// Truncate removes part of Profile p, from the start, totalling duration d.
+// If d is greater than or equal to the TotalDuration of p, then a zero-duration Profile with the same FinalLevel as
+// p is returned.
+// If d is zero, then the Profile returned is equal to p.
+// d must be non-negative.
+func (p Profile) Truncate(d time.Duration) Profile {
+	if d >= p.TotalDuration() {
+		return Profile{
+			Segments:   nil,
+			FinalLevel: p.FinalLevel,
+		}
+	}
+
+	result := Profile{FinalLevel: p.FinalLevel}
+	skip := d // amount of time left to discard
+	for _, segment := range p.Segments {
+		if skip >= segment.Duration {
+			skip -= segment.Duration
+			continue // skip this segment entirely
+		}
+
+		switch {
+		case skip == 0:
+			// keep the entire segment
+			result.Segments = append(result.Segments, segment)
+		case skip > 0:
+			// shorten the segment appropriately, and add it
+			keep := segment.Duration - skip
+			result.Segments = append(result.Segments, Segment{
+				Duration: keep,
+				Level:    segment.Level,
+			})
+
+			skip = 0 // this segment is the first included one; don't need to skip any more
+		default:
+			panic("logic error: invalid skip value")
+		}
+	}
+
+	return result
+}
+
 // SplitAt splits a Profile into two parts at duration d after the start of the profile.
 // The before profile contains all segments entirely before d, and the after profile contains all segments entirely after
 // d. The segment on the boundary is split between before and after.

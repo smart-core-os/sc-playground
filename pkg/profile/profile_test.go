@@ -303,6 +303,94 @@ func TestProfile_LevelAfter(t *testing.T) {
 	}
 }
 
+func TestProfile_Truncate(t *testing.T) {
+	t.Parallel()
+
+	type testCase struct {
+		prof   Profile
+		dur    time.Duration
+		expect Profile
+	}
+
+	cases := map[string]testCase{
+		"Zero": {
+			prof: Profile{
+				Segments: []Segment{
+					{time.Hour, 1},
+					{time.Hour, 2},
+				},
+				FinalLevel: 123,
+			},
+			dur: 0,
+			expect: Profile{
+				Segments: []Segment{
+					{time.Hour, 1},
+					{time.Hour, 2},
+				},
+				FinalLevel: 123,
+			},
+		},
+		"TotalDuration": {
+			prof: Profile{
+				Segments: []Segment{
+					{time.Hour, 1},
+					{time.Hour, 2},
+				},
+				FinalLevel: 123,
+			},
+			dur: 2 * time.Hour,
+			expect: Profile{
+				Segments:   nil,
+				FinalLevel: 123,
+			},
+		},
+		"Entire": {
+			prof: Profile{
+				Segments: []Segment{
+					{time.Hour, 1},
+					{time.Hour, 2},
+				},
+				FinalLevel: 123,
+			},
+			dur: 1 * time.Hour,
+			expect: Profile{
+				Segments: []Segment{
+					{time.Hour, 2},
+				},
+				FinalLevel: 123,
+			},
+		},
+		"Partial": {
+			prof: Profile{
+				Segments: []Segment{
+					{time.Hour, 1},
+					{time.Hour, 2},
+					{time.Hour, 3},
+				},
+				FinalLevel: 123,
+			},
+			dur: 90 * time.Minute,
+			expect: Profile{
+				Segments: []Segment{
+					{30 * time.Minute, 2},
+					{time.Hour, 3},
+				},
+				FinalLevel: 123,
+			},
+		},
+	}
+
+	for name, c := range cases {
+		t.Run(name, func(t *testing.T) {
+			actual := c.prof.Truncate(c.dur)
+
+			if diff := cmp.Diff(c.expect, actual, cmpopts.EquateEmpty()); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+}
+
 func TestProfile_SplitAt(t *testing.T) {
 	t.Parallel()
 
