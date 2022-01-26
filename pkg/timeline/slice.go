@@ -98,3 +98,7 @@ func (s *sliceTL) max() (time.Time, bool) {
 	// max event time that < to
 	return s.Previous(s.to)
 }
+
+func (s *sliceTL) Filter(matches MatchFunc) TL {
+	return &sliceTL{Filter(s.tl, matches), s.from, s.to}
+}

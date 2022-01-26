@@ -79,5 +79,17 @@ func (s aterTL) Bound() (first, last time.Time, exists bool) {
 func (s aterTL) Slice(from, to time.Time) TL {
 	fi := s.search(from)
 	ti := s.search(to)
-	return aterTL(s[fi:ti])
+	return s[fi:ti]
+}
+
+// Filter implements FilterTL.
+// This implementation eagerly applies matches to all entries in s.
+func (s aterTL) Filter(matches MatchFunc) TL {
+	var out aterTL
+	for _, e := range s {
+		if matches(e.At(), e) {
+			out = append(out, e)
+		}
+	}
+	return out
 }

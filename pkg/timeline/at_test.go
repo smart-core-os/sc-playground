@@ -159,15 +159,15 @@ func TestAterTL_Slice(t *testing.T) {
 		to   time.Time
 		want TL
 	}{
-		{"empty", aterTL([]Ater{}), time.Unix(0, 0), time.Unix(100, 0), FromSlice([]Ater{})},
-		{"one before", aterTL([]Ater{atUnix(1000, 0)}), time.Unix(0, 0), time.Unix(100, 0), FromSlice([]Ater{})},
-		{"one upto", aterTL([]Ater{atUnix(1000, 0)}), time.Unix(0, 0), time.Unix(1000, 0), FromSlice([]Ater{})},
-		{"one after", aterTL([]Ater{atUnix(1000, 0)}), time.Unix(1500, 0), time.Unix(2000, 0), FromSlice([]Ater{})},
+		{"empty", aterTL([]Ater{}), time.Unix(0, 0), time.Unix(100, 0), Zero()},
+		{"one before", aterTL([]Ater{atUnix(1000, 0)}), time.Unix(0, 0), time.Unix(100, 0), Zero()},
+		{"one upto", aterTL([]Ater{atUnix(1000, 0)}), time.Unix(0, 0), time.Unix(1000, 0), Zero()},
+		{"one after", aterTL([]Ater{atUnix(1000, 0)}), time.Unix(1500, 0), time.Unix(2000, 0), Zero()},
 		{"one following", aterTL([]Ater{atUnix(1000, 0)}), time.Unix(1000, 0), time.Unix(2000, 0), FromSlice([]Ater{atUnix(1000, 0)})},
 		{"one around", aterTL([]Ater{atUnix(1000, 0)}), time.Unix(500, 0), time.Unix(2000, 0), FromSlice([]Ater{atUnix(1000, 0)})},
-		{"testTL empty range", testTL, time.Unix(1000, 0), time.Unix(1000, 0), FromSlice([]Ater{})},
-		{"testTL before", testTL, time.Unix(0, 0), time.Unix(1000, 0), FromSlice([]Ater{})},
-		{"testTL after", testTL, time.Unix(5000, 1), time.Unix(10000, 0), FromSlice([]Ater{})},
+		{"testTL empty range", testTL, time.Unix(1000, 0), time.Unix(1000, 0), Zero()},
+		{"testTL before", testTL, time.Unix(0, 0), time.Unix(1000, 0), Zero()},
+		{"testTL after", testTL, time.Unix(5000, 1), time.Unix(10000, 0), Zero()},
 		{"testTL first", testTL, time.Unix(500, 1), time.Unix(1500, 0), FromSlice([]Ater{atUnix(1000, 0)})},
 		{"testTL first (not second)", testTL, time.Unix(500, 1), time.Unix(2000, 0), FromSlice([]Ater{atUnix(1000, 0)})},
 		{"testTL multiple", testTL, time.Unix(2000, 0), time.Unix(3000, 0), FromSlice([]Ater{atUnix(2000, 0), atUnix(2000, 0)})},
@@ -179,4 +179,62 @@ func TestAterTL_Slice(t *testing.T) {
 			assertTLEqual(t, name, tt.want, tt.tl.Slice(tt.from, tt.to))
 		})
 	}
+}
+
+func TestAterTL_Filter(t *testing.T) {
+	tests := []struct {
+		name    string
+		tl      aterTL
+		matches MatchFunc
+		want    TL
+	}{
+		{"empty", aterTL([]Ater{}), matchesAll(), Zero()},
+		{"one include", aterTL([]Ater{atUnix(1000, 0)}), matchesAll(), FromSlice([]Ater{atUnix(1000, 0)})},
+		{"one exclude", aterTL([]Ater{atUnix(1000, 0)}), matchesNone(), Zero()},
+		{"at same time", aterTL([]Ater{namedAtUnix("A", 1000, 0), namedAtUnix("B", 1000, 0)}),
+			matchesName("B"), FromSlice([]Ater{namedAtUnix("B", 1000, 0)})},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assertTLEqual(t, "aterTL.Filter", tt.want, tt.tl.Filter(tt.matches))
+		})
+	}
+}
+
+func matchesAll() MatchFunc {
+	return func(t time.Time, e interface{}) bool {
+		return true
+	}
+}
+
+func matchesNone() MatchFunc {
+	return func(t time.Time, e interface{}) bool {
+		return false
+	}
+}
+
+func matchesName(n string) MatchFunc {
+	return func(t time.Time, e interface{}) bool {
+		if named, ok := e.(interface{ Name() string }); ok {
+			return named.Name() == n
+		}
+		return false
+	}
+}
+
+func namedAtUnix(n string, sec, nsec int64) namedAt {
+	return namedAt{time.Unix(sec, nsec), n}
+}
+
+type namedAt struct {
+	T time.Time
+	N string
+}
+
+func (n namedAt) At() time.Time {
+	return n.T
+}
+
+func (n namedAt) Name() string {
+	return n.N
 }
