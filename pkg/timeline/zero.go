@@ -39,3 +39,7 @@ func (z *zeroTL) Bound() (first, last time.Time, exists bool) {
 func (z *zeroTL) Slice(_, _ time.Time) TL {
 	return z
 }
+
+func (z *zeroTL) Filter(_ MatchFunc) TL {
+	return z
+}
