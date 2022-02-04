@@ -2,8 +2,6 @@ package timeline
 
 import (
 	"time"
-
-	"github.com/smart-core-os/sc-playground/pkg/timeline/skiplisttl"
 )
 
 func ExampleAddTL() {
@@ -32,5 +30,5 @@ var (
 )
 
 func writableTL() TL {
-	return skiplisttl.New()
+	return nil
 }
