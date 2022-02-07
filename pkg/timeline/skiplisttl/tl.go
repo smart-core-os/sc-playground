@@ -76,12 +76,19 @@ func (tl *TL) Previous(t time.Time) (previous time.Time, exists bool) {
 }
 
 func (tl *TL) Next(t time.Time) (next time.Time, exists bool) {
-	key := tl.key(t.Add(1)) // the next possible time
-	onOrAfter, ok := tl.items.FindGreaterOrEqual(keyEntry(key))
+	key := tl.key(t)
+	nowOrNext, ok := tl.items.FindGreaterOrEqual(keyEntry(key))
 	if !ok {
 		return next, false
 	}
-	return entryTime(onOrAfter), true
+	first := tl.items.GetSmallestNode()
+	for entryTime(nowOrNext).Equal(t) {
+		nowOrNext = tl.items.Next(nowOrNext)
+		if nowOrNext == first {
+			return next, false
+		}
+	}
+	return entryTime(nowOrNext), true
 }
 
 func (tl *TL) Bound() (first, last time.Time, exists bool) {
