@@ -55,29 +55,7 @@ func cmpTimeAtAsTime() cmp.Option {
 
 func assertTLEqual(t *testing.T, name string, a, b TL) {
 	t.Helper()
-	if Empty(a) != Empty(b) {
-		t.Errorf("%v Empty() want %v, got %v", name, Empty(a), Empty(b))
-	}
-	aFirst, aLast, aExists := Bound(a)
-	bFirst, bLast, bExists := Bound(b)
-	if !aFirst.Equal(bFirst) || !aLast.Equal(bLast) || aExists != bExists {
-		t.Fatalf("%v Bound() want { %v %v %v }, got { %v %v %v }", name, aFirst, aLast, aExists, bFirst, bLast, bExists)
-	}
-
-	// check items
-	cur, exists := aFirst, aExists
-	for exists {
-		aItems := a.At(cur)
-		bItems := b.At(cur)
-		if diff := cmp.Diff(bItems, aItems, cmpTimeAtAsTime()); diff != "" {
-			t.Fatalf("%v At(%v) (-want, +got)\n%v", name, cur, diff)
-		}
-
-		aNext, aExists := a.Next(cur)
-		bNext, bExists := b.Next(cur)
-		if !aNext.Equal(bNext) || aExists != bExists {
-			t.Fatalf("%v Next(%v) want { %v %v }, got { %v %v }", name, cur, aNext, aExists, bNext, bExists)
-		}
-		cur, exists = aNext, aExists
+	if equal, reason := EqualExplain(a, b); !equal {
+		t.Fatalf("%v %v", name, reason)
 	}
 }
