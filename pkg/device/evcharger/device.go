@@ -3,7 +3,7 @@ package evcharger
 import (
 	"time"
 
-	"github.com/smart-core-os/sc-golang/pkg/time/clock"
+	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
 	"github.com/smart-core-os/sc-golang/pkg/trait/energystorage"
 	"github.com/smart-core-os/sc-playground/internal/util/errs"
@@ -20,38 +20,43 @@ type Device struct {
 	rating  float32
 	voltage float32
 
+	model         *event.Model
 	electric      *electric.Model
 	energyStorage *energystorage.Model
 
-	model *event.Model
+	electricApi      traits.ElectricApiServer
+	energyStorageApi traits.EnergyStorageApiServer
 }
 
 // New creates a new Device.
 func New(name string, tl timeline.TL, opts ...Opt) *Device {
-	// option processing
-	setup := &opt{}
-	for _, opt := range DefaultOpts {
-		opt(setup)
-	}
-	for _, opt := range opts {
-		opt(setup)
-	}
+	setup := calcSetup(opts...)
 
 	if !setup.dedicatedTL {
 		tl = tlutil.FilterByName(tl, name)
 	}
 
-	electricModel := electric.NewModel(clock.Real())
+	electricModel := electric.NewModel(setup.clock)
 	energyStorageModel := energystorage.NewModel()
+
 	d := &Device{
 		name:          name,
+		model:         &event.Model{TL: tl},
 		electric:      electricModel,
 		energyStorage: energyStorageModel,
-		model:         &event.Model{TL: tl},
+
+		electricApi:      electric.NewModelServer(electricModel),
+		energyStorageApi: energystorage.NewModelServer(energyStorageModel),
 
 		rating:  setup.rating,
 		voltage: setup.voltage,
 	}
+
+	if setup.dispatcher != nil {
+		d.electricApi = event.CaptureElectricInput(d.electricApi, setup.clock, setup.dispatcher)
+		d.energyStorageApi = event.CaptureEnergyStorageInput(d.energyStorageApi, setup.clock, setup.dispatcher)
+	}
+
 	return d
 }
 
@@ -73,7 +78,7 @@ func (d *Device) Scrub(t time.Time) error {
 
 func (d *Device) Publish(reg apis.Registry) (err error) {
 	return errs.First(
-		reg.Register(d.name, electric.NewModelServer(d.electric)),
-		reg.Register(d.name, energystorage.NewModelServer(d.energyStorage)),
+		reg.Register(d.name, d.electricApi),
+		reg.Register(d.name, d.energyStorageApi),
 	)
 }
