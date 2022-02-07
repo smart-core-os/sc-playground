@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/MauriceGit/skiplist"
-	"github.com/smart-core-os/sc-playground/pkg/timeline"
 )
 
 // TL is an implementation of timeline.TL backed by a skip list.
@@ -30,15 +29,15 @@ func New(opts ...Opt) *TL {
 	return tl
 }
 
-func (tl *TL) Add(timeFunc timeline.TimeFunc, entries ...interface{}) {
+func (tl *TL) Add(t time.Time, entries ...interface{}) {
 	for _, entry := range entries {
-		tl.items.Insert(valueEntry{entry, timeFunc, tl.key})
+		tl.items.Insert(valueEntry{entry, t, tl.key})
 	}
 }
 
-func (tl *TL) Remove(timeFunc timeline.TimeFunc, entries ...interface{}) {
+func (tl *TL) Remove(t time.Time, entries ...interface{}) {
 	for _, entry := range entries {
-		tl.items.Delete(valueEntry{entry, timeFunc, tl.key})
+		tl.items.Delete(valueEntry{entry, t, tl.key})
 	}
 }
 
@@ -110,17 +109,17 @@ func entryTime(entry *skiplist.SkipListElement) time.Time {
 	if !ok {
 		panic(fmt.Sprintf("entry in skiplist is not a valueEntry?! %T %v", value, value))
 	}
-	return value.time(value.value)
+	return value.time
 }
 
 type valueEntry struct {
 	value interface{}
-	time  timeline.TimeFunc
+	time  time.Time
 	key   KeyFunc
 }
 
 func (e valueEntry) ExtractKey() float64 {
-	return e.key(e.time(e.value))
+	return e.key(e.time)
 }
 
 func (e valueEntry) String() string {

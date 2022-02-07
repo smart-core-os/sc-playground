@@ -7,21 +7,18 @@ import (
 func ExampleAddTL() {
 	tl := writableTL()
 	if wtl, ok := tl.(AddTL); ok {
-		wtl.Add(timeFunc, entries...)
+		wtl.Add(time.Now(), entries...)
 	}
 }
 
 func ExampleRemoveTL() {
 	tl := writableTL()
 	if wtl, ok := tl.(RemoveTL); ok {
-		wtl.Remove(timeFunc, entries...)
+		wtl.Remove(time.Unix(1000, 0), entries...)
 	}
 }
 
 var (
-	timeFunc = func(e interface{}) time.Time {
-		return e.(time.Time)
-	}
 	entries = []interface{}{
 		time.Unix(100, 0),
 		time.Unix(200, 0),
