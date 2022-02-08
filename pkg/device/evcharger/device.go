@@ -3,11 +3,12 @@ package evcharger
 import (
 	"time"
 
+	"github.com/smart-core-os/sc-playground/pkg/apis/registry"
+
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
 	"github.com/smart-core-os/sc-golang/pkg/trait/energystorage"
 	"github.com/smart-core-os/sc-playground/internal/util/errs"
-	"github.com/smart-core-os/sc-playground/pkg/apis"
 	"github.com/smart-core-os/sc-playground/pkg/device/evcharger/event"
 	"github.com/smart-core-os/sc-playground/pkg/timeline"
 	"github.com/smart-core-os/sc-playground/pkg/timeline/tlutil"
@@ -76,7 +77,7 @@ func (d *Device) Scrub(t time.Time) error {
 	}
 }
 
-func (d *Device) Publish(reg apis.Registry) (err error) {
+func (d *Device) Publish(reg registry.Registry) (err error) {
 	return errs.First(
 		reg.Register(d.name, d.electricApi),
 		reg.Register(d.name, d.energyStorageApi),

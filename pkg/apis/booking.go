@@ -9,16 +9,19 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/server"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/booking"
+	"github.com/smart-core-os/sc-playground/pkg/apis/parent"
+	"github.com/smart-core-os/sc-playground/pkg/apis/registry"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func BookingApi(traiter Traiter) server.GrpcApi {
+func BookingApi(traiter parent.Traiter, adder registry.Adder) server.GrpcApi {
 	r := booking.NewApiRouter(
 		booking.WithBookingApiClientFactory(func(name string) (traits.BookingApiClient, error) {
 			traiter.Trait(name, trait.Booking)
 			return booking.WrapApi(newBookingApiServer(name)), nil
 		}),
 	)
+	adder.Add(registry.BookingApiRegistry{ApiRouter: r, Traiter: traiter})
 	return r
 }
 

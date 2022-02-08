@@ -10,9 +10,11 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/energystorage"
 	sim "github.com/smart-core-os/sc-playground/internal/simulated/energystorage"
+	"github.com/smart-core-os/sc-playground/pkg/apis/parent"
+	"github.com/smart-core-os/sc-playground/pkg/apis/registry"
 )
 
-func EnergyStorageApi(traiter Traiter) server.GrpcApi {
+func EnergyStorageApi(traiter parent.Traiter, adder registry.Adder) server.GrpcApi {
 	r := energystorage.NewApiRouter(
 		energystorage.WithEnergyStorageApiClientFactory(func(name string) (traits.EnergyStorageApiClient, error) {
 			log.Printf("Creating EnergyStorageClient(%v)", name)
@@ -35,5 +37,6 @@ func EnergyStorageApi(traiter Traiter) server.GrpcApi {
 			return energystorage.WrapApi(energystorage.NewModelServer(model, energystorage.ReadOnly())), nil
 		}),
 	)
+	adder.Add(registry.EnergyStorageApiRegistry{ApiRouter: r, Traiter: traiter})
 	return r
 }

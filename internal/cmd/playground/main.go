@@ -9,9 +9,12 @@ import (
 	"log"
 	"os"
 
+	"github.com/smart-core-os/sc-golang/pkg/server"
 	"github.com/smart-core-os/sc-golang/pkg/trait/parent"
 	"github.com/smart-core-os/sc-playground/pkg/apis"
+	"github.com/smart-core-os/sc-playground/pkg/apis/registry"
 	"github.com/smart-core-os/sc-playground/pkg/run"
+	"github.com/smart-core-os/sc-playground/pkg/sim/boot"
 	"github.com/smart-core-os/sc-playground/ui"
 )
 
@@ -47,26 +50,43 @@ func runCtx(ctx context.Context) error {
 		return err
 	}
 
+	reg := &registry.Slice{}
+
 	devices := parent.NewModel()
 	traiter := &deviceTraiter{devices}
 
 	serverDeviceName := "scos/apps/playground"
 	// register the server traits
-	parentApi := apis.ParentApi(traiter)
+	parentApi := apis.ParentApi(traiter, reg)
 	parentApi.Add(serverDeviceName, parent.WrapApi(parent.NewModelServer(devices)))
+
+	// the list of APIs we support
+	services := []server.GrpcApi{
+		parentApi,
+		apis.BookingApi(traiter, reg),
+		apis.ElectricApi(traiter, reg),
+		apis.EnergyStorageApi(traiter, reg),
+		apis.OccupancyApi(traiter, reg),
+		apis.OnOffApi(traiter, reg),
+		apis.PowerSupplyApi(traiter, reg),
+	}
+
+	// Setup some devices to start us off
+	simulation, err := boot.CreateSimulation(reg)
+	if err != nil {
+		return err
+	}
+	go func() {
+		err := simulation.Run(ctx)
+		if err != nil {
+			log.Printf("Simulation ended: %v", err)
+		}
+	}()
 
 	return run.Serve(
 		run.WithContext(ctx),
 		run.WithDefaultName(serverDeviceName),
-		run.WithApis(
-			parentApi,
-			apis.BookingApi(traiter),
-			apis.ElectricApi(traiter),
-			apis.EnergyStorageApi(traiter),
-			apis.OccupancyApi(traiter),
-			apis.OnOffApi(traiter),
-			apis.PowerSupplyApi(traiter),
-		),
+		run.WithApis(services...),
 		run.WithGrpcAddress(*grpcBind),
 		run.WithHttpAddress(*httpBind),
 		run.WithHttpsAddress(*httpsBind),

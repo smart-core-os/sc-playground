@@ -9,9 +9,11 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/server"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/powersupply"
+	"github.com/smart-core-os/sc-playground/pkg/apis/parent"
+	"github.com/smart-core-os/sc-playground/pkg/apis/registry"
 )
 
-func PowerSupplyApi(traiter Traiter) server.GrpcApi {
+func PowerSupplyApi(traiter parent.Traiter, adder registry.Adder) server.GrpcApi {
 	settings := powersupply.NewMemorySettingsApiRouter()
 	devices := powersupply.NewApiRouter(
 		powersupply.WithPowerSupplyApiClientFactory(func(name string) (traits.PowerSupplyApiClient, error) {
@@ -24,5 +26,6 @@ func PowerSupplyApi(traiter Traiter) server.GrpcApi {
 			return powersupply.WrapApi(device), nil
 		}),
 	)
+	adder.Add(registry.PowerSupplyApiRegistry{ApiRouter: devices, Traiter: traiter})
 	return server.Collection(devices, settings)
 }

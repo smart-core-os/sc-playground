@@ -8,9 +8,11 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/server"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/onoff"
+	"github.com/smart-core-os/sc-playground/pkg/apis/parent"
+	"github.com/smart-core-os/sc-playground/pkg/apis/registry"
 )
 
-func OnOffApi(traiter Traiter) server.GrpcApi {
+func OnOffApi(traiter parent.Traiter, adder registry.Adder) server.GrpcApi {
 	r := onoff.NewApiRouter(
 		onoff.WithOnOffApiClientFactory(func(name string) (traits.OnOffApiClient, error) {
 			traiter.Trait(name, trait.OnOff)
@@ -25,5 +27,6 @@ func OnOffApi(traiter Traiter) server.GrpcApi {
 			return onoff.WrapApi(onoff.NewModelServer(onoff.NewModel(onOrOff))), nil
 		}),
 	)
+	adder.Add(registry.OnOffApiRegistry{ApiRouter: r, Traiter: traiter})
 	return r
 }

@@ -9,9 +9,11 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/server"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/occupancysensor"
+	"github.com/smart-core-os/sc-playground/pkg/apis/parent"
+	"github.com/smart-core-os/sc-playground/pkg/apis/registry"
 )
 
-func OccupancyApi(traiter Traiter) server.GrpcApi {
+func OccupancyApi(traiter parent.Traiter, adder registry.Adder) server.GrpcApi {
 	// handle random changes in occupancy
 	var devices []struct {
 		api  *occupancysensor.Model
@@ -41,6 +43,8 @@ func OccupancyApi(traiter Traiter) server.GrpcApi {
 			return occupancysensor.WrapApi(occupancysensor.NewModelServer(api)), nil
 		}),
 	)
+
+	adder.Add(registry.OccupancySensorApiRegistry{ApiRouter: r, Traiter: traiter})
 	return r
 }
 

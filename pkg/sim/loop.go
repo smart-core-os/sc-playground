@@ -19,6 +19,15 @@ type Loop struct {
 	Model scrub.Scrubber // the simulation model, the things we are controlling/exposing
 }
 
+func NewLoop(tl timeline.TL, model scrub.Scrubber, input input.Capturer) *Loop {
+	return &Loop{
+		MinTimePerFrame: time.Second / 60,
+		Input:           input,
+		TL:              tl,
+		Model:           model,
+	}
+}
+
 // Run executes the loop for as long as ctx is not cancelled or a critical error has not occurred.
 func (l *Loop) Run(ctx context.Context) error {
 	// Things we could do in this loop:
