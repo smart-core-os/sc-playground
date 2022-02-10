@@ -26,6 +26,8 @@ func (m *Model) Scrub(t time.Time) error {
 	m.Clear()
 	m.now = t
 
+	// Scan backwards through time until we've got enough information to hydrate our model.
+	// Typically this means until we see a PlugIn or Unplug event.
 	more := true
 	for more {
 		for _, o := range m.TL.At(t) {
