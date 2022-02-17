@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/smart-core-os/sc-golang/pkg/server"
+	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/parent"
 	"github.com/smart-core-os/sc-playground/pkg/apis"
 	"github.com/smart-core-os/sc-playground/pkg/apis/registry"
@@ -159,6 +160,6 @@ type deviceTraiter struct {
 	parent *parent.Model
 }
 
-func (d *deviceTraiter) Trait(name string, traits ...string) {
+func (d *deviceTraiter) Trait(name string, traits ...trait.Name) {
 	d.parent.AddChildTrait(name, traits...)
 }
