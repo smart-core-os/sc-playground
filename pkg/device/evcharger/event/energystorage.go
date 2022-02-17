@@ -24,6 +24,10 @@ func CaptureEnergyStorageInput(api traits.EnergyStorageApiServer, clock clock.Cl
 	}
 }
 
+func (s EnergyStorageApiServer) Unwrap() interface{} {
+	return s.EnergyStorageApiServer
+}
+
 func (s EnergyStorageApiServer) Charge(ctx context.Context, request *traits.ChargeRequest) (*traits.ChargeResponse, error) {
 	var done func()
 	var err error

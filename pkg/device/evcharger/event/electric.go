@@ -26,6 +26,10 @@ func CaptureElectricInput(api traits.ElectricApiServer, clock clock.Clock, dispa
 	}
 }
 
+func (s *ElectricApiServer) Unwrap() interface{} {
+	return s.ElectricApiServer
+}
+
 func (s *ElectricApiServer) ClearActiveMode(ctx context.Context, req *traits.ClearActiveModeRequest) (*traits.ElectricMode, error) {
 	return s.setActiveMode(ctx, req.Name, "")
 }
