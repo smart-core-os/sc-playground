@@ -52,8 +52,8 @@ func Serve(opts ...ConfigOption) error {
 	var grpcOpts []grpc.ServerOption
 	if config.defaultName != "" {
 		grpcOpts = append(grpcOpts,
-			grpc.UnaryInterceptor(name.IfAbsentUnaryInterceptor(config.defaultName)),
-			grpc.StreamInterceptor(name.IfAbsentStreamInterceptor(config.defaultName)),
+			grpc.ChainUnaryInterceptor(name.IfAbsentUnaryInterceptor(config.defaultName)),
+			grpc.ChainStreamInterceptor(name.IfAbsentStreamInterceptor(config.defaultName)),
 		)
 	}
 	if config.grpcTlsConfig != nil {
@@ -83,6 +83,10 @@ func Serve(opts ...ConfigOption) error {
 	} else {
 		addRunMsg(grpcLis.Addr(), "Insecure gRPC")
 	}
+
+	// add some request debugging
+	grpcOpts = append(grpcOpts, grpc.ChainStreamInterceptor(LogRepeatChanges()))
+
 	grpcServer := grpc.NewServer(grpcOpts...)
 	defer grpcServer.Stop()
 
