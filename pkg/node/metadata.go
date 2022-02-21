@@ -16,6 +16,8 @@ const (
 	MetadataRealism        = "scos.playground.realism"
 	MetadataRealismVirtual = "virtual"
 	MetadataRealismModel   = "model"
+
+	MetadataDeviceType = "scos.playground.device-type"
 )
 
 var AutoTraitMetadata = map[string]string{

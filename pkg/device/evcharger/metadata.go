@@ -39,6 +39,7 @@ func metadataAppearance() *traits.Metadata_Appearance {
 
 func metadataMore() map[string]string {
 	return map[string]string{
-		node.MetadataRealism: node.MetadataRealismVirtual,
+		node.MetadataDeviceType: "evcharger",
+		node.MetadataRealism:    node.MetadataRealismVirtual,
 	}
 }
