@@ -9,13 +9,17 @@ import (
 	"log"
 	"os"
 
-	"github.com/smart-core-os/sc-golang/pkg/server"
-	"github.com/smart-core-os/sc-golang/pkg/trait"
-	"github.com/smart-core-os/sc-golang/pkg/trait/parent"
-	"github.com/smart-core-os/sc-playground/pkg/apis"
-	"github.com/smart-core-os/sc-playground/pkg/apis/registry"
+	"github.com/smart-core-os/sc-playground/pkg/node"
 	"github.com/smart-core-os/sc-playground/pkg/run"
 	"github.com/smart-core-os/sc-playground/pkg/sim/boot"
+	"github.com/smart-core-os/sc-playground/pkg/trait/booking"
+	"github.com/smart-core-os/sc-playground/pkg/trait/electric"
+	"github.com/smart-core-os/sc-playground/pkg/trait/energystorage"
+	"github.com/smart-core-os/sc-playground/pkg/trait/metadata"
+	"github.com/smart-core-os/sc-playground/pkg/trait/occupancysensor"
+	"github.com/smart-core-os/sc-playground/pkg/trait/onoff"
+	"github.com/smart-core-os/sc-playground/pkg/trait/parent"
+	"github.com/smart-core-os/sc-playground/pkg/trait/powersupply"
 	"github.com/smart-core-os/sc-playground/ui"
 )
 
@@ -51,29 +55,11 @@ func runCtx(ctx context.Context) error {
 		return err
 	}
 
-	reg := &registry.Slice{}
-
-	devices := parent.NewModel()
-	traiter := &deviceTraiter{devices}
-
 	serverDeviceName := "scos/apps/playground"
-	// register the server traits
-	parentApi := apis.ParentApi(traiter, reg)
-	parentApi.Add(serverDeviceName, parent.WrapApi(parent.NewModelServer(devices)))
-
-	// the list of APIs we support
-	services := []server.GrpcApi{
-		parentApi,
-		apis.BookingApi(traiter, reg),
-		apis.ElectricApi(traiter, reg),
-		apis.EnergyStorageApi(traiter, reg),
-		apis.OccupancyApi(traiter, reg),
-		apis.OnOffApi(traiter, reg),
-		apis.PowerSupplyApi(traiter, reg),
-	}
+	root := newRootNode(serverDeviceName)
 
 	// Setup some devices to start us off
-	simulation, err := boot.CreateSimulation(reg)
+	simulation, err := boot.CreateSimulation(root)
 	if err != nil {
 		return err
 	}
@@ -87,7 +73,7 @@ func runCtx(ctx context.Context) error {
 	return run.Serve(
 		run.WithContext(ctx),
 		run.WithDefaultName(serverDeviceName),
-		run.WithApis(services...),
+		run.WithApis(root),
 		run.WithGrpcAddress(*grpcBind),
 		run.WithHttpAddress(*httpBind),
 		run.WithHttpsAddress(*httpsBind),
@@ -99,6 +85,19 @@ func runCtx(ctx context.Context) error {
 		run.WithCertCacheDir(*certCacheDir),
 		run.WithHttpHealth("/health"),
 	)
+}
+
+func newRootNode(serverDeviceName string) *node.Node {
+	root := node.New(serverDeviceName)
+	booking.Activate(root)
+	electric.Activate(root)
+	energystorage.Activate(root)
+	metadata.Activate(root)
+	occupancysensor.Activate(root)
+	onoff.Activate(root)
+	parent.Activate(root)
+	powersupply.Activate(root)
+	return root
 }
 
 func serverTlsConfig() (*tls.Config, error) {
@@ -154,12 +153,4 @@ func withForceCertGen() run.ConfigOption {
 	} else {
 		return run.NilConfigOption
 	}
-}
-
-type deviceTraiter struct {
-	parent *parent.Model
-}
-
-func (d *deviceTraiter) Trait(name string, traits ...trait.Name) {
-	d.parent.AddChildTrait(name, traits...)
 }

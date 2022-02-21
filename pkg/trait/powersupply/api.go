@@ -1,31 +1,26 @@
-package apis
+package powersupply
 
 import (
-	"log"
 	"math"
 	"math/rand"
 
 	"github.com/smart-core-os/sc-api/go/traits"
-	"github.com/smart-core-os/sc-golang/pkg/server"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/powersupply"
-	"github.com/smart-core-os/sc-playground/pkg/apis/parent"
-	"github.com/smart-core-os/sc-playground/pkg/apis/registry"
+	"github.com/smart-core-os/sc-playground/pkg/node"
 )
 
-func PowerSupplyApi(traiter parent.Traiter, adder registry.Adder) server.GrpcApi {
+func Activate(n *node.Node) {
 	settings := powersupply.NewMemorySettingsApiRouter()
 	devices := powersupply.NewApiRouter(
 		powersupply.WithPowerSupplyApiClientFactory(func(name string) (traits.PowerSupplyApiClient, error) {
-			log.Printf("Creating PowerSupplyClient(%v)", name)
-			traiter.Trait(name, trait.PowerSupply)
 			device := powersupply.NewMemoryDevice()
 			// seed with a random load
 			device.SetLoad(float32(math.Round(rand.Float64()*40*100) / 100))
 			settings.Add(name, powersupply.WrapMemorySettingsApi(device))
+			n.Announce(name, node.HasTrait(trait.PowerSupply))
 			return powersupply.WrapApi(device), nil
 		}),
 	)
-	adder.Add(registry.PowerSupplyApiRegistry{ApiRouter: devices, Traiter: traiter})
-	return server.Collection(devices, settings)
+	n.AddRouter(devices, settings)
 }

@@ -1,4 +1,4 @@
-package apis
+package booking
 
 import (
 	"context"
@@ -6,23 +6,17 @@ import (
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	scTime "github.com/smart-core-os/sc-api/go/types/time"
-	"github.com/smart-core-os/sc-golang/pkg/server"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/booking"
-	"github.com/smart-core-os/sc-playground/pkg/apis/parent"
-	"github.com/smart-core-os/sc-playground/pkg/apis/registry"
+	"github.com/smart-core-os/sc-playground/pkg/node"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func BookingApi(traiter parent.Traiter, adder registry.Adder) server.GrpcApi {
-	r := booking.NewApiRouter(
-		booking.WithBookingApiClientFactory(func(name string) (traits.BookingApiClient, error) {
-			traiter.Trait(name, trait.Booking)
-			return booking.WrapApi(newBookingApiServer(name)), nil
-		}),
-	)
-	adder.Add(registry.BookingApiRegistry{ApiRouter: r, Traiter: traiter})
-	return r
+func Activate(n *node.Node) {
+	n.AddRouter(booking.NewApiRouter(booking.WithBookingApiClientFactory(func(name string) (traits.BookingApiClient, error) {
+		n.Announce(name, node.HasTrait(trait.Booking))
+		return booking.WrapApi(newBookingApiServer(name)), nil
+	})))
 }
 
 func newBookingApiServer(name string) *booking.MemoryDevice {

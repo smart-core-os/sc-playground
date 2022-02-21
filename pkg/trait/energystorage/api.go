@@ -1,4 +1,4 @@
-package apis
+package energystorage
 
 import (
 	"log"
@@ -6,37 +6,27 @@ import (
 	"time"
 
 	"github.com/smart-core-os/sc-api/go/traits"
-	"github.com/smart-core-os/sc-golang/pkg/server"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/energystorage"
 	sim "github.com/smart-core-os/sc-playground/internal/simulated/energystorage"
-	"github.com/smart-core-os/sc-playground/pkg/apis/parent"
-	"github.com/smart-core-os/sc-playground/pkg/apis/registry"
+	"github.com/smart-core-os/sc-playground/pkg/node"
 )
 
-func EnergyStorageApi(traiter parent.Traiter, adder registry.Adder) server.GrpcApi {
+func Activate(n *node.Node) {
 	r := energystorage.NewApiRouter(
 		energystorage.WithEnergyStorageApiClientFactory(func(name string) (traits.EnergyStorageApiClient, error) {
 			log.Printf("Creating EnergyStorageClient(%v)", name)
-			traiter.Trait(name, trait.EnergyStorage)
 			model := energystorage.NewModel()
 
 			randStart := time.Duration(rand.Int63n(int64(10 * time.Minute)))
 			oscillator := sim.NewOscillator(model, sim.WithCycleStart(time.Now().Add(-randStart)))
-			go func() {
-				// loop forever
-				ticker := time.NewTicker(250 * time.Millisecond)
-				defer ticker.Stop()
-				for {
-					if err := oscillator.Scrub(<-ticker.C); err != nil {
-						log.Printf("Error returned from [%v]oscillator.Scrub, %v", name, err)
-					}
-				}
-			}()
 
+			t := time.Now()
+			t = t.Round(15 * time.Second)
+
+			n.Announce(name, node.HasSimulation(oscillator), node.HasSimulation(oscillator), node.HasTrait(trait.EnergyStorage))
 			return energystorage.WrapApi(energystorage.NewModelServer(model, energystorage.ReadOnly())), nil
 		}),
 	)
-	adder.Add(registry.EnergyStorageApiRegistry{ApiRouter: r, Traiter: traiter})
-	return r
+	n.AddRouter(r)
 }

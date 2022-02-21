@@ -3,12 +3,14 @@ package evcharger
 import (
 	"time"
 
-	"github.com/smart-core-os/sc-playground/pkg/apis/registry"
+	"github.com/smart-core-os/sc-golang/pkg/memory"
+	"github.com/smart-core-os/sc-golang/pkg/trait"
+	"github.com/smart-core-os/sc-golang/pkg/trait/metadata"
+	"github.com/smart-core-os/sc-playground/pkg/node"
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
 	"github.com/smart-core-os/sc-golang/pkg/trait/energystorage"
-	"github.com/smart-core-os/sc-playground/internal/util/errs"
 	"github.com/smart-core-os/sc-playground/pkg/device/evcharger/event"
 	"github.com/smart-core-os/sc-playground/pkg/timeline"
 	"github.com/smart-core-os/sc-playground/pkg/timeline/tlutil"
@@ -24,9 +26,11 @@ type Device struct {
 	model         *event.Model
 	electric      *electric.Model
 	energyStorage *energystorage.Model
+	metadata      *metadata.Model
 
 	electricApi      traits.ElectricApiServer
 	energyStorageApi traits.EnergyStorageApiServer
+	metadataApi      traits.MetadataApiServer
 }
 
 // New creates a new Device.
@@ -39,15 +43,18 @@ func New(name string, tl timeline.TL, opts ...Opt) *Device {
 
 	electricModel := electric.NewModel(setup.clock)
 	energyStorageModel := energystorage.NewModel()
+	metadataModel := metadata.NewModel(memory.WithInitialValue(newMetadata(name)))
 
 	d := &Device{
 		name:          name,
 		model:         &event.Model{TL: tl},
 		electric:      electricModel,
 		energyStorage: energyStorageModel,
+		metadata:      metadataModel,
 
 		electricApi:      electric.NewModelServer(electricModel),
 		energyStorageApi: energystorage.NewModelServer(energyStorageModel),
+		metadataApi:      metadata.NewModelServer(metadataModel),
 
 		rating:  setup.rating,
 		voltage: setup.voltage,
@@ -77,9 +84,12 @@ func (d *Device) Scrub(t time.Time) error {
 	}
 }
 
-func (d *Device) Publish(reg registry.Registry) (err error) {
-	return errs.First(
-		reg.Register(d.name, d.electricApi),
-		reg.Register(d.name, d.energyStorageApi),
+func (d *Device) Publish(announcer node.Announcer) {
+	announcer.Announce(
+		d.name,
+		node.HasSimulation(d),
+		node.HasTrait(trait.Electric, node.WithClients(electric.WrapApi(d.electricApi)), node.NoAddMetadata()),
+		node.HasTrait(trait.EnergyStorage, node.WithClients(energystorage.WrapApi(d.energyStorageApi)), node.NoAddMetadata()),
+		node.HasTrait(trait.Metadata, node.WithClients(metadata.WrapApi(d.metadataApi)), node.NoAddMetadata()),
 	)
 }

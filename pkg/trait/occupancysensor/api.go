@@ -1,4 +1,4 @@
-package apis
+package occupancysensor
 
 import (
 	"log"
@@ -6,14 +6,12 @@ import (
 	"time"
 
 	"github.com/smart-core-os/sc-api/go/traits"
-	"github.com/smart-core-os/sc-golang/pkg/server"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/occupancysensor"
-	"github.com/smart-core-os/sc-playground/pkg/apis/parent"
-	"github.com/smart-core-os/sc-playground/pkg/apis/registry"
+	"github.com/smart-core-os/sc-playground/pkg/node"
 )
 
-func OccupancyApi(traiter parent.Traiter, adder registry.Adder) server.GrpcApi {
+func Activate(n *node.Node) {
 	// handle random changes in occupancy
 	var devices []struct {
 		api  *occupancysensor.Model
@@ -32,7 +30,6 @@ func OccupancyApi(traiter parent.Traiter, adder registry.Adder) server.GrpcApi {
 
 	r := occupancysensor.NewApiRouter(
 		occupancysensor.WithOccupancySensorApiClientFactory(func(name string) (traits.OccupancySensorApiClient, error) {
-			traiter.Trait(name, trait.OccupancySensor)
 			initial := randomOccupancy()
 			log.Printf("Creating OccupancyApiClient(%v) %v (people=%v)", name, initial.State, initial.PeopleCount)
 			api := occupancysensor.NewModel(initial)
@@ -40,12 +37,12 @@ func OccupancyApi(traiter parent.Traiter, adder registry.Adder) server.GrpcApi {
 				api  *occupancysensor.Model
 				name string
 			}{api: api, name: name})
-			return occupancysensor.WrapApi(occupancysensor.NewModelServer(api)), nil
+			client := occupancysensor.WrapApi(occupancysensor.NewModelServer(api))
+			n.Announce(name, node.HasTrait(trait.OccupancySensor))
+			return client, nil
 		}),
 	)
-
-	adder.Add(registry.OccupancySensorApiRegistry{ApiRouter: r, Traiter: traiter})
-	return r
+	n.AddRouter(r)
 }
 
 func randomOccupancy() *traits.Occupancy {
