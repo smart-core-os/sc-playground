@@ -1,6 +1,7 @@
 /** @type {import('vue-router').RouteConfig} */
 const route = {
   path: '/devices',
-  component: () => import('./DevicesView.vue')
+  name: 'devices',
+  component: () => import('./DeviceCards.vue')
 }
 export default route;

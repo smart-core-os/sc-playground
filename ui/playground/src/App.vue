@@ -1,6 +1,7 @@
 <template>
   <v-app id="root">
-    <v-app-bar app>
+    <v-app-bar app clipped-left>
+      <v-app-bar-nav-icon @click="navDrawer = !navDrawer"/>
       <v-app-bar-title>Smart Core: Playground</v-app-bar-title>
       <v-spacer/>
       <template v-if="serverConfigError">
@@ -38,6 +39,16 @@
         </template>
       </template>
     </v-app-bar>
+    <v-navigation-drawer app clipped v-model="navDrawer">
+      <v-list>
+        <v-list-item :to="{name: 'devices'}">
+          <v-list-item-title>Devices</v-list-item-title>
+        </v-list-item>
+        <v-list-item :to="{name: 'traits'}">
+          <v-list-item-title>Traits</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
     <v-main>
       <router-view/>
     </v-main>
@@ -53,7 +64,9 @@ export default {
     return {
       /** @type {ServerConfig|null} */
       serverConfig: null,
-      serverConfigError: null
+      serverConfigError: null,
+
+      navDrawer: true
     };
   },
   computed: {
