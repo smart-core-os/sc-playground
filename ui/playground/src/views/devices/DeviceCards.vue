@@ -1,11 +1,8 @@
 <template>
   <v-container fluid class="card-grid">
-    <v-card v-for="child of resources.children.value" :key="child.name" width="400">
-      <v-card-title>{{ child.name }}</v-card-title>
-      <v-card-text>
-        <metadata-panel :metadata="metadataForChild(child)" :flat="false"/>
-      </v-card-text>
-    </v-card>
+    <component v-for="child of resources.children.value" :key="child.name"
+               :is="childToComponent(child)"
+               :child="child" :metadata="metadataForChild(child)"/>
   </v-container>
 </template>
 
@@ -17,10 +14,12 @@ import {ParentApiPromiseClient} from '@smart-core-os/sc-api-grpc-web/traits/pare
 import {ListChildrenRequest, PullChildrenRequest} from '@smart-core-os/sc-api-grpc-web/traits/parent_pb.js';
 import Vue from 'vue';
 import MetadataPanel from '../../traits/metadata/MetadataPanel.vue';
+import EVChargerCard from '../../devices/evcharger/EVChargerCard.vue';
+import UnknownDeviceCard from '../../devices/unknown/UnknownDeviceCard.vue';
 
 export default {
   name: 'DevicesView',
-  components: {MetadataPanel},
+  components: {MetadataPanel, EVChargerCard, UnknownDeviceCard},
   data() {
     return {
       serverName: '',
@@ -160,6 +159,20 @@ export default {
     },
     log(...args) {
       console.debug(...args);
+    },
+
+    childToComponent(child) {
+      const md = this.metadataForChild(child);
+      const entry = md?.moreMap?.find(([k]) => k === 'scos.playground.device-type');
+      if (!entry) {
+        return 'UnknownDeviceCard';
+      }
+      const deviceType = entry[1];
+      switch (deviceType) {
+        case 'evcharger':
+          return 'EVChargerCard';
+      }
+      return 'UnknownDeviceCard';
     }
   }
 };
