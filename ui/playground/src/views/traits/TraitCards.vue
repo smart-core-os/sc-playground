@@ -1,5 +1,5 @@
 <template>
-  <v-container class="card-grid">
+  <v-container class="card-grid" fluid>
     <template v-for="child in children">
       <template v-for="trait in child.traitsList">
         <component :is="traitToComponent(trait)" :deviceId="child.name" :trait="trait"/>
@@ -11,17 +11,18 @@
 <script>
 
 import PowerSupplyCard from '../../traits/powersupply/PowerSupplyCard.vue';
-import {grpcWebEndpoint} from "../../util/api.js";
-import {ParentApiPromiseClient} from "@smart-core-os/sc-api-grpc-web/traits/parent_grpc_web_pb.js";
-import {ListChildrenRequest, PullChildrenRequest} from "@smart-core-os/sc-api-grpc-web/traits/parent_pb.js";
-import Vue from "vue";
-import EnergyStorageCard from "../../traits/energystorage/EnergyStorageCard.vue";
-import UnknownTraitCard from "../../traits/unknown/UnknownTraitCard.vue";
-import ElectricCard from "../../traits/electric/ElectricCard.vue";
+import {grpcWebEndpoint} from '../../util/api.js';
+import {ParentApiPromiseClient} from '@smart-core-os/sc-api-grpc-web/traits/parent_grpc_web_pb.js';
+import {ListChildrenRequest, PullChildrenRequest} from '@smart-core-os/sc-api-grpc-web/traits/parent_pb.js';
+import Vue from 'vue';
+import EnergyStorageCard from '../../traits/energystorage/EnergyStorageCard.vue';
+import UnknownTraitCard from '../../traits/unknown/UnknownTraitCard.vue';
+import ElectricCard from '../../traits/electric/ElectricCard.vue';
+import MetadataCard from '../../traits/metadata/MetadataCard.vue';
 
 export default {
   name: 'TraitCards',
-  components: {ElectricCard, EnergyStorageCard, PowerSupplyCard, UnknownTraitCard},
+  components: {ElectricCard, EnergyStorageCard, MetadataCard, PowerSupplyCard, UnknownTraitCard},
   data() {
     return {
       serverName: '',
@@ -93,13 +94,15 @@ export default {
     traitToComponent(trait) {
       switch (trait.name) {
         case 'smartcore.traits.Electric':
-          return 'ElectricCard'
+          return 'ElectricCard';
         case 'smartcore.traits.EnergyStorage':
-          return 'EnergyStorageCard'
+          return 'EnergyStorageCard';
         case 'smartcore.traits.PowerSupply':
-          return 'PowerSupplyCard'
+          return 'PowerSupplyCard';
+        case 'smartcore.traits.Metadata':
+          return 'MetadataCard';
         default:
-          return 'UnknownTraitCard'
+          return 'UnknownTraitCard';
       }
     }
   }

@@ -1,19 +1,13 @@
 <template>
-  <v-card width="400">
-    <v-card-title>
-      <span>{{ deviceId }}</span>
-      <v-spacer/>
-    </v-card-title>
-    <v-card-text>
-      This device implements an unknown trait {{ trait }}
-    </v-card-text>
-  </v-card>
+  <trait-card :device-id="deviceId" :trait="trait"/>
 </template>
 
 <script>
+import TraitCard from '../../components/TraitCard.vue';
 
 export default {
   name: 'UnknownTraitCard',
+  components: {TraitCard},
   props: {
     deviceId: null,
     trait: null

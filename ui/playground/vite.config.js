@@ -13,6 +13,8 @@ export default defineConfig({
       '@smart-core-os/sc-api-grpc-web/traits/electric_grpc_web_pb.js',
       '@smart-core-os/sc-api-grpc-web/traits/energy_storage_pb.js',
       '@smart-core-os/sc-api-grpc-web/traits/energy_storage_grpc_web_pb.js',
+      '@smart-core-os/sc-api-grpc-web/traits/metadata_pb.js',
+      '@smart-core-os/sc-api-grpc-web/traits/metadata_grpc_web_pb.js',
       '@smart-core-os/sc-api-grpc-web/traits/power_supply_pb.js',
       '@smart-core-os/sc-api-grpc-web/traits/power_supply_grpc_web_pb.js'
     ]
