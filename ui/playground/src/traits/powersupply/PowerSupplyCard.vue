@@ -48,18 +48,18 @@ import {
   PullDrawNotificationsRequest,
   PullPowerCapacityRequest
 } from '@smart-core-os/sc-api-grpc-web/traits/power_supply_pb.js';
-import {MemorySettingsApiPromiseClient} from 'gen/trait/powersupply/memory_settings_grpc_web_pb.js';
+import {MemorySettingsApiPromiseClient} from '@sc-playground/gen/trait/powersupply/memory_settings_grpc_web_pb.js';
 import {
   GetMemorySettingsReq,
   MemorySettings,
   PullMemorySettingsReq,
   UpdateMemorySettingsReq
-} from 'gen/trait/powersupply/memory_settings_pb.js';
+} from '@sc-playground/gen/trait/powersupply/memory_settings_pb.js';
 import {FieldMask} from 'google-protobuf/google/protobuf/field_mask_pb.js';
 import PowerSupplyBar from './PowerSupplyBar.vue';
 import PowerSupplySettingsEditor from './PowerSupplySettingsEditor.vue';
 import {grpcWebEndpoint} from '../../util/api.js';
-import PowerSupplyDrawNotificationList from "./PowerSupplyDrawNotificationList.vue";
+import PowerSupplyDrawNotificationList from './PowerSupplyDrawNotificationList.vue';
 import {Duration} from 'google-protobuf/google/protobuf/duration_pb.js';
 import Vue from 'vue';
 
