@@ -53,6 +53,9 @@ func (n *Node) Announce(name string, features ...Feature) {
 	for _, feature := range features {
 		feature.apply(a)
 	}
+	for _, client := range a.clients {
+		n.addRoute(name, client)
+	}
 	for _, t := range a.traits {
 		log.Printf("%v now implements %v\n", name, t.name)
 
@@ -102,7 +105,10 @@ func (n *Node) addChildTrait(name string, traitName ...trait.Name) {
 func (n *Node) addScrubber(s scrub.Scrubber) {
 	n.scrubbers = append(n.scrubbers, s)
 	if !n.t.IsZero() {
-		_ = s.Scrub(n.t)
+		err := s.Scrub(n.t)
+		if err != nil {
+			log.Printf("ERROR: during addScrubber %v", err)
+		}
 	}
 }
 
