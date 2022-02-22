@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	DecisionDelay     = 5 * time.Second
+	DecisionDelay     = 15 * time.Second
 	DecisionMagnitude = PluggedInModeMagnitude
 )
 

@@ -25,7 +25,7 @@ func (d *Device) setIdle() error {
 		PluggedIn: false,
 		Flow:      &traits.EnergyLevel_Idle{Idle: &traits.EnergyLevel_Steady{StartTime: pbStartTime}},
 	}
-	return d.setIdleMode(energyLevel, IdleModeMagnitude, startTime)
+	return d.setIdleMode(energyLevel, d.idleMode(IdleModeMagnitude), startTime)
 }
 
 func (d *Device) setPluggedIn() error {
@@ -36,14 +36,13 @@ func (d *Device) setPluggedIn() error {
 		}},
 		Quantity: d.model.PluggedIn.Level,
 	}
-	return d.setIdleMode(energyLevel, PluggedInModeMagnitude, d.model.PluggedIn.At())
+	return d.setIdleMode(energyLevel, d.pluggedInMode(PluggedInModeMagnitude), d.model.PluggedIn.At())
 }
 
-func (d *Device) setIdleMode(energyLevel *traits.EnergyLevel, magnitude float32, startTime time.Time) error {
+func (d *Device) setIdleMode(energyLevel *traits.EnergyLevel, mode *traits.ElectricMode, startTime time.Time) error {
 	if _, err := d.energyStorage.UpdateEnergyLevel(energyLevel); err != nil {
 		return err
 	}
-	mode := d.idleMode(magnitude)
 	if !startTime.IsZero() {
 		mode.StartTime = timestamppb.New(startTime)
 	}
@@ -67,6 +66,22 @@ func (d *Device) idleMode(magnitude float32) *traits.ElectricMode {
 		Id:          IdleModeID,
 		Title:       "Idle",
 		Description: "Not charging",
+		Normal:      true,
+		Segments: []*traits.ElectricMode_Segment{
+			{
+				Magnitude: magnitude,
+				Shape:     &traits.ElectricMode_Segment_Fixed{Fixed: magnitude},
+			},
+		},
+	}
+}
+
+// pluggedInMode returns a new traits.ElectricMode that represents _not charging_, i.e. pluggedIn.
+func (d *Device) pluggedInMode(magnitude float32) *traits.ElectricMode {
+	return &traits.ElectricMode{
+		Id:          IdleModeID,
+		Title:       "Plugged in",
+		Description: "Waiting for the charge to start",
 		Normal:      true,
 		Segments: []*traits.ElectricMode_Segment{
 			{
