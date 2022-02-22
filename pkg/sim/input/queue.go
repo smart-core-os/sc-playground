@@ -77,6 +77,7 @@ func (q *Queue) Dispatch(ctx context.Context, t time.Time, e ...interface{}) (fu
 		case <-msg.committed:
 			return done, nil
 		case err := <-msg.rejected:
+			done()
 			return func() {}, err
 		}
 	}
