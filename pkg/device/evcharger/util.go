@@ -5,12 +5,16 @@ import (
 	"time"
 
 	"github.com/smart-core-os/sc-api/go/traits"
+	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 // ensureSingleMode adjusts the electric modes of the device such that only the given mode exists.
+// If the current active mode is not the given mode, then it will be set to the given mode.
 func (d *Device) ensureSingleMode(mode *traits.ElectricMode) error {
 	modes := d.electric.Modes(nil)
 	modeExists := false
+	var delayDelete func(mode *traits.ElectricMode) error
 	for _, m := range modes {
 		if m.Id == mode.Id {
 			modeExists = true
@@ -18,7 +22,9 @@ func (d *Device) ensureSingleMode(mode *traits.ElectricMode) error {
 				return err
 			}
 		} else {
-			if err := d.electric.DeleteMode(m.Id); err != nil {
+			var err error
+			delayDelete, err = d.deleteMode(m.Id)
+			if err != nil {
 				return err
 			}
 		}
@@ -29,10 +35,16 @@ func (d *Device) ensureSingleMode(mode *traits.ElectricMode) error {
 			return err
 		}
 	}
+	if delayDelete != nil {
+		if err := delayDelete(mode); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
 // ensureOnlyModes adjusts the electric modes of the device such that only the given modes exists.
+// If the current active mode is not in the given mode slice, the first mode will be selected as the active mode.
 func (d *Device) ensureOnlyModes(modes []*traits.ElectricMode) error {
 	modesToAdd := make(map[string]*traits.ElectricMode)
 	modesToCreate := make([]*traits.ElectricMode, 0)
@@ -64,8 +76,15 @@ func (d *Device) ensureOnlyModes(modes []*traits.ElectricMode) error {
 	// Delete first, in case we're about to add/update a mode to contradict with an old mode.
 	// Then update, for the same reason, in case a mode is update to not conflict with a future addition.
 	// Add and Create can happen in any order.
+	//
+	// We have to be careful about deleting the active mode, we can't do it.
+	// If we are about to delete it, then we have to make sure we've added the new active mode,
+	// switch to it, then delete the old one when it's safe
+	var delayDelete func(mode *traits.ElectricMode) error
 	for _, id := range modesToDelete {
-		if err := d.electric.DeleteMode(id); err != nil {
+		var err error
+		delayDelete, err = d.deleteMode(id)
+		if err != nil {
 			return err
 		}
 	}
@@ -80,11 +99,47 @@ func (d *Device) ensureOnlyModes(modes []*traits.ElectricMode) error {
 		}
 	}
 	for _, mode := range modesToCreate {
-		if _, err := d.electric.CreateMode(mode); err != nil {
+		m, err := d.electric.CreateMode(mode)
+		if err != nil {
+			return err
+		}
+		mode.Id = m.Id
+	}
+	if delayDelete != nil {
+		if err := delayDelete(modes[0]); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func (d *Device) deleteMode(id string) (func(mode *traits.ElectricMode) error, error) {
+	err := d.electric.DeleteMode(id)
+	if err == nil {
+		return nil, nil
+	}
+	if err != electric.ErrDeleteActiveMode {
+		return nil, err
+	}
+	// make sure the mode isn't the normal mode anymore
+	notNormal := &traits.ElectricMode{Id: id, Normal: false}
+	mask, err := fieldmaskpb.New(notNormal, "normal")
+	if err != nil {
+		return nil, err
+	}
+	_, err = d.electric.UpdateMode(notNormal, mask)
+	if err != nil {
+		return nil, err
+	}
+	return func(mode *traits.ElectricMode) error {
+		if err := d.electric.SetActiveMode(mode); err != nil {
+			return err
+		}
+		if err := d.electric.DeleteMode(id); err != nil {
+			return err
+		}
+		return nil
+	}, nil
 }
 
 // updateDemand sets the current electric demand of the device.
