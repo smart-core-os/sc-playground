@@ -1,15 +1,17 @@
 {
-  "name": "gen",
+  "name": "@sc-playground/gen",
   "version": "0.0.0",
+  "description": "Contains grpc-web generated proto files, those that aren't provided by npm packages elsewhere.",
   "private": true,
   "scripts": {
-    "gen": "protomod protoc -- --js_out=import_style=commonjs:. --grpc-web_out=import_style=commonjs+dts,mode=grpcwebtext:. trait/powersupply/memory_settings.proto"
+    "gen": "node ./gen.mjs"
   },
   "dependencies": {
-    "@smart-core-os/sc-api-grpc-web": "^1.0.0-beta.30",
-    "google-protobuf": "^3.19.3"
+    "@smart-core-os/sc-api-grpc-web": "^1.0.0-beta.31",
+    "google-protobuf": "^3.19.4"
   },
   "devDependencies": {
-    "@types/google-protobuf": "^3.15.3"
+    "@types/google-protobuf": "^3.15.3",
+    "replace-in-file": "^6.3.2"
   }
 }
