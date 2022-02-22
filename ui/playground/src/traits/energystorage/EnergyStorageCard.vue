@@ -10,14 +10,8 @@
 </template>
 
 <script>
-
-import {grpcWebEndpoint} from '../../util/api.js';
-import {EnergyStorageApiPromiseClient} from "@smart-core-os/sc-api-grpc-web/traits/energy_storage_grpc_web_pb.js";
-import {
-  GetEnergyLevelRequest,
-  PullEnergyLevelRequest
-} from "@smart-core-os/sc-api-grpc-web/traits/energy_storage_pb.js";
-import TraitCard from "../../components/TraitCard.vue";
+import TraitCard from '../../components/TraitCard.vue';
+import {pullEnergyLevel} from './energy-storage.js';
 
 export default {
   name: 'EnergyStorageCard',
@@ -65,24 +59,8 @@ export default {
   },
   methods: {
     async pull() {
-      const serverEndpoint = await grpcWebEndpoint();
-
       // EnergyLevel resource
-      const energyLevelApi = new EnergyStorageApiPromiseClient(serverEndpoint, null, null);
-      const energyLevelResource = this.resources.energyLevel;
-      if (energyLevelResource.stream) energyLevelResource.stream.cancel();
-      const energyLevelPb = await energyLevelApi.getEnergyLevel(new GetEnergyLevelRequest().setName(this.deviceId));
-      energyLevelResource.value = energyLevelPb.toObject();
-      const energyLevelStream = energyLevelApi.pullEnergyLevel(new PullEnergyLevelRequest().setName(this.deviceId));
-      energyLevelResource.stream = energyLevelStream;
-      energyLevelStream.on('data', res => {
-        /** @type {PullEnergyLevelResponse.Change[]} */
-        const changes = res.getChangesList();
-        for (const change of changes) {
-          const value = change.getEnergyLevel();
-          energyLevelResource.value = value.toObject();
-        }
-      });
+      this.resources.energyLevel = await pullEnergyLevel(this.deviceId, this.resources.energyLevel);
     },
     log(...args) {
       console.debug(...args);

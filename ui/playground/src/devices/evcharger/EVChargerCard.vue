@@ -4,9 +4,9 @@
     <v-card-subtitle>{{ child.name }}</v-card-subtitle>
     <v-divider/>
     <v-card-actions>
-      <v-btn text @click="asyncAction(plugIn)">Plug in</v-btn>
-      <v-btn text @click="asyncAction(charge)">Begin charge</v-btn>
-      <v-btn text @click="asyncAction(unplug)">Unplug</v-btn>
+      <v-btn text @click="asyncAction(plugIn)" :disabled="pluggedIn">Plug in</v-btn>
+      <v-btn text @click="asyncAction(charge)" :disabled="!pluggedIn || charging">Begin charge</v-btn>
+      <v-btn text @click="asyncAction(unplug)" :disabled="!pluggedIn">Unplug</v-btn>
     </v-card-actions>
     <v-card-subtitle>Override electric mode</v-card-subtitle>
     <v-card-text>
@@ -30,6 +30,7 @@ import {
 import {EnergyLevel} from '@smart-core-os/sc-api-grpc-web/traits/energy_storage_pb.js';
 import {ElectricMode} from '@smart-core-os/sc-api-grpc-web/traits/electric_pb.js';
 import durationpb from 'google-protobuf/google/protobuf/duration_pb.js';
+import {pullEnergyLevel} from '../../traits/energystorage/energy-storage.js';
 
 export default {
   name: 'EVChargerCard',
@@ -40,11 +41,27 @@ export default {
   },
   data() {
     return {
+      resources: {
+        energyLevel: {
+          /** @type {EnergyLevel.AsObject} */
+          value: null,
+          stream: null
+        }
+      },
       action: {
         loading: false,
         error: null
       }
     };
+  },
+  mounted() {
+    this.pull()
+        .catch(err => console.error('during pull', err));
+  },
+  beforeDestroy() {
+    for (const resource of Object.values(this.resources)) {
+      if (resource.stream) resource.stream.cancel();
+    }
   },
   computed: {
     deviceId() {
@@ -56,9 +73,18 @@ export default {
     },
     mdTitle() {
       return this.metadata?.appearance?.title;
+    },
+    pluggedIn() {
+      return Boolean(this.resources.energyLevel.value?.pluggedIn);
+    },
+    charging() {
+      return Boolean(this.resources.energyLevel.value?.charge);
     }
   },
   methods: {
+    async pull() {
+      this.resources.energyLevel = await pullEnergyLevel(this.deviceId, this.resources.energyLevel);
+    },
     async asyncAction(action) {
       if (typeof action === 'string') {
         action = () => this[action]();
