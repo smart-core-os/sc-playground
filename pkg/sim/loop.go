@@ -65,13 +65,16 @@ func (l *Loop) Advance(ctx context.Context, t time.Time) (err error) {
 	if atl, ok := l.TL.(timeline.AddTL); ok {
 		session, err = l.Input.Capture(ctx, atl)
 		if err != nil {
-			return fmt.Errorf("during input capture: %w", err)
+			err = fmt.Errorf("during input capture: %w", err)
+			return
 		}
 	}
 
 	// 2. Scrub - updates sim model to match the new state of the timeline at t
-	if err := l.Model.Scrub(t); err != nil {
-		return fmt.Errorf("during model scrub: %w", err)
+	err = l.Model.Scrub(t)
+	if err != nil {
+		err = fmt.Errorf("during model scrub: %w", err)
+		return
 	}
 
 	// 3. Let the input dispatchers know the state is correct, and wait for them to be done
@@ -86,5 +89,5 @@ func (l *Loop) Advance(ctx context.Context, t time.Time) (err error) {
 	// todo:
 	//   5. Clean up TL: trim, GC, etc. Make sure we aren't growing exponentially
 
-	return nil
+	return
 }
