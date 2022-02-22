@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/smart-core-os/sc-golang/pkg/memory"
+	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/metadata"
 	"github.com/smart-core-os/sc-playground/pkg/node"
@@ -15,6 +16,10 @@ import (
 	"github.com/smart-core-os/sc-playground/pkg/timeline"
 	"github.com/smart-core-os/sc-playground/pkg/timeline/tlutil"
 )
+
+func Activate(n *node.Node) {
+	n.AddRouter(NewApiRouter())
+}
 
 // Device is a virtual electric vehicle charger.
 type Device struct {
@@ -31,6 +36,8 @@ type Device struct {
 	electricApi      traits.ElectricApiServer
 	energyStorageApi traits.EnergyStorageApiServer
 	metadataApi      traits.MetadataApiServer
+
+	api *ApiServer
 }
 
 // New creates a new Device.
@@ -55,6 +62,8 @@ func New(name string, tl timeline.TL, opts ...Opt) *Device {
 		electricApi:      electric.NewModelServer(electricModel),
 		energyStorageApi: energystorage.NewModelServer(energyStorageModel),
 		metadataApi:      metadata.NewModelServer(metadataModel),
+
+		api: &ApiServer{clock: clock.Real(), dispatcher: setup.dispatcher},
 
 		rating:  setup.rating,
 		voltage: setup.voltage,
@@ -87,6 +96,7 @@ func (d *Device) Scrub(t time.Time) error {
 func (d *Device) Publish(announcer node.Announcer) {
 	announcer.Announce(
 		d.name,
+		node.HasClient(WrapApi(d.api)),
 		node.HasSimulation(d),
 		node.HasTrait(trait.Electric, node.WithClients(electric.WrapApi(d.electricApi)), node.NoAddMetadata()),
 		node.HasTrait(trait.EnergyStorage, node.WithClients(energystorage.WrapApi(d.energyStorageApi)), node.NoAddMetadata()),

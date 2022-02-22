@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/smart-core-os/sc-playground/pkg/device/evcharger"
 	"github.com/smart-core-os/sc-playground/pkg/node"
 	"github.com/smart-core-os/sc-playground/pkg/run"
 	"github.com/smart-core-os/sc-playground/pkg/sim/boot"
@@ -89,6 +90,7 @@ func runCtx(ctx context.Context) error {
 
 func newRootNode(serverDeviceName string) *node.Node {
 	root := node.New(serverDeviceName)
+	// trait apis
 	booking.Activate(root)
 	electric.Activate(root)
 	energystorage.Activate(root)
@@ -97,6 +99,9 @@ func newRootNode(serverDeviceName string) *node.Node {
 	onoff.Activate(root)
 	parent.Activate(root)
 	powersupply.Activate(root)
+
+	// device apis
+	evcharger.Activate(root)
 	return root
 }
 

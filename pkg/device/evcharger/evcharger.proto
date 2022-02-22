@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package smartcore.playground.device.evcharger;
+
+option go_package = "github.com/smart-core-os/sc-playground/pkg/device/evcharger";
+
+import "github.com/smart-core-os/sc-api/protobuf/traits/electric.proto";
+import "github.com/smart-core-os/sc-api/protobuf/traits/energy_storage.proto";
+
+service EVChargerApi {
+  rpc PlugIn(PlugInRequest) returns (PlugInResponse);
+  rpc ChargeStart(ChargeStartRequest) returns (ChargeStartResponse);
+  rpc Unplug(UnplugRequest) returns (UnplugResponse);
+}
+
+message PlugInEvent {
+  // Full describes the values the plugged in device would have when full.
+  //
+  // Example
+  //
+  //    Percentage: 100, // when full, the ev is at 100%
+  //    DistanceKm: 300, // when full, the ev can travel 300 km
+  //    EnergyKwh:  100, // when full, the ev hold 100 kWh of energy
+  smartcore.traits.EnergyLevel.Quantity full = 1;
+  // Level encodes the current charge level when the vehicle was plugged in.
+  smartcore.traits.EnergyLevel.Quantity level = 2;
+
+  message ChargeMode {
+    string id = 1;
+    string title = 2;
+    string description = 3;
+    repeated smartcore.traits.ElectricMode.Segment segments = 4;
+  }
+  // Supported charging modes of the device that was just plugged in.
+  // Empty implies the charger can make the decision.
+  // The first mode is the preferred mode and will be marked as the Normal mode.
+  repeated ChargeMode modes = 3;
+}
+
+message PlugInRequest {
+  string name = 1;
+  PlugInEvent event = 2;
+}
+message PlugInResponse {}
+
+message ChargeStartRequest {
+  string name = 1;
+}
+message ChargeStartResponse {}
+
+message UnplugRequest {
+  string name = 1;
+}
+message UnplugResponse {}
