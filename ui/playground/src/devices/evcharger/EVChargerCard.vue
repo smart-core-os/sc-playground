@@ -8,7 +8,7 @@
       <v-btn text @click="asyncAction(charge)" :disabled="!pluggedIn || charging">Begin charge</v-btn>
       <v-btn text @click="asyncAction(unplug)" :disabled="!pluggedIn">Unplug</v-btn>
     </v-card-actions>
-    <v-card-subtitle>Override electric mode</v-card-subtitle>
+    <v-card-subtitle>Choose charge mode</v-card-subtitle>
     <v-card-text>
       <get-electric-mode-chooser :device-id="deviceId"/>
     </v-card-text>
