@@ -1,5 +1,8 @@
 <template>
-  <trait-card :device-id="deviceId" :trait="trait" :icon="iconStr">
+  <trait-card :device-id="deviceId" :trait="trait">
+    <template #title-append>
+      <charge-icon :energy-level="resources.energyLevel.value"/>
+    </template>
     <v-card-text>
       <template v-if="resources.energyLevel.value">
         <!-- todo: display energyLevels better       -->
@@ -12,10 +15,11 @@
 <script>
 import TraitCard from '../../components/TraitCard.vue';
 import {pullEnergyLevel} from './energy-storage.js';
+import ChargeIcon from './ChargeIcon.vue';
 
 export default {
   name: 'EnergyStorageCard',
-  components: {TraitCard},
+  components: {ChargeIcon, TraitCard},
   props: {
     deviceId: [String],
     trait: [Object]
@@ -33,28 +37,11 @@ export default {
   },
   mounted() {
     this.pull()
-        .catch(err => console.error('during pull', err))
+        .catch(err => console.error('during pull', err));
   },
   beforeDestroy() {
     for (const resource of Object.values(this.resources)) {
       if (resource.stream) resource.stream.cancel();
-    }
-  },
-  computed: {
-    iconStr() {
-      if (this.charging) {
-        return 'mdi-battery';
-      }
-      if (this.pluggedIn) {
-        return 'mdi-power-plug';
-      }
-      return 'mdi-power-plug-off';
-    },
-    pluggedIn() {
-      return Boolean(this.resources.energyLevel.value?.pluggedIn);
-    },
-    charging() {
-      return false;
     }
   },
   methods: {

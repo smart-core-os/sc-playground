@@ -1,12 +1,18 @@
 <template>
   <v-card>
-    <v-card-title>{{ title }}</v-card-title>
+    <v-card-title>
+      <span>{{ title }}</span>
+      <v-spacer/>
+      <charge-icon :energy-level="resources.energyLevel.value"/>
+    </v-card-title>
     <v-card-subtitle>{{ child.name }}</v-card-subtitle>
     <v-divider/>
     <v-card-actions>
-      <v-btn text @click="asyncAction(plugIn)" :disabled="pluggedIn">Plug in</v-btn>
-      <v-btn text @click="asyncAction(charge)" :disabled="!pluggedIn || charging">Begin charge</v-btn>
-      <v-btn text @click="asyncAction(unplug)" :disabled="!pluggedIn">Unplug</v-btn>
+      <v-btn text @click="asyncAction(plugIn)" :loading="action.loading" :disabled="pluggedIn">Plug in</v-btn>
+      <v-btn text @click="asyncAction(charge)" :loading="action.loading" :disabled="!pluggedIn || charging">Begin
+        charge
+      </v-btn>
+      <v-btn text @click="asyncAction(unplug)" :loading="action.loading" :disabled="!pluggedIn">Unplug</v-btn>
     </v-card-actions>
     <v-card-subtitle>Choose charge mode</v-card-subtitle>
     <v-card-text>
@@ -16,7 +22,6 @@
 </template>
 
 <script>
-import ElectricModeChooser from '../../traits/electric/ElectricModeChooser.vue';
 import GetElectricModeChooser from '../../traits/electric/GetElectricModeChooser.vue';
 import {localName} from '../../util/names.js';
 import {grpcWebEndpoint} from '../../util/api.js';
@@ -31,10 +36,11 @@ import {EnergyLevel} from '@smart-core-os/sc-api-grpc-web/traits/energy_storage_
 import {ElectricMode} from '@smart-core-os/sc-api-grpc-web/traits/electric_pb.js';
 import durationpb from 'google-protobuf/google/protobuf/duration_pb.js';
 import {pullEnergyLevel} from '../../traits/energystorage/energy-storage.js';
+import ChargeIcon from '../../traits/energystorage/ChargeIcon.vue';
 
 export default {
   name: 'EVChargerCard',
-  components: {GetElectricModeChooser, ElectricModeChooser},
+  components: {ChargeIcon, GetElectricModeChooser},
   props: {
     child: [Object],
     metadata: [Object]
@@ -90,14 +96,15 @@ export default {
         action = () => this[action]();
       }
 
+      const setLoading = setTimeout(() => this.action.loading = true, 500);
       try {
-        this.action.loading = true;
         await action.call(this);
         this.action.error = null;
       } catch (e) {
         console.error(e);
         this.action.error = e;
       } finally {
+        clearTimeout(setLoading);
         this.action.loading = false;
       }
     },
@@ -134,7 +141,7 @@ export default {
           .setTitle('Fast Charge')
           .setDescription('Level 3 charging mode')
           .setSegmentsList([
-            new ElectricMode.Segment().setMagnitude(250).setLength(new durationpb.Duration().setSeconds(30 * minute))
+            new ElectricMode.Segment().setMagnitude(250).setLength(new durationpb.Duration().setSeconds(20 * minute))
           ]);
       await api.plugIn(new PlugInRequest().setName(this.deviceId)
           .setEvent(new PlugInEvent()
