@@ -3,10 +3,12 @@ package sim
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/smart-core-os/sc-playground/pkg/sim/input"
 	"github.com/smart-core-os/sc-playground/pkg/sim/scrub"
+	"github.com/smart-core-os/sc-playground/pkg/sim/stats"
 	"github.com/smart-core-os/sc-playground/pkg/timeline"
 )
 
@@ -17,6 +19,8 @@ type Loop struct {
 	Input input.Capturer // captures user inputs
 	TL    timeline.TL    // records user inputs and other info on a timeline
 	Model scrub.Scrubber // the simulation model, the things we are controlling/exposing
+
+	framer stats.Framer
 }
 
 func NewLoop(tl timeline.TL, model scrub.Scrubber, input input.Capturer) *Loop {
@@ -25,6 +29,8 @@ func NewLoop(tl timeline.TL, model scrub.Scrubber, input input.Capturer) *Loop {
 		Input:           input,
 		TL:              tl,
 		Model:           model,
+
+		framer: stats.CFramer(60*5, stats.FFramer(os.Stdout)),
 	}
 }
 
@@ -55,15 +61,27 @@ func (l *Loop) Run(ctx context.Context) error {
 // There is no need to call Advance if you have called Run, it does it for you.
 func (l *Loop) Advance(ctx context.Context, t time.Time) (err error) {
 	var session input.Session
+	t0 := time.Now()
+	frame := stats.FrameTiming{}
+	defer func() {
+		frame.Total = time.Since(t0)
+		if l.framer != nil {
+			l.framer.Frame(frame)
+		}
+	}()
 	defer func() {
 		if err != nil && session != nil {
+			t0 := time.Now()
 			session.Reject(err)
+			frame.Respond = time.Since(t0)
 		}
 	}()
 
 	// 1. Capture "user" inputs, and update the timeline
 	if atl, ok := l.TL.(timeline.AddTL); ok {
+		t0 := time.Now()
 		session, err = l.Input.Capture(ctx, atl)
+		frame.Capture = time.Since(t0)
 		if err != nil {
 			err = fmt.Errorf("during input capture: %w", err)
 			return
@@ -71,7 +89,9 @@ func (l *Loop) Advance(ctx context.Context, t time.Time) (err error) {
 	}
 
 	// 2. Scrub - updates sim model to match the new state of the timeline at t
+	s0 := time.Now()
 	err = l.Model.Scrub(t)
+	frame.Scrub = time.Since(s0)
 	if err != nil {
 		err = fmt.Errorf("during model scrub: %w", err)
 		return
@@ -79,7 +99,9 @@ func (l *Loop) Advance(ctx context.Context, t time.Time) (err error) {
 
 	// 3. Let the input dispatchers know the state is correct, and wait for them to be done
 	if session != nil {
+		t0 := time.Now()
 		session.Commit()
+		frame.Respond = time.Since(t0)
 		session = nil
 	}
 
