@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/smart-core-os/sc-api/go/traits"
-	"github.com/smart-core-os/sc-golang/pkg/memory"
+	"github.com/smart-core-os/sc-golang/pkg/resource"
 	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
 	"go.uber.org/zap"
@@ -110,7 +110,7 @@ func (s *Source) Simulate(ctx context.Context) error {
 			// update the model with the new demand
 			_, err := s.Model.UpdateDemand(
 				&traits.ElectricDemand{Current: totalCurrent},
-				memory.WithUpdateMask(demandMask),
+				resource.WithUpdateMask(demandMask),
 			)
 			if err != nil {
 				return err
@@ -194,7 +194,8 @@ func (s *Source) spawnDownstreamWorker(ctx context.Context, group *errgroup.Grou
 		panic(err) // not possible unless structure changes
 	}
 
-	changes, done := model.PullDemand(ctx, demandMask)
+	ctx, done = context.WithCancel(ctx)
+	changes := model.PullDemand(ctx, resource.WithReadMask(demandMask))
 	initial := model.Demand()
 
 	s.log.Debug("sending initial current",

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/smart-core-os/sc-api/go/traits"
-	"github.com/smart-core-os/sc-golang/pkg/memory"
+	"github.com/smart-core-os/sc-golang/pkg/resource"
 	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
 
@@ -141,7 +141,7 @@ func (s *Sink) runUpdateDemand(ctx context.Context) error {
 				panic(err)
 			}
 
-			_, err = s.Model.UpdateDemand(update, memory.WithUpdateMask(mask))
+			_, err = s.Model.UpdateDemand(update, resource.WithUpdateMask(mask))
 			if err != nil {
 				return fmt.Errorf("failed to update demand on the memory device: %w", err)
 			}
@@ -156,8 +156,7 @@ func (s *Sink) runUpdateDemand(ctx context.Context) error {
 // Runs until an error occurs or the context is cancelled.
 func (s *Sink) runUpdateMode(ctx context.Context) error {
 	// open a stream to get mode changes
-	stream, stop := s.Model.PullActiveMode(ctx, nil)
-	defer stop()
+	stream := s.Model.PullActiveMode(ctx)
 
 	// get the initial mode
 	initialMode := s.Model.ActiveMode()

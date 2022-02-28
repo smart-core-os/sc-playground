@@ -64,8 +64,8 @@ func TestDevice_Scrub(t *testing.T) {
 		state.WantDemandMagnitude(PluggedInModeMagnitude)
 		state.WantActiveModeOnly(&traits.ElectricMode{
 			Id:          IdleModeID,
-			Title:       "Idle",
-			Description: "Not charging",
+			Title:       "Plugged in",
+			Description: "Waiting for the charge to start",
 			Normal:      true,
 			StartTime:   pbt(500),
 			Segments: []*traits.ElectricMode_Segment{
@@ -318,7 +318,7 @@ func (t tester) WantActiveMode(wantMode *traits.ElectricMode) tester {
 
 func (t tester) WantModesOnly(wantModes ...*traits.ElectricMode) tester {
 	t.T.Helper()
-	if diff := th.Diff(wantModes, t.Device.electric.Modes(nil), cmpopts.SortSlices(func(a, b *traits.ElectricMode) bool {
+	if diff := th.Diff(wantModes, t.Device.electric.Modes(), cmpopts.SortSlices(func(a, b *traits.ElectricMode) bool {
 		return a.Id < b.Id
 	})); diff != "" {
 		t.Fatalf("Modes@%v (-want, +got)\n%v", t.Device.model.At().Unix(), diff)

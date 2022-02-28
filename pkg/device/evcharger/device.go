@@ -3,7 +3,7 @@ package evcharger
 import (
 	"time"
 
-	"github.com/smart-core-os/sc-golang/pkg/memory"
+	"github.com/smart-core-os/sc-golang/pkg/resource"
 	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/metadata"
@@ -50,7 +50,7 @@ func New(name string, tl timeline.TL, opts ...Opt) *Device {
 
 	electricModel := electric.NewModel(setup.clock)
 	energyStorageModel := energystorage.NewModel()
-	metadataModel := metadata.NewModel(memory.WithInitialValue(newMetadata(name)))
+	metadataModel := metadata.NewModel(resource.WithInitialValue(newMetadata(name)))
 
 	d := &Device{
 		name:          name,

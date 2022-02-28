@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/smart-core-os/sc-api/go/traits"
+	"github.com/smart-core-os/sc-golang/pkg/resource"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
@@ -12,13 +13,13 @@ import (
 // ensureSingleMode adjusts the electric modes of the device such that only the given mode exists.
 // If the current active mode is not the given mode, then it will be set to the given mode.
 func (d *Device) ensureSingleMode(mode *traits.ElectricMode) error {
-	modes := d.electric.Modes(nil)
+	modes := d.electric.Modes()
 	modeExists := false
 	var delayDelete func(mode *traits.ElectricMode) error
 	for _, m := range modes {
 		if m.Id == mode.Id {
 			modeExists = true
-			if _, err := d.electric.UpdateMode(mode, nil); err != nil {
+			if _, err := d.electric.UpdateMode(mode); err != nil {
 				return err
 			}
 		} else {
@@ -51,7 +52,7 @@ func (d *Device) ensureOnlyModes(modes []*traits.ElectricMode) error {
 	modesToUpdate := make(map[string]*traits.ElectricMode)
 	modesToDelete := make([]string, 0)
 
-	oldModes := d.electric.Modes(nil)
+	oldModes := d.electric.Modes()
 	oldModesById := make(map[string]*traits.ElectricMode)
 	for _, mode := range oldModes {
 		oldModesById[mode.Id] = mode
@@ -89,7 +90,7 @@ func (d *Device) ensureOnlyModes(modes []*traits.ElectricMode) error {
 		}
 	}
 	for _, mode := range modesToUpdate {
-		if _, err := d.electric.UpdateMode(mode, nil); err != nil {
+		if _, err := d.electric.UpdateMode(mode); err != nil {
 			return err
 		}
 	}
@@ -127,7 +128,7 @@ func (d *Device) deleteMode(id string) (func(mode *traits.ElectricMode) error, e
 	if err != nil {
 		return nil, err
 	}
-	_, err = d.electric.UpdateMode(notNormal, mask)
+	_, err = d.electric.UpdateMode(notNormal, resource.WithUpdateMask(mask))
 	if err != nil {
 		return nil, err
 	}
