@@ -5,6 +5,7 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"log"
@@ -133,6 +134,21 @@ func changeModes(ctx context.Context, client traits.ElectricApiClient, name stri
 
 	ticker := time.NewTicker(period)
 	defer ticker.Stop()
+	force := make(chan struct{})
+
+	go func() {
+		in := bufio.NewReader(os.Stdin)
+		fmt.Println("Press enter to switch modes...")
+		for {
+			_, _ = in.ReadString('\n')
+
+			select {
+			case <-ctx.Done():
+				return
+			case force <- struct{}{}:
+			}
+		}
+	}()
 
 	i := 0
 	for {
@@ -151,6 +167,7 @@ func changeModes(ctx context.Context, client traits.ElectricApiClient, name stri
 		// prepare for next loop
 		select {
 		case <-ticker.C:
+		case <-force:
 		case <-ctx.Done():
 			return ctx.Err()
 		}
