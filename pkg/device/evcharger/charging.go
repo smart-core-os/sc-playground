@@ -203,5 +203,9 @@ func (d *Device) remainingChargeTime() time.Duration {
 	}
 
 	takenTime := now.Sub(chargeStart)
-	return expectedTimeTaken - takenTime
+	duration := expectedTimeTaken - takenTime
+	if duration < 0 {
+		return 0
+	}
+	return duration
 }
