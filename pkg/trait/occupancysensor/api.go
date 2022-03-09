@@ -6,17 +6,20 @@ import (
 	"time"
 
 	"github.com/smart-core-os/sc-api/go/traits"
+	"github.com/smart-core-os/sc-golang/pkg/router"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/occupancysensor"
+	"github.com/smart-core-os/sc-golang/pkg/wrap"
 	"github.com/smart-core-os/sc-playground/pkg/node"
 )
 
 func Activate(n *node.Node) {
 	// handle random changes in occupancy
-	var devices []struct {
+	type device struct {
 		api  *occupancysensor.Model
 		name string
 	}
+	var devices []device
 	go func() {
 		for range time.Tick(30 * time.Second) {
 			if len(devices) > 0 {
@@ -32,14 +35,23 @@ func Activate(n *node.Node) {
 		occupancysensor.WithOccupancySensorApiClientFactory(func(name string) (traits.OccupancySensorApiClient, error) {
 			initial := randomOccupancy()
 			log.Printf("Creating OccupancyApiClient(%v) %v (people=%v)", name, initial.State, initial.PeopleCount)
-			api := occupancysensor.NewModel(initial)
-			devices = append(devices, struct {
-				api  *occupancysensor.Model
-				name string
-			}{api: api, name: name})
-			client := occupancysensor.WrapApi(occupancysensor.NewModelServer(api))
+			model := occupancysensor.NewModel(initial)
+			return occupancysensor.WrapApi(occupancysensor.NewModelServer(model)), nil
+		}),
+		router.WithOnCommit(func(name string, client interface{}) {
+			model, ok := wrap.UnwrapFully(client).(*occupancysensor.Model)
+			if !ok {
+				return
+			}
+
+			occupancy, err := model.GetOccupancy()
+			if err == nil {
+				log.Printf("OccupancySensorApiClient(%v) auto-created %v (people=%v)", name, occupancy.State, occupancy.PeopleCount)
+			} else {
+				log.Printf("OccupancySensorApiClient(%v) auto-created (%v)", name, err)
+			}
+			devices = append(devices, device{api: model, name: name})
 			n.Announce(name, node.HasTrait(trait.OccupancySensor))
-			return client, nil
 		}),
 	)
 	n.AddRouter(r)

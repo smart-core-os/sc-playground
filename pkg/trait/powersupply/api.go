@@ -1,12 +1,15 @@
 package powersupply
 
 import (
+	"log"
 	"math"
 	"math/rand"
 
 	"github.com/smart-core-os/sc-api/go/traits"
+	"github.com/smart-core-os/sc-golang/pkg/router"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/powersupply"
+	"github.com/smart-core-os/sc-golang/pkg/wrap"
 	"github.com/smart-core-os/sc-playground/pkg/node"
 )
 
@@ -17,9 +20,16 @@ func Activate(n *node.Node) {
 			device := powersupply.NewMemoryDevice()
 			// seed with a random load
 			device.SetLoad(float32(math.Round(rand.Float64()*40*100) / 100))
+			return powersupply.WrapApi(device), nil
+		}),
+		router.WithOnCommit(func(name string, client interface{}) {
+			device, ok := wrap.UnwrapFully(client).(*powersupply.MemoryDevice)
+			if !ok {
+				return
+			}
+			log.Printf("PowerSupplyApiClient(%v) auto-created", name)
 			settings.Add(name, powersupply.WrapMemorySettingsApi(device))
 			n.Announce(name, node.HasTrait(trait.PowerSupply))
-			return powersupply.WrapApi(device), nil
 		}),
 	)
 	n.AddRouter(devices, settings)

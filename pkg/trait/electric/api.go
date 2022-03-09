@@ -8,9 +8,11 @@ import (
 	"time"
 
 	"github.com/smart-core-os/sc-api/go/traits"
+	"github.com/smart-core-os/sc-golang/pkg/router"
 	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
+	"github.com/smart-core-os/sc-golang/pkg/wrap"
 	simelectric "github.com/smart-core-os/sc-playground/internal/simulated/electric"
 	"github.com/smart-core-os/sc-playground/pkg/node"
 	"go.uber.org/zap"
@@ -28,7 +30,10 @@ func Activate(n *node.Node) {
 	)
 
 	settings := electric.NewMemorySettingsApiRouter()
-	devices := electric.NewApiRouter(electric.WithElectricApiClientFactory(electricClientFactory(source, settings, n, logger)))
+	devices := electric.NewApiRouter(
+		electric.WithElectricApiClientFactory(electricClientFactory()),
+		router.WithOnCommit(registerClientFactory(source, settings, n, logger)),
+	)
 	devices.Add(sourceName, electric.WrapApi(sourceApi))
 
 	// start the Source simulation
@@ -42,9 +47,8 @@ func Activate(n *node.Node) {
 	n.AddRouter(devices, settings)
 }
 
-func electricClientFactory(source *simelectric.Source, settings *electric.MemorySettingsApiRouter, n *node.Node, logger *zap.Logger) func(name string) (traits.ElectricApiClient, error) {
+func electricClientFactory() func(name string) (traits.ElectricApiClient, error) {
 	return func(name string) (traits.ElectricApiClient, error) {
-		log.Printf("Creating ElectricClient(%v)", name)
 		model := electric.NewModel(clock.Real())
 
 		// seed with a random load
@@ -65,6 +69,18 @@ func electricClientFactory(source *simelectric.Source, settings *electric.Memory
 			log.Printf("error changing to the normal mode on new device %s: %v", name, err)
 		}
 
+		return electric.WrapApi(electric.NewModelServer(model)), nil
+	}
+}
+
+func registerClientFactory(source *simelectric.Source, settings *electric.MemorySettingsApiRouter, n *node.Node, logger *zap.Logger) func(name string, client interface{}) {
+	return func(name string, client interface{}) {
+		model, ok := wrap.UnwrapFully(client).(*electric.Model)
+		if !ok {
+			return
+		}
+		log.Printf("ElectricApiClient(%v) auto-created", name)
+
 		// register this device with the source
 		source.Downstream.Set(name, model)
 
@@ -78,11 +94,8 @@ func electricClientFactory(source *simelectric.Source, settings *electric.Memory
 			}
 		}()
 
-		electricServer := electric.NewModelServer(model)
-		settings.Add(name, electric.WrapMemorySettingsApi(electricServer))
-
+		settings.Add(name, electric.WrapMemorySettingsApi(electric.NewModelServer(model)))
 		n.Announce(name, node.HasTrait(trait.Electric))
-		return electric.WrapApi(electricServer), nil
 	}
 }
 
