@@ -7,30 +7,75 @@ package main
 import (
 	"bufio"
 	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"flag"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/connectivity"
+	"google.golang.org/grpc/credentials"
+)
+
+var (
+	node     = flag.String("node", "localhost:23557", "The node host:port to connect to")
+	useTLS   = flag.Bool("tls", false, "When specified, use the local machines certificate store for server trust")
+	useTLSCA = flag.String("tls-ca", "", "A path to a CA certification in the chain of trust for the server")
 )
 
 func main() {
-	conn, err := grpc.Dial("localhost:23557", grpc.WithInsecure())
+	flag.Parse()
+
+	log.Printf("Connecting to %v\n", *node)
+	ctx, done := context.WithCancel(context.Background())
+	defer done()
+
+	dialCtx, dialDone := context.WithTimeout(ctx, 5*time.Second)
+	defer dialDone()
+	var opts []grpc.DialOption
+	if *useTLS {
+		c := &tls.Config{}
+		if *useTLSCA != "" {
+			var err error
+			c.RootCAs, err = readCACert()
+			if err != nil {
+				log.Fatalf("--tls-ca=%v %v", *useTLSCA, err)
+			}
+		}
+		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(c)))
+	} else {
+		opts = append(opts, grpc.WithInsecure())
+	}
+
+	conn, err := grpc.DialContext(dialCtx, *node, opts...)
 	if err != nil {
 		panic(err)
 	}
 
+	go func() {
+		var state connectivity.State
+		for conn.WaitForStateChange(ctx, state) {
+			state = conn.GetState()
+			log.Printf("Client connection %v", state)
+		}
+	}()
+
 	deviceName := "ELEC-001"
-	if len(os.Args) > 1 {
-		deviceName = os.Args[1]
+	if len(flag.Args()) > 0 {
+		deviceName = flag.Arg(0)
 	}
 
 	elec := traits.NewElectricApiClient(conn)
 
-	group, ctx := errgroup.WithContext(context.Background())
+	group, ctx := errgroup.WithContext(ctx)
 	group.Go(func() error {
 		err := listenDemand(ctx, elec, deviceName)
 		if err != nil {
@@ -57,6 +102,37 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func readCACert() (*x509.CertPool, error) {
+	path := *useTLSCA
+	var caPem []byte
+	if strings.HasPrefix(path, "http") {
+		response, err := http.Get(path)
+		if err != nil {
+			return nil, fmt.Errorf("request %w", err)
+		}
+		if response.StatusCode < 200 || response.StatusCode >= 400 {
+			return nil, fmt.Errorf("status %v %v", response.StatusCode, response.Status)
+		}
+		defer response.Body.Close()
+		pem, err := io.ReadAll(response.Body)
+		if err != nil {
+			return nil, fmt.Errorf("read body %w", err)
+		}
+		caPem = pem
+	} else {
+		var err error
+		caPem, err = os.ReadFile(*useTLSCA)
+		if err != nil {
+			return nil, fmt.Errorf("ca-certfile %w", err)
+		}
+	}
+	pool := x509.NewCertPool()
+	if !pool.AppendCertsFromPEM(caPem) {
+		return nil, fmt.Errorf("ca-certfile failed to add to cert pool")
+	}
+	return pool, nil
 }
 
 func listenDemand(ctx context.Context, client traits.ElectricApiClient, name string) error {
@@ -168,6 +244,7 @@ func changeModes(ctx context.Context, client traits.ElectricApiClient, name stri
 		select {
 		case <-ticker.C:
 		case <-force:
+			ticker.Stop() // if you're doing it by hand, disable auto switching
 		case <-ctx.Done():
 			return ctx.Err()
 		}
