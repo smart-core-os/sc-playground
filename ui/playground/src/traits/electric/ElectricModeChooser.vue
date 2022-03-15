@@ -1,5 +1,5 @@
 <template>
-  <v-select v-model="selectedMode" :items="modes" item-text="title" item-value="id" return-object hide-details
+  <v-select v-model="selectedMode" :items="modesWithActive" item-text="title" item-value="id" return-object hide-details
             outlined :menu-props="{offsetY: true}" v-bind="$attrs">
     <template #item="{ item, on, attrs }">
       <v-list-item v-on="on" v-bind="attrs" class="mode-item">
@@ -37,6 +37,14 @@ export default {
     };
   },
   computed: {
+    modesWithActive() {
+      return this.modes.map(m => {
+        if (m.id === this.mode.id) {
+          return this.mode;
+        }
+        return m;
+      })
+    },
     singleMode() {
       const modes = this.modes;
       return !modes || modes.length === 0 || (modes.length === 1 && modes[0].id === this.mode.id);

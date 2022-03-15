@@ -6,9 +6,11 @@
 <script>
 
 import {maxMagnitude} from "./util.js";
+import {interval} from "../../mixin/time.js";
 
 export default {
   name: 'ElectricSegmentChart',
+  mixins: [interval(200)],
   props: {
     mode: [Object]
   },
@@ -16,17 +18,65 @@ export default {
     /**
      * @return {ElectricMode.Segment.AsObject[]}
      */
-    segments() {
+    allSegments() {
       return this.mode?.segmentsList || [];
     },
-    maxMagnitude() {
-      return maxMagnitude(this.segments);
+    segments() {
+      const segments = this.allSegments;
+      if (segments.length === 0 || !this.mode?.startTime) {
+        return segments;
+      }
+      const st = toDate(this.mode.startTime);
+      const now = this.currentDate;
+
+      // cut off segments starting at st until we reach now.
+      const offsetMillis = now.getTime() - st.getTime();
+      let curMillis = 0;
+      for (let i = 0; i < segments.length; i++) {
+        const segment = segments[i];
+        if (!segment.length) {
+          return [segment]; // only the last, infinite segment left
+        }
+
+        const lengthMillis = segment.length.seconds * 1000 + segment.length.nanos / 1_000_000;
+        if (curMillis < offsetMillis - lengthMillis) {
+          curMillis += lengthMillis;
+          continue; // the segment is before now
+        }
+
+        // now is somewhere within segment
+        const remainingMillis = curMillis + lengthMillis - offsetMillis;
+        const remainingSeconds = Math.floor(remainingMillis / 1000)
+        const remainingSegment = {
+          length: {
+            seconds: remainingSeconds,
+            nanos: (remainingMillis - (remainingSeconds * 1000)) * 1_000_000
+          },
+          magnitude: segment.magnitude
+        }
+
+        const remainingSegments = segments.slice(i);
+        remainingSegments[0] = remainingSegment;
+        return remainingSegments
+      }
+
+      return []
     },
-    maxOrderOfMagnitude() {
-      return this.segments.reduce((max, s) => Math.max(max, `${s.length?.seconds || 0}`.length), 0);
+    maxMagnitude() {
+      return maxMagnitude(this.allSegments);
+    },
+    totalLength() {
+      return this.allSegments.reduce((len, s) => {
+        if (!s.length) {
+          return len;
+        }
+        return len + durationMillis(s.length);
+      }, 0);
     },
     chartBars() {
       const max = this.maxMagnitude;
+      const totalLength = this.totalLength;
+      const scale = 300 / totalLength;
       return this.segments.map((s, i, arr) => {
         const notLast = i < arr.length - 1;
 
@@ -35,16 +85,37 @@ export default {
 
         style.height = ((s.magnitude / max) * 100).toFixed(3) + '%';
         if (notLast || s.length) {
-          style.width = `${s.length.seconds}px`;
+          style.width = `${(durationMillis(s.length) * scale).toFixed(3)}px`;
         } else {
-          style.width = `${Math.pow(10, this.maxOrderOfMagnitude) * 0.3}px`;
-          style.background = 'linear-gradient(90deg, currentColor 25%, transparent)'
+          style.width = `50px`;
+          style.background = 'linear-gradient(90deg, currentColor 25%, transparent)';
+          style.flexGrow = '1';
         }
 
         return {style, class: classes};
       })
     }
   }
+}
+
+/**
+ * Convert a timestamp object to a Date. Timestamp.AsObject doesn't have this method :(
+ *
+ * @param {Timestamp.AsObject} ts
+ * @return {Date}
+ */
+function toDate(ts) {
+  return new Date((ts.seconds * 1000) + (ts.nanos / 1000000));
+}
+
+/**
+ * Convert a duration object into a millisecond value.
+ *
+ * @param {Duration.AsObject} d
+ * @return {number}
+ */
+function durationMillis(d) {
+  return d.seconds * 1000 + d.nanos / 1_000_000;
 }
 </script>
 <style scoped>
@@ -55,6 +126,6 @@ export default {
 
 .chart > * {
   background-color: currentColor;
-  flex-grow: 1;
+  flex-grow: 0;
 }
 </style>
