@@ -1,11 +1,14 @@
 <template>
-  <v-container class="card-grid" fluid>
-    <template v-for="child in children">
-      <template v-for="trait in child.traitsList">
-        <component :is="traitToComponent(trait)" :deviceId="child.name" :trait="trait"/>
+  <div class="fill-height">
+    <v-container class="card-grid" fluid>
+      <template v-for="child in children">
+        <template v-for="trait in child.traitsList">
+          <component :is="traitToComponent(trait)" :deviceId="child.name" :trait="trait"/>
+        </template>
       </template>
-    </template>
-  </v-container>
+    </v-container>
+    <add-device-fab/>
+  </div>
 </template>
 
 <script>
@@ -19,10 +22,11 @@ import EnergyStorageCard from '../../traits/energystorage/EnergyStorageCard.vue'
 import UnknownTraitCard from '../../traits/unknown/UnknownTraitCard.vue';
 import ElectricCard from '../../traits/electric/ElectricCard.vue';
 import MetadataCard from '../../traits/metadata/MetadataCard.vue';
+import AddDeviceFab from "../../components/add/AddDeviceFab.vue";
 
 export default {
   name: 'TraitCards',
-  components: {ElectricCard, EnergyStorageCard, MetadataCard, PowerSupplyCard, UnknownTraitCard},
+  components: {AddDeviceFab, ElectricCard, EnergyStorageCard, MetadataCard, PowerSupplyCard, UnknownTraitCard},
   data() {
     return {
       serverName: '',

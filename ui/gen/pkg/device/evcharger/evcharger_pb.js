@@ -218,6 +218,7 @@ if (goog.DEBUG && !COMPILED) {
 proto.smartcore.playground.device.evcharger.PlugInEvent.repeatedFields_ = [3];
 
 
+
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
    * Creates an object representation of this proto.
@@ -358,12 +359,14 @@ proto.smartcore.playground.device.evcharger.PlugInEvent.serializeBinaryToWriter 
 };
 
 
+
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
  * @const
  */
 proto.smartcore.playground.device.evcharger.PlugInEvent.ChargeMode.repeatedFields_ = [4];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {

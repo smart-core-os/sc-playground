@@ -3,7 +3,8 @@ import replace from 'replace-in-file';
 
 const protoFiles = [
   'trait/powersupply/memory_settings.proto',
-  'pkg/device/evcharger/evcharger.proto'
+  'pkg/device/evcharger/evcharger.proto',
+  'pkg/playpb/playground.proto'
 ];
 const protocPluginOpts = '--js_out=import_style=commonjs:. --grpc-web_out=import_style=commonjs+dts,mode=grpcwebtext:.';
 

@@ -10,6 +10,9 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/trait/parent"
 	"github.com/smart-core-os/sc-playground/pkg/sim/scrub"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 )
 
 // Node represents a unit of control for a smart core server.
@@ -18,8 +21,9 @@ import (
 type Node struct {
 	name string
 
-	children *parent.Model // lazy, initialised when addChildTrait or Register are called
-	routers  []router.Router
+	children  *parent.Model // lazy, initialised when addChildTrait or Register are called
+	routers   []router.Router
+	factories map[trait.Name]TraitFactory
 
 	t         time.Time // last scrub time, so we can update added models
 	scrubbers scrub.Slice
@@ -27,7 +31,7 @@ type Node struct {
 
 // New creates a new Node with the given device name.
 func New(name string) *Node {
-	return &Node{name: name}
+	return &Node{name: name, factories: make(map[trait.Name]TraitFactory)}
 }
 
 // Register implements server.GrpcApi and registers all supported routers with s.
@@ -44,6 +48,29 @@ func (n *Node) Register(s *grpc.Server) {
 // AddRouter should not be called after Register is called.
 func (n *Node) AddRouter(r ...router.Router) {
 	n.routers = append(n.routers, r...)
+}
+
+// TraitFactory is a function that creates a new instance of a trait with the given name and config.
+type TraitFactory func(name string, config proto.Message) error
+
+func (n *Node) AddTraitFactory(traitName trait.Name, f TraitFactory) {
+	n.factories[traitName] = f
+}
+
+func (n *Node) CreateDeviceTrait(deviceName string, traitName trait.Name, config proto.Message) error {
+	f, ok := n.factories[traitName]
+	if !ok {
+		return status.Errorf(codes.Unimplemented, "Creating %v for %v is not supported", traitName, deviceName)
+	}
+	return f(deviceName, config)
+}
+
+func (n *Node) SupportedDeviceTraits() []trait.Name {
+	res := make([]trait.Name, 0, len(n.factories))
+	for name := range n.factories {
+		res = append(res, name)
+	}
+	return res
 }
 
 // Announce adds a new device with the given features to this node.

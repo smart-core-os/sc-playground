@@ -11,6 +11,7 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/trait/occupancysensor"
 	"github.com/smart-core-os/sc-golang/pkg/wrap"
 	"github.com/smart-core-os/sc-playground/pkg/node"
+	"google.golang.org/protobuf/proto"
 )
 
 func Activate(n *node.Node) {
@@ -55,6 +56,10 @@ func Activate(n *node.Node) {
 		}),
 	)
 	n.AddRouter(r)
+	n.AddTraitFactory(trait.OccupancySensor, func(name string, _ proto.Message) error {
+		_, err := r.Get(name)
+		return err
+	})
 }
 
 func randomOccupancy() *traits.Occupancy {

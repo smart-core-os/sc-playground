@@ -10,10 +10,11 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/trait/onoff"
 	"github.com/smart-core-os/sc-golang/pkg/wrap"
 	"github.com/smart-core-os/sc-playground/pkg/node"
+	"google.golang.org/protobuf/proto"
 )
 
 func Activate(n *node.Node) {
-	n.AddRouter(onoff.NewApiRouter(
+	r := onoff.NewApiRouter(
 		onoff.WithOnOffApiClientFactory(func(name string) (traits.OnOffApiClient, error) {
 			var onOrOff traits.OnOff_State
 			n := rand.Intn(10)
@@ -38,5 +39,10 @@ func Activate(n *node.Node) {
 			}
 			n.Announce(name, node.HasTrait(trait.OnOff))
 		}),
-	))
+	)
+	n.AddRouter(r)
+	n.AddTraitFactory(trait.OnOff, func(name string, _ proto.Message) error {
+		_, err := r.Get(name)
+		return err
+	})
 }

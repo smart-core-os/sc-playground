@@ -14,7 +14,7 @@ func CreateSimulation(n *node.Node) (*sim.Loop, error) {
 	tl := skiplisttl.New()
 	inputQueue := input.NewQueue()
 
-	chargerCount := 5
+	chargerCount := 0
 	for i := 0; i < chargerCount; i++ {
 		evcharger.New(fmt.Sprintf("sim/EVC-%02d", i+1), tl, evcharger.WithInputDispatcher(inputQueue)).Publish(n)
 	}

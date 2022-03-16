@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package smartcore.playground.api;
+
+option go_package = "github.com/smart-core-os/sc-playground/pkg/playpb";
+
+service PlaygroundApi {
+  rpc AddDeviceTrait(AddDeviceTraitRequest) returns (AddDeviceTraitResponse);
+  rpc ListSupportedTraits(ListSupportedTraitsRequest) returns (ListSupportedTraitsResponse);
+}
+
+message AddDeviceTraitRequest {
+  string name = 1;
+  string trait_name = 2;
+}
+message AddDeviceTraitResponse {}
+
+message ListSupportedTraitsRequest {}
+message ListSupportedTraitsResponse {
+  repeated string trait_name = 1;
+}

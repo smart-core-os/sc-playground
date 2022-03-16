@@ -11,6 +11,7 @@ import (
 
 	"github.com/smart-core-os/sc-playground/pkg/device/evcharger"
 	"github.com/smart-core-os/sc-playground/pkg/node"
+	"github.com/smart-core-os/sc-playground/pkg/playpb"
 	"github.com/smart-core-os/sc-playground/pkg/run"
 	"github.com/smart-core-os/sc-playground/pkg/sim/boot"
 	"github.com/smart-core-os/sc-playground/pkg/trait/airtemperature"
@@ -59,10 +60,13 @@ func runCtx(ctx context.Context) error {
 	}
 
 	serverDeviceName := "scos/apps/playground"
-	root := newRootNode(serverDeviceName)
+	rootNode := newRootNode(serverDeviceName)
+
+	// setup the playground api
+	rootApi := playpb.New(rootNode)
 
 	// Setup some devices to start us off
-	simulation, err := boot.CreateSimulation(root)
+	simulation, err := boot.CreateSimulation(rootNode)
 	if err != nil {
 		return err
 	}
@@ -76,7 +80,7 @@ func runCtx(ctx context.Context) error {
 	return run.Serve(
 		run.WithContext(ctx),
 		run.WithDefaultName(serverDeviceName),
-		run.WithApis(root),
+		run.WithApis(rootNode, rootApi),
 		run.WithGrpcAddress(*grpcBind),
 		run.WithHttpAddress(*httpBind),
 		run.WithHttpsAddress(*httpsBind),
