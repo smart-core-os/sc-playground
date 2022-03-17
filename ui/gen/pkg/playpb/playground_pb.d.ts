@@ -71,11 +71,9 @@ export namespace ListSupportedTraitsResponse {
 
 export class AddRemoteDeviceRequest extends jspb.Message {
   getName(): string;
-
   setName(value: string): AddRemoteDeviceRequest;
 
   getEndpoint(): string;
-
   setEndpoint(value: string): AddRemoteDeviceRequest;
 
   getTraitNameList(): Array<string>;
@@ -93,6 +91,10 @@ export class AddRemoteDeviceRequest extends jspb.Message {
   hasTls(): boolean;
 
   clearTls(): AddRemoteDeviceRequest;
+
+  getInsecure(): boolean;
+
+  setInsecure(value: boolean): AddRemoteDeviceRequest;
 
   serializeBinary(): Uint8Array;
 
@@ -113,24 +115,19 @@ export namespace AddRemoteDeviceRequest {
     endpoint: string,
     traitNameList: Array<string>,
     tls?: RemoteTLS.AsObject,
+    insecure: boolean,
   }
 }
 
 export class RemoteTLS extends jspb.Message {
   getServerCaCert(): string;
-
   setServerCaCert(value: string): RemoteTLS;
 
   serializeBinary(): Uint8Array;
-
   toObject(includeInstance?: boolean): RemoteTLS.AsObject;
-
   static toObject(includeInstance: boolean, msg: RemoteTLS): RemoteTLS.AsObject;
-
   static serializeBinaryToWriter(message: RemoteTLS, writer: jspb.BinaryWriter): void;
-
   static deserializeBinary(bytes: Uint8Array): RemoteTLS;
-
   static deserializeBinaryFromReader(message: RemoteTLS, reader: jspb.BinaryReader): RemoteTLS;
 }
 
@@ -142,15 +139,10 @@ export namespace RemoteTLS {
 
 export class AddRemoteDeviceResponse extends jspb.Message {
   serializeBinary(): Uint8Array;
-
   toObject(includeInstance?: boolean): AddRemoteDeviceResponse.AsObject;
-
   static toObject(includeInstance: boolean, msg: AddRemoteDeviceResponse): AddRemoteDeviceResponse.AsObject;
-
   static serializeBinaryToWriter(message: AddRemoteDeviceResponse, writer: jspb.BinaryWriter): void;
-
   static deserializeBinary(bytes: Uint8Array): AddRemoteDeviceResponse;
-
   static deserializeBinaryFromReader(message: AddRemoteDeviceResponse, reader: jspb.BinaryReader): AddRemoteDeviceResponse;
 }
 

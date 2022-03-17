@@ -733,7 +733,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
       name: jspb.Message.getFieldWithDefault(msg, 1, ''),
       endpoint: jspb.Message.getFieldWithDefault(msg, 2, ''),
       traitNameList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f,
-      tls: (f = msg.getTls()) && proto.smartcore.playground.api.RemoteTLS.toObject(includeInstance, f)
+      tls: (f = msg.getTls()) && proto.smartcore.playground.api.RemoteTLS.toObject(includeInstance, f),
+      insecure: jspb.Message.getBooleanFieldWithDefault(msg, 5, false)
     };
 
     if (includeInstance) {
@@ -786,6 +787,10 @@ proto.smartcore.playground.api.AddRemoteDeviceRequest.deserializeBinaryFromReade
         var value = new proto.smartcore.playground.api.RemoteTLS;
         reader.readMessage(value, proto.smartcore.playground.api.RemoteTLS.deserializeBinaryFromReader);
         msg.setTls(value);
+        break;
+      case 5:
+        var value = /** @type {boolean} */ (reader.readBool());
+        msg.setInsecure(value);
         break;
       default:
         reader.skipField();
@@ -843,6 +848,13 @@ proto.smartcore.playground.api.AddRemoteDeviceRequest.serializeBinaryToWriter = 
         4,
         f,
         proto.smartcore.playground.api.RemoteTLS.serializeBinaryToWriter
+    );
+  }
+  f = message.getInsecure();
+  if (f) {
+    writer.writeBool(
+        5,
+        f
     );
   }
 };
@@ -955,6 +967,24 @@ proto.smartcore.playground.api.AddRemoteDeviceRequest.prototype.clearTls = funct
  */
 proto.smartcore.playground.api.AddRemoteDeviceRequest.prototype.hasTls = function() {
   return jspb.Message.getField(this, 4) != null;
+};
+
+
+/**
+ * optional bool insecure = 5;
+ * @return {boolean}
+ */
+proto.smartcore.playground.api.AddRemoteDeviceRequest.prototype.getInsecure = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 5, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.smartcore.playground.api.AddRemoteDeviceRequest} returns this
+ */
+proto.smartcore.playground.api.AddRemoteDeviceRequest.prototype.setInsecure = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 5, value);
 };
 
 

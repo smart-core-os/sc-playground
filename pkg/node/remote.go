@@ -13,6 +13,7 @@ import (
 type remoteNode struct {
 	endpoint string
 	tls      *tls.Config
+	insecure bool
 	conn     *grpc.ClientConn
 	dialErr  error
 }
@@ -36,8 +37,13 @@ func WithRemoteServerCA(ca []byte) RemoteOption {
 	}
 }
 
+func WithRemoteInsecure() RemoteOption {
+	return func(n *remoteNode) {
+		n.insecure = true
+	}
+}
+
 func (n *Node) ResolveRemoteConn(ctx context.Context, endpoint string, opts ...RemoteOption) (*grpc.ClientConn, error) {
-	// todo: check tls and update as needed
 	rn := &remoteNode{endpoint: endpoint}
 	for _, opt := range opts {
 		opt(rn)
@@ -56,10 +62,14 @@ func (n *Node) ResolveRemoteConn(ctx context.Context, endpoint string, opts ...R
 
 func createRemoteConnection(ctx context.Context, node *remoteNode) remoteNode {
 	var grpcOpts []grpc.DialOption
-	if node.tls == nil {
+	if node.insecure {
 		grpcOpts = append(grpcOpts, grpc.WithInsecure())
 	} else {
-		grpcOpts = append(grpcOpts, grpc.WithTransportCredentials(credentials.NewTLS(node.tls)))
+		tlsConfig := node.tls
+		if tlsConfig == nil {
+			tlsConfig = &tls.Config{} // uses defaults, like system CA pool
+		}
+		grpcOpts = append(grpcOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
 	}
 	conn, err := grpc.DialContext(ctx, node.endpoint, grpcOpts...)
 	node.conn = conn

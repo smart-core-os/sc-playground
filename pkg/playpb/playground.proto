@@ -27,7 +27,7 @@ message AddRemoteDeviceRequest {
   string endpoint = 2;
   repeated string trait_name = 3;
   RemoteTLS tls = 4;
-  bool ins
+  bool insecure = 5;
 }
 message RemoteTLS {
   string server_ca_cert = 1;

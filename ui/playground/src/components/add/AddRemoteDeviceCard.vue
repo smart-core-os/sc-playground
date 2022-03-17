@@ -4,7 +4,8 @@
     <v-card-text>
       <v-text-field label="Device name" v-model="name"/>
       <v-text-field type="url" label="Endpoint" v-model="endpoint"/>
-      <v-textarea label="Server CA Certificate" v-model="tlsServerCACert" class="ca"/>
+      <v-checkbox v-model="tlsInsecure" label="No TLS (insecure)"/>
+      <v-textarea label="Server CA Certificate" v-model="tlsServerCACert" class="ca" :disabled="tlsInsecure"/>
       <v-item-group multiple v-model="selectedTraits">
         <v-item v-for="trait in supportedTraits" :key="trait" v-slot="{ active, toggle }">
           <v-checkbox :value="active" @change="toggle" :label="trait" hide-details/>
@@ -41,6 +42,7 @@ export default {
       endpoint: '',
       selectedTraits: [],
 
+      tlsInsecure: false,
       tlsServerCACert: null
     };
   },
@@ -71,14 +73,17 @@ export default {
       try {
         const traitNames = this.selectedTraits.map(i => this.supportedTraits[i])
         let tls = null;
-        if (this.tlsServerCACert) {
-          tls = new RemoteTLS()
-          tls.setServerCaCert(this.tlsServerCACert);
+        if (!this.tlsInsecure) {
+          if (this.tlsServerCACert) {
+            tls = new RemoteTLS()
+            tls.setServerCaCert(this.tlsServerCACert);
+          }
         }
         await api.addRemoteDevice(new AddRemoteDeviceRequest()
             .setName(this.name)
             .setEndpoint(this.endpoint)
             .setTraitNameList(traitNames)
+            .setInsecure(this.tlsInsecure)
             .setTls(tls)
         );
       } finally {

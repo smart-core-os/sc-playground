@@ -44,6 +44,9 @@ func (s *Server) AddRemoteDevice(ctx context.Context, req *AddRemoteDeviceReques
 	}
 
 	var remoteOpts []node.RemoteOption
+	if req.Insecure {
+		remoteOpts = append(remoteOpts, node.WithRemoteInsecure())
+	}
 	if req.Tls != nil {
 		if len(req.Tls.ServerCaCert) > 0 {
 			remoteOpts = append(remoteOpts, node.WithRemoteServerCA([]byte(req.Tls.ServerCaCert)))
