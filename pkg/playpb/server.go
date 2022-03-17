@@ -56,7 +56,7 @@ func (s *Server) AddRemoteDevice(ctx context.Context, req *AddRemoteDeviceReques
 			e = multierr.Append(e, err)
 			continue
 		}
-		features = append(features, node.HasTrait(trait.Name(traitName), node.WithClients(client)))
+		features = append(features, node.HasTrait(trait.Name(traitName), node.WithClients(client), node.NoAddMetadata()))
 	}
 	s.node.Announce(req.Name, features...)
 	return &AddRemoteDeviceResponse{}, e
