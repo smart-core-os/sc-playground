@@ -15,33 +15,41 @@
         <v-icon>mdi-plus-box-outline</v-icon>
         <v-sheet class="label px-4 py-2" rounded :elevation="labelElevation">Virtual Device</v-sheet>
       </v-btn>
-      <v-btn fab small :elevation="labelElevation" disabled>
+      <v-btn fab small @click="addRemote" :elevation="labelElevation">
         <v-icon>mdi-plus-network-outline</v-icon>
         <v-sheet class="label px-4 py-2" rounded :elevation="labelElevation">Network Device</v-sheet>
       </v-btn>
     </v-speed-dial>
     <v-dialog v-model="dialogOpen" width="400">
-      <add-trait-card @done="dialogOpen = false"/>
+      <add-trait-card v-if="dialogFlavor === 'trait'" @done="dialogOpen = false"/>
+      <add-remote-device-card v-if="dialogFlavor === 'remote'" @done="dialogOpen = false"/>
     </v-dialog>
   </div>
 </template>
 
 <script>
 import AddTraitCard from "./AddTraitCard.vue";
+import AddRemoteDeviceCard from "./AddRemoteDeviceCard.vue";
 
 export default {
   name: "AddDeviceFab",
-  components: {AddTraitCard},
+  components: {AddRemoteDeviceCard, AddTraitCard},
   data() {
     return {
       expanded: false,
       dialogOpen: false,
-      labelElevation: 3
+      labelElevation: 3,
+      dialogFlavor: 'trait'
     }
   },
   methods: {
     addTrait() {
-      this.dialogOpen = true
+      this.dialogFlavor = 'trait';
+      this.dialogOpen = true;
+    },
+    addRemote() {
+      this.dialogFlavor = 'remote';
+      this.dialogOpen = true;
     }
   }
 }

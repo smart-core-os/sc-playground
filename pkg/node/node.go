@@ -21,9 +21,13 @@ import (
 type Node struct {
 	name string
 
-	children  *parent.Model // lazy, initialised when addChildTrait or Register are called
-	routers   []router.Router
-	factories map[trait.Name]TraitFactory
+	children *parent.Model // lazy, initialised when addChildTrait or Register are called
+	routers  []router.Router
+
+	traitFactories  map[trait.Name]TraitFactory
+	clientFactories map[trait.Name]ClientFactory
+
+	remoteNodes []remoteNode
 
 	t         time.Time // last scrub time, so we can update added models
 	scrubbers scrub.Slice
@@ -31,7 +35,11 @@ type Node struct {
 
 // New creates a new Node with the given device name.
 func New(name string) *Node {
-	return &Node{name: name, factories: make(map[trait.Name]TraitFactory)}
+	return &Node{
+		name:            name,
+		traitFactories:  make(map[trait.Name]TraitFactory),
+		clientFactories: make(map[trait.Name]ClientFactory),
+	}
 }
 
 // Register implements server.GrpcApi and registers all supported routers with s.
@@ -53,21 +61,48 @@ func (n *Node) AddRouter(r ...router.Router) {
 // TraitFactory is a function that creates a new instance of a trait with the given name and config.
 type TraitFactory func(name string, config proto.Message) error
 
+// AddTraitFactory registers a trait factory for the given trait name with this node.
 func (n *Node) AddTraitFactory(traitName trait.Name, f TraitFactory) {
-	n.factories[traitName] = f
+	n.traitFactories[traitName] = f
 }
 
+// ClientFactory is a function that creates a new instance of a trait client.
+type ClientFactory func(conn *grpc.ClientConn) interface{}
+
+// AddClientFactory registers a client factory for the given trait name with this node.
+func (n *Node) AddClientFactory(traitName trait.Name, f ClientFactory) {
+	n.clientFactories[traitName] = f
+}
+
+// CreateDeviceTrait creates a new virtual trait for the given device.
 func (n *Node) CreateDeviceTrait(deviceName string, traitName trait.Name, config proto.Message) error {
-	f, ok := n.factories[traitName]
+	f, ok := n.traitFactories[traitName]
 	if !ok {
 		return status.Errorf(codes.Unimplemented, "Creating %v for %v is not supported", traitName, deviceName)
 	}
 	return f(deviceName, config)
 }
 
+// CreateTraitClient creates an instance of an ApiClient, i.e. traits.OnOffApiClient based on a trait name.
+func (n *Node) CreateTraitClient(traitName trait.Name, conn *grpc.ClientConn) (interface{}, error) {
+	f, ok := n.clientFactories[traitName]
+	if !ok {
+		return nil, status.Errorf(codes.Unimplemented, "Creating remote clients for %v is not supported", traitName)
+	}
+	return f(conn), nil
+}
+
 func (n *Node) SupportedDeviceTraits() []trait.Name {
-	res := make([]trait.Name, 0, len(n.factories))
-	for name := range n.factories {
+	res := make([]trait.Name, 0, len(n.traitFactories))
+	for name := range n.traitFactories {
+		res = append(res, name)
+	}
+	return res
+}
+
+func (n *Node) SupportedRemoteTraits() []trait.Name {
+	res := make([]trait.Name, 0, len(n.clientFactories))
+	for name := range n.traitFactories {
 		res = append(res, name)
 	}
 	return res

@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 type PlaygroundApiClient interface {
 	AddDeviceTrait(ctx context.Context, in *AddDeviceTraitRequest, opts ...grpc.CallOption) (*AddDeviceTraitResponse, error)
 	ListSupportedTraits(ctx context.Context, in *ListSupportedTraitsRequest, opts ...grpc.CallOption) (*ListSupportedTraitsResponse, error)
+	AddRemoteDevice(ctx context.Context, in *AddRemoteDeviceRequest, opts ...grpc.CallOption) (*AddRemoteDeviceResponse, error)
 }
 
 type playgroundApiClient struct {
@@ -48,12 +49,22 @@ func (c *playgroundApiClient) ListSupportedTraits(ctx context.Context, in *ListS
 	return out, nil
 }
 
+func (c *playgroundApiClient) AddRemoteDevice(ctx context.Context, in *AddRemoteDeviceRequest, opts ...grpc.CallOption) (*AddRemoteDeviceResponse, error) {
+	out := new(AddRemoteDeviceResponse)
+	err := c.cc.Invoke(ctx, "/smartcore.playground.api.PlaygroundApi/AddRemoteDevice", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PlaygroundApiServer is the server API for PlaygroundApi service.
 // All implementations must embed UnimplementedPlaygroundApiServer
 // for forward compatibility
 type PlaygroundApiServer interface {
 	AddDeviceTrait(context.Context, *AddDeviceTraitRequest) (*AddDeviceTraitResponse, error)
 	ListSupportedTraits(context.Context, *ListSupportedTraitsRequest) (*ListSupportedTraitsResponse, error)
+	AddRemoteDevice(context.Context, *AddRemoteDeviceRequest) (*AddRemoteDeviceResponse, error)
 	mustEmbedUnimplementedPlaygroundApiServer()
 }
 
@@ -66,6 +77,9 @@ func (UnimplementedPlaygroundApiServer) AddDeviceTrait(context.Context, *AddDevi
 }
 func (UnimplementedPlaygroundApiServer) ListSupportedTraits(context.Context, *ListSupportedTraitsRequest) (*ListSupportedTraitsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListSupportedTraits not implemented")
+}
+func (UnimplementedPlaygroundApiServer) AddRemoteDevice(context.Context, *AddRemoteDeviceRequest) (*AddRemoteDeviceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddRemoteDevice not implemented")
 }
 func (UnimplementedPlaygroundApiServer) mustEmbedUnimplementedPlaygroundApiServer() {}
 
@@ -116,6 +130,24 @@ func _PlaygroundApi_ListSupportedTraits_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PlaygroundApi_AddRemoteDevice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddRemoteDeviceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PlaygroundApiServer).AddRemoteDevice(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/smartcore.playground.api.PlaygroundApi/AddRemoteDevice",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PlaygroundApiServer).AddRemoteDevice(ctx, req.(*AddRemoteDeviceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PlaygroundApi_ServiceDesc is the grpc.ServiceDesc for PlaygroundApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -130,6 +162,10 @@ var PlaygroundApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListSupportedTraits",
 			Handler:    _PlaygroundApi_ListSupportedTraits_Handler,
+		},
+		{
+			MethodName: "AddRemoteDevice",
+			Handler:    _PlaygroundApi_AddRemoteDevice_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

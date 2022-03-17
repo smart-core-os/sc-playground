@@ -11,6 +11,7 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/trait/powersupply"
 	"github.com/smart-core-os/sc-golang/pkg/wrap"
 	"github.com/smart-core-os/sc-playground/pkg/node"
+	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -37,5 +38,8 @@ func Activate(n *node.Node) {
 	n.AddTraitFactory(trait.PowerSupply, func(name string, _ proto.Message) error {
 		_, err := devices.Get(name)
 		return err
+	})
+	n.AddClientFactory(trait.PowerSupply, func(conn *grpc.ClientConn) interface{} {
+		return traits.NewPowerSupplyApiClient(conn)
 	})
 }

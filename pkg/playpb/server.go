@@ -5,7 +5,10 @@ import (
 
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-playground/pkg/node"
+	"go.uber.org/multierr"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Server struct {
@@ -32,4 +35,29 @@ func (s *Server) ListSupportedTraits(context.Context, *ListSupportedTraitsReques
 		res.TraitName = append(res.TraitName, string(name))
 	}
 	return res, nil
+}
+
+func (s *Server) AddRemoteDevice(ctx context.Context, req *AddRemoteDeviceRequest) (*AddRemoteDeviceResponse, error) {
+	traitNames := req.TraitName
+	if len(traitNames) == 0 {
+		return nil, status.Errorf(codes.Unimplemented, "Trait discovery is not yet implements, please provide trait names explicitly")
+	}
+
+	conn, err := s.node.ResolveRemoteConn(ctx, req.Endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	var e error
+	var features []node.Feature
+	for _, traitName := range traitNames {
+		client, err := s.node.CreateTraitClient(trait.Name(traitName), conn)
+		if err != nil {
+			e = multierr.Append(e, err)
+			continue
+		}
+		features = append(features, node.HasTrait(trait.Name(traitName), node.WithClients(client)))
+	}
+	s.node.Announce(req.Name, features...)
+	return &AddRemoteDeviceResponse{}, e
 }

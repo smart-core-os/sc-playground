@@ -12,6 +12,7 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/wrap"
 	sim "github.com/smart-core-os/sc-playground/internal/simulated/energystorage"
 	"github.com/smart-core-os/sc-playground/pkg/node"
+	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -40,5 +41,8 @@ func Activate(n *node.Node) {
 	n.AddTraitFactory(trait.EnergyStorage, func(name string, _ proto.Message) error {
 		_, err := r.Get(name)
 		return err
+	})
+	n.AddClientFactory(trait.EnergyStorage, func(conn *grpc.ClientConn) interface{} {
+		return traits.NewEnergyStorageApiClient(conn)
 	})
 }

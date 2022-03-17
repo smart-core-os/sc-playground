@@ -10,6 +10,7 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/trait/onoff"
 	"github.com/smart-core-os/sc-golang/pkg/wrap"
 	"github.com/smart-core-os/sc-playground/pkg/node"
+	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -44,5 +45,8 @@ func Activate(n *node.Node) {
 	n.AddTraitFactory(trait.OnOff, func(name string, _ proto.Message) error {
 		_, err := r.Get(name)
 		return err
+	})
+	n.AddClientFactory(trait.OnOff, func(conn *grpc.ClientConn) interface{} {
+		return traits.NewOnOffApiClient(conn)
 	})
 }

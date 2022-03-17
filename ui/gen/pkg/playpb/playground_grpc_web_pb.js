@@ -11,6 +11,7 @@
 // @ts-nocheck
 
 
+
 const grpc = {};
 grpc.web = require('grpc-web');
 
@@ -190,6 +191,67 @@ proto.smartcore.playground.api.PlaygroundApiPromiseClient.prototype.listSupporte
           request,
           metadata || {},
           methodDescriptor_PlaygroundApi_ListSupportedTraits);
+    };
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.smartcore.playground.api.AddRemoteDeviceRequest,
+ *   !proto.smartcore.playground.api.AddRemoteDeviceResponse>}
+ */
+const methodDescriptor_PlaygroundApi_AddRemoteDevice = new grpc.web.MethodDescriptor(
+    '/smartcore.playground.api.PlaygroundApi/AddRemoteDevice',
+    grpc.web.MethodType.UNARY,
+    proto.smartcore.playground.api.AddRemoteDeviceRequest,
+    proto.smartcore.playground.api.AddRemoteDeviceResponse,
+    /**
+     * @param {!proto.smartcore.playground.api.AddRemoteDeviceRequest} request
+     * @return {!Uint8Array}
+     */
+    function(request) {
+      return request.serializeBinary();
+    },
+    proto.smartcore.playground.api.AddRemoteDeviceResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.smartcore.playground.api.AddRemoteDeviceRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.smartcore.playground.api.AddRemoteDeviceResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.smartcore.playground.api.AddRemoteDeviceResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.smartcore.playground.api.PlaygroundApiClient.prototype.addRemoteDevice =
+    function(request, metadata, callback) {
+      return this.client_.rpcCall(this.hostname_ +
+          '/smartcore.playground.api.PlaygroundApi/AddRemoteDevice',
+          request,
+          metadata || {},
+          methodDescriptor_PlaygroundApi_AddRemoteDevice,
+          callback);
+    };
+
+
+/**
+ * @param {!proto.smartcore.playground.api.AddRemoteDeviceRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.smartcore.playground.api.AddRemoteDeviceResponse>}
+ *     Promise that resolves to the response
+ */
+proto.smartcore.playground.api.PlaygroundApiPromiseClient.prototype.addRemoteDevice =
+    function(request, metadata) {
+      return this.client_.unaryCall(this.hostname_ +
+          '/smartcore.playground.api.PlaygroundApi/AddRemoteDevice',
+          request,
+          metadata || {},
+          methodDescriptor_PlaygroundApi_AddRemoteDevice);
     };
 
 

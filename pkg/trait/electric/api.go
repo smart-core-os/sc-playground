@@ -16,6 +16,7 @@ import (
 	simelectric "github.com/smart-core-os/sc-playground/internal/simulated/electric"
 	"github.com/smart-core-os/sc-playground/pkg/node"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
@@ -49,6 +50,9 @@ func Activate(n *node.Node) {
 	n.AddTraitFactory(trait.Electric, func(name string, _ proto.Message) error {
 		_, err := devices.Get(name)
 		return err
+	})
+	n.AddClientFactory(trait.Electric, func(conn *grpc.ClientConn) interface{} {
+		return traits.NewElectricApiClient(conn)
 	})
 }
 
