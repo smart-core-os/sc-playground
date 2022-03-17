@@ -2,7 +2,19 @@
   <v-app id="root">
     <v-app-bar app clipped-left>
       <v-app-bar-nav-icon @click="navDrawer = !navDrawer"/>
-      <v-app-bar-title>Smart Core: Playground</v-app-bar-title>
+      <v-app-bar-title>
+        <!--
+        This span works around a rounding issue in the width calculations of v-app-bar-title.
+        The component duplicates the title content (default slot) and calculates the width of that duplicate
+        dom tree. The width is then set explicitly on the visible content.
+        If the width happens to be a fractional pixel (i.e. 123.55) then some rounding happens that causes the explicit
+        width to be truncated to an integer, causing the displayed elements to be narrower than the need to be, resulting
+        in ellipses (...) instead of the full text.
+
+        Adding this 1px padding forces the bounding box to be wider so the hard coded width doesn't ellipses the text.
+        -->
+        <span style="padding-right: 1px">Smart Core: Playground</span>
+      </v-app-bar-title>
       <v-spacer/>
       <template v-if="serverConfigError">
         {{ serverConfigError }}
