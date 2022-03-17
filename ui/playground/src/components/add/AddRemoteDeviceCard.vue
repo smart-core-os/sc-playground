@@ -2,10 +2,11 @@
   <v-card>
     <v-card-title>Add a remote device</v-card-title>
     <v-card-text>
-      <v-text-field label="Device name" v-model="name"/>
-      <v-text-field type="url" label="Endpoint" v-model="endpoint"/>
-      <v-checkbox v-model="tlsInsecure" label="No TLS (insecure)"/>
-      <v-textarea label="Server CA Certificate" v-model="tlsServerCACert" class="ca" :disabled="tlsInsecure"/>
+      <v-text-field hide-details label="Device name" v-model="name"/>
+      <v-text-field hide-details type="url" label="Endpoint" v-model="endpoint"/>
+      <v-checkbox v-model="tlsInsecure" label="No TLS (insecure)" hide-details/>
+      <v-textarea hide-details label="Server CA Certificate" v-model="tlsServerCACert" class="ca"
+                  :disabled="tlsInsecure"/>
       <v-item-group multiple v-model="selectedTraits">
         <v-item v-for="trait in supportedTraits" :key="trait" v-slot="{ active, toggle }">
           <v-checkbox :value="active" @change="toggle" :label="trait" hide-details/>
@@ -65,6 +66,8 @@ export default {
       this.name = '';
       this.endpoint = '';
       this.selectedTraits = [];
+      this.tlsInsecure = false;
+      this.tlsServerCACert = '';
     },
     async add() {
       this.loading = true;
