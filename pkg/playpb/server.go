@@ -43,7 +43,13 @@ func (s *Server) AddRemoteDevice(ctx context.Context, req *AddRemoteDeviceReques
 		return nil, status.Errorf(codes.Unimplemented, "Trait discovery is not yet implements, please provide trait names explicitly")
 	}
 
-	conn, err := s.node.ResolveRemoteConn(ctx, req.Endpoint)
+	var remoteOpts []node.RemoteOption
+	if req.Tls != nil {
+		if len(req.Tls.ServerCaCert) > 0 {
+			remoteOpts = append(remoteOpts, node.WithRemoteServerCA([]byte(req.Tls.ServerCaCert)))
+		}
+	}
+	conn, err := s.node.ResolveRemoteConn(ctx, req.Endpoint, remoteOpts...)
 	if err != nil {
 		return nil, err
 	}

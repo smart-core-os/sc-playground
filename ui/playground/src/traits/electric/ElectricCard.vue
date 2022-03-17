@@ -42,17 +42,20 @@ export default {
         demand: {
           /** @type {ElectricDemand.AsObject} */
           value: null,
-          stream: null
+          stream: null,
+          err: null
         },
         activeMode: {
           /** @type {ElectricMode.AsObject} */
           value: null,
-          stream: null
+          stream: null,
+          err: null
         },
         modes: {
           /** @type {Object<string,ElectricMode.AsObject>} */
           value: {},
-          stream: null
+          stream: null,
+          err: null
         }
       }
     };
@@ -85,67 +88,82 @@ export default {
       // demand resource
       const demandResource = this.resources.demand;
       if (demandResource.stream) demandResource.stream.cancel();
-      const demandPb = await api.getDemand(new GetDemandRequest().setName(this.deviceId));
-      demandResource.value = demandPb.toObject();
-      const demandStream = api.pullDemand(new PullDemandRequest().setName(this.deviceId));
-      demandResource.stream = demandStream;
-      demandStream.on('data', res => {
-        /** @type {PullDemandResponse.Change[]} */
-        const changes = res.getChangesList();
-        for (const change of changes) {
-          const value = change.getDemand();
-          demandResource.value = value.toObject();
-        }
-      });
+      try {
+        const demandPb = await api.getDemand(new GetDemandRequest().setName(this.deviceId));
+        demandResource.value = demandPb.toObject();
+        const demandStream = api.pullDemand(new PullDemandRequest().setName(this.deviceId));
+        demandResource.stream = demandStream;
+        demandStream.on('data', res => {
+          /** @type {PullDemandResponse.Change[]} */
+          const changes = res.getChangesList();
+          for (const change of changes) {
+            const value = change.getDemand();
+            demandResource.value = value.toObject();
+          }
+        });
+        demandStream.on('error', err => demandResource.err = err)
+      } catch (e) {
+        demandResource.err = e;
+      }
 
       // activeMode resource
       const activeModeResource = this.resources.activeMode;
       if (activeModeResource.stream) activeModeResource.stream.cancel();
-      const activeModePb = await api.getActiveMode(new GetActiveModeRequest().setName(this.deviceId));
-      activeModeResource.value = activeModePb.toObject();
-      const activeModeStream = api.pullActiveMode(new PullActiveModeRequest().setName(this.deviceId));
-      activeModeResource.stream = activeModeStream;
-      activeModeStream.on('data', res => {
-        /** @type {PullActiveModeResponse.Change[]} */
-        const changes = res.getChangesList();
-        for (const change of changes) {
-          const value = change.getActiveMode();
-          activeModeResource.value = value.toObject();
-        }
-      });
+      try {
+        const activeModePb = await api.getActiveMode(new GetActiveModeRequest().setName(this.deviceId));
+        activeModeResource.value = activeModePb.toObject();
+        const activeModeStream = api.pullActiveMode(new PullActiveModeRequest().setName(this.deviceId));
+        activeModeResource.stream = activeModeStream;
+        activeModeStream.on('data', res => {
+          /** @type {PullActiveModeResponse.Change[]} */
+          const changes = res.getChangesList();
+          for (const change of changes) {
+            const value = change.getActiveMode();
+            activeModeResource.value = value.toObject();
+          }
+        });
+        activeModeStream.on('error', err => activeModeResource.err = err)
+      } catch (e) {
+        activeModeResource.err = e;
+      }
 
       // modes resource
       const modesResource = this.resources.modes;
       if (modesResource.stream) modesResource.stream.cancel();
-      let modesPb = await api.listModes(new ListModesRequest().setName(this.deviceId));
-      while (true) {
-        for (const mode of modesPb.getModesList()) {
-          Vue.set(modesResource.value, mode.getId(), mode.toObject());
-        }
-        if (!modesPb.getNextPageToken()) {
-          break;
-        }
-        modesPb = await api.listModes(new ListModesRequest().setName(this.deviceId)
-            .setPageToken(modesPb.getNextPageToken()));
-      }
-      const modesStream = api.pullModes(new PullModesRequest().setName(this.deviceId));
-      modesResource.stream = modesStream;
-      modesStream.on('data', res => {
-        /** @type {PullModesResponse.Change[]} */
-        const changes = res.getChangesList();
-        for (const change of changes) {
-          const value = change.getNewValue();
-          if (!value) {
-            // delete
-            const oldId = change.getOldValue()?.getId();
-            if (oldId) {
-              Vue.delete(modesResource.value, oldId)
-            }
-          } else {
-            Vue.set(modesResource.value, value.getId(), value.toObject());
+      try {
+        let modesPb = await api.listModes(new ListModesRequest().setName(this.deviceId));
+        while (true) {
+          for (const mode of modesPb.getModesList()) {
+            Vue.set(modesResource.value, mode.getId(), mode.toObject());
           }
+          if (!modesPb.getNextPageToken()) {
+            break;
+          }
+          modesPb = await api.listModes(new ListModesRequest().setName(this.deviceId)
+              .setPageToken(modesPb.getNextPageToken()));
         }
-      });
+        const modesStream = api.pullModes(new PullModesRequest().setName(this.deviceId));
+        modesResource.stream = modesStream;
+        modesStream.on('data', res => {
+          /** @type {PullModesResponse.Change[]} */
+          const changes = res.getChangesList();
+          for (const change of changes) {
+            const value = change.getNewValue();
+            if (!value) {
+              // delete
+              const oldId = change.getOldValue()?.getId();
+              if (oldId) {
+                Vue.delete(modesResource.value, oldId)
+              }
+            } else {
+              Vue.set(modesResource.value, value.getId(), value.toObject());
+            }
+          }
+        });
+        modesStream.on('error', err => modesResource.err = err)
+      } catch (e) {
+        modesResource.err = e;
+      }
     },
     log(...args) {
       console.debug(...args);

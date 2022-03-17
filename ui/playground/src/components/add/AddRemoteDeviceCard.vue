@@ -4,6 +4,7 @@
     <v-card-text>
       <v-text-field label="Device name" v-model="name"/>
       <v-text-field type="url" label="Endpoint" v-model="endpoint"/>
+      <v-textarea label="Server CA Certificate" v-model="tlsServerCACert" class="ca"/>
       <v-item-group multiple v-model="selectedTraits">
         <v-item v-for="trait in supportedTraits" :key="trait" v-slot="{ active, toggle }">
           <v-checkbox :value="active" @change="toggle" :label="trait" hide-details/>
@@ -21,7 +22,11 @@
 <script>
 import {grpcWebEndpoint} from "../../util/api.js";
 import {PlaygroundApiPromiseClient} from "@sc-playground/gen/pkg/playpb/playground_grpc_web_pb.js";
-import {AddRemoteDeviceRequest, ListSupportedTraitsRequest} from "@sc-playground/gen/pkg/playpb/playground_pb.js";
+import {
+  AddRemoteDeviceRequest,
+  ListSupportedTraitsRequest,
+  RemoteTLS
+} from "@sc-playground/gen/pkg/playpb/playground_pb.js";
 
 export default {
   name: "AddRemoteDeviceCard",
@@ -34,7 +39,9 @@ export default {
 
       name: '',
       endpoint: '',
-      selectedTraits: []
+      selectedTraits: [],
+
+      tlsServerCACert: null
     };
   },
   mounted() {
@@ -63,10 +70,16 @@ export default {
       const api = new PlaygroundApiPromiseClient(serverEndpoint, null, null);
       try {
         const traitNames = this.selectedTraits.map(i => this.supportedTraits[i])
+        let tls = null;
+        if (this.tlsServerCACert) {
+          tls = new RemoteTLS()
+          tls.setServerCaCert(this.tlsServerCACert);
+        }
         await api.addRemoteDevice(new AddRemoteDeviceRequest()
             .setName(this.name)
             .setEndpoint(this.endpoint)
             .setTraitNameList(traitNames)
+            .setTls(tls)
         );
       } finally {
         this.$emit('done');
@@ -82,5 +95,9 @@ export default {
 </script>
 
 <style scoped>
-
+.ca >>> textarea {
+  font-size: 50%;
+  font-family: monospace;
+  line-height: 1rem
+}
 </style>

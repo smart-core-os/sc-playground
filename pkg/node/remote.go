@@ -3,8 +3,11 @@ package node
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
+	"log"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 type remoteNode struct {
@@ -15,6 +18,23 @@ type remoteNode struct {
 }
 
 type RemoteOption func(n *remoteNode)
+
+func WithRemoteServerCA(ca []byte) RemoteOption {
+	return func(n *remoteNode) {
+		if n.tls == nil {
+			n.tls = &tls.Config{}
+		}
+		rootCAs, err := x509.SystemCertPool()
+		if err != nil {
+			log.Printf("Error reading system cert pool %v", err)
+			rootCAs = x509.NewCertPool()
+		}
+		if !rootCAs.AppendCertsFromPEM(ca) {
+			log.Printf("Unable to append ca to system certs")
+		}
+		n.tls.RootCAs = rootCAs
+	}
+}
 
 func (n *Node) ResolveRemoteConn(ctx context.Context, endpoint string, opts ...RemoteOption) (*grpc.ClientConn, error) {
 	// todo: check tls and update as needed
@@ -35,7 +55,13 @@ func (n *Node) ResolveRemoteConn(ctx context.Context, endpoint string, opts ...R
 }
 
 func createRemoteConnection(ctx context.Context, node *remoteNode) remoteNode {
-	conn, err := grpc.DialContext(ctx, node.endpoint, grpc.WithInsecure())
+	var grpcOpts []grpc.DialOption
+	if node.tls == nil {
+		grpcOpts = append(grpcOpts, grpc.WithInsecure())
+	} else {
+		grpcOpts = append(grpcOpts, grpc.WithTransportCredentials(credentials.NewTLS(node.tls)))
+	}
+	conn, err := grpc.DialContext(ctx, node.endpoint, grpcOpts...)
 	node.conn = conn
 	node.dialErr = err
 	return *node
