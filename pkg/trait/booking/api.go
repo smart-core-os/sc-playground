@@ -11,11 +11,12 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/booking"
 	"github.com/smart-core-os/sc-playground/pkg/node"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func Activate(n *node.Node) {
-	n.AddRouter(booking.NewApiRouter(
+	r := booking.NewApiRouter(
 		booking.WithBookingApiClientFactory(func(name string) (traits.BookingApiClient, error) {
 			return booking.WrapApi(newBookingApiServer(name)), nil
 		}),
@@ -23,7 +24,12 @@ func Activate(n *node.Node) {
 			log.Printf("BookingApiClient(%v) auto-created", name)
 			n.Announce(name, node.HasTrait(trait.Booking))
 		}),
-	))
+	)
+	n.AddRouter(r)
+	n.AddTraitFactory(trait.Booking, func(name string, _ proto.Message) error {
+		_, err := r.Get(name)
+		return err
+	})
 }
 
 func newBookingApiServer(name string) *booking.MemoryDevice {
