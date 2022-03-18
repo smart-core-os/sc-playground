@@ -13,9 +13,11 @@ import (
 	"github.com/smart-core-os/sc-playground/pkg/node"
 	"github.com/smart-core-os/sc-playground/pkg/run"
 	"github.com/smart-core-os/sc-playground/pkg/sim/boot"
+	"github.com/smart-core-os/sc-playground/pkg/trait/airtemperature"
 	"github.com/smart-core-os/sc-playground/pkg/trait/booking"
 	"github.com/smart-core-os/sc-playground/pkg/trait/electric"
 	"github.com/smart-core-os/sc-playground/pkg/trait/energystorage"
+	"github.com/smart-core-os/sc-playground/pkg/trait/light"
 	"github.com/smart-core-os/sc-playground/pkg/trait/metadata"
 	"github.com/smart-core-os/sc-playground/pkg/trait/occupancysensor"
 	"github.com/smart-core-os/sc-playground/pkg/trait/onoff"
@@ -91,9 +93,11 @@ func runCtx(ctx context.Context) error {
 func newRootNode(serverDeviceName string) *node.Node {
 	root := node.New(serverDeviceName)
 	// trait apis
+	airtemperature.Activate(root)
 	booking.Activate(root)
 	electric.Activate(root)
 	energystorage.Activate(root)
+	light.Activate(root)
 	metadata.Activate(root)
 	occupancysensor.Activate(root)
 	onoff.Activate(root)
