@@ -3,20 +3,24 @@ import {createVuePlugin} from 'vite-plugin-vue2';
 import VitePluginComponents, {VuetifyResolver} from 'vite-plugin-components';
 import rollupPluginVuetify from 'rollup-plugin-vuetify';
 
+const traits = [
+  'parent',
+  'electric',
+  'energy_storage',
+  'metadata',
+  'power_supply'
+]
+const includes = traits.reduce((arr, trait) => {
+  arr.push(`@smart-core-os/sc-api-grpc-web/traits/${trait}_pb.js`);
+  arr.push(`@smart-core-os/sc-api-grpc-web/traits/${trait}_grpc_web_pb.js`);
+  return arr;
+}, []);
+
 // https://vitejs.dev/config/
 export default defineConfig({
   optimizeDeps: {
     include: [
-      '@smart-core-os/sc-api-grpc-web/traits/parent_pb.js',
-      '@smart-core-os/sc-api-grpc-web/traits/parent_grpc_web_pb.js',
-      '@smart-core-os/sc-api-grpc-web/traits/electric_pb.js',
-      '@smart-core-os/sc-api-grpc-web/traits/electric_grpc_web_pb.js',
-      '@smart-core-os/sc-api-grpc-web/traits/energy_storage_pb.js',
-      '@smart-core-os/sc-api-grpc-web/traits/energy_storage_grpc_web_pb.js',
-      '@smart-core-os/sc-api-grpc-web/traits/metadata_pb.js',
-      '@smart-core-os/sc-api-grpc-web/traits/metadata_grpc_web_pb.js',
-      '@smart-core-os/sc-api-grpc-web/traits/power_supply_pb.js',
-      '@smart-core-os/sc-api-grpc-web/traits/power_supply_grpc_web_pb.js'
+      ...includes
     ]
   },
   plugins: [
@@ -33,5 +37,8 @@ export default defineConfig({
     fs: {
       allow: ['..']
     }
+  },
+  build: {
+    commonjsOptions: {include: []}
   }
 })
