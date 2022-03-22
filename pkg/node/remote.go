@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
 )
 
@@ -74,5 +75,15 @@ func createRemoteConnection(ctx context.Context, node *remoteNode) remoteNode {
 	conn, err := grpc.DialContext(ctx, node.endpoint, grpcOpts...)
 	node.conn = conn
 	node.dialErr = err
+	if err == nil {
+		go func() {
+			// watch state changes
+			var state connectivity.State
+			for conn.WaitForStateChange(context.Background(), state) {
+				state = conn.GetState()
+				log.Printf("%v is %v", node.endpoint, state)
+			}
+		}()
+	}
 	return *node
 }
