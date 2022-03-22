@@ -13,7 +13,7 @@
 
         Adding this 1px padding forces the bounding box to be wider so the hard coded width doesn't ellipses the text.
         -->
-        <span style="padding-right: 1px">Smart Core: Playground</span>
+        <span style="padding-right: 3px">Smart Core: Playground</span>
       </v-app-bar-title>
       <v-spacer/>
       <template v-if="serverConfigError">
