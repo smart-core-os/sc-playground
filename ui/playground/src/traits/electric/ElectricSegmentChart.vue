@@ -5,7 +5,7 @@
 </template>
 <script>
 
-import {maxMagnitude} from "./util.js";
+import {durationMillis, maxMagnitude, toDate} from "./util.js";
 import {interval} from "../../mixin/time.js";
 
 export default {
@@ -98,25 +98,6 @@ export default {
   }
 }
 
-/**
- * Convert a timestamp object to a Date. Timestamp.AsObject doesn't have this method :(
- *
- * @param {Timestamp.AsObject} ts
- * @return {Date}
- */
-function toDate(ts) {
-  return new Date((ts.seconds * 1000) + (ts.nanos / 1000000));
-}
-
-/**
- * Convert a duration object into a millisecond value.
- *
- * @param {Duration.AsObject} d
- * @return {number}
- */
-function durationMillis(d) {
-  return d.seconds * 1000 + d.nanos / 1_000_000;
-}
 </script>
 <style scoped>
 .chart {

@@ -8,6 +8,16 @@
       <electric-mode-chooser :mode="activeMode" @update:mode="setMode" :modes="modes"
                              :label="`Active mode (of ${modes.length})`"/>
     </v-card-text>
+    <v-card-text class="px-0">
+      <v-expansion-panels flat accordion>
+        <v-expansion-panel>
+          <v-expansion-panel-header>More Details</v-expansion-panel-header>
+          <v-expansion-panel-content>
+            <pre>{{ allData }}</pre>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+      </v-expansion-panels>
+    </v-card-text>
   </trait-card>
 </template>
 
@@ -28,6 +38,7 @@ import {
 import Vue from "vue";
 import ElectricModeChooser from "./ElectricModeChooser.vue";
 import TraitCard from "../../components/TraitCard.vue";
+import {durationString, toDate} from "./util.js";
 
 export default {
   name: 'ElectricCard',
@@ -78,6 +89,35 @@ export default {
     },
     modes() {
       return Object.values(this.resources.modes.value);
+    },
+    allData() {
+      let res = {
+        demand: this.resources.demand.value,
+        activeMode: this.resources.activeMode.value,
+        modes: Object.values(this.resources.modes.value)
+      }
+      // clone
+      res = JSON.parse(JSON.stringify(res))
+      // convert dates, etc
+      if (res.activeMode?.startTime) {
+        res.activeMode.startTime = toDate(res.activeMode.startTime);
+      }
+      for (const segmentsListElement of res?.activeMode?.segmentsList || []) {
+        if (segmentsListElement.length) {
+          segmentsListElement.length = durationString(segmentsListElement.length);
+        }
+      }
+      for (const mode of res.modes || []) {
+        if (mode.startTime) {
+          mode.startTime = toDate(mode.startTime);
+        }
+        for (const segmentsListElement of mode.segmentsList) {
+          if (segmentsListElement.length) {
+            segmentsListElement.length = durationString(segmentsListElement.length);
+          }
+        }
+      }
+      return res;
     }
   },
   methods: {

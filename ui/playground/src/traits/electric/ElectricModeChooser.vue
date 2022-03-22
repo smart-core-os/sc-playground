@@ -5,17 +5,17 @@
       <v-list-item v-on="on" v-bind="attrs" class="mode-item">
         <v-list-item-title>{{ item.title }}</v-list-item-title>
         <v-list-item-action-text>
-          {{ maxModeMagnitude(item) }}A
+          {{ maxModeMagnitude(item).toFixed(1) }}A
         </v-list-item-action-text>
-        <electric-segment-chart v-if="item.segmentsList.length > 1" :mode="item" class="chart"/>
+        <electric-segment-chart v-if="showSegmentChart(item)" :mode="item" class="chart"/>
       </v-list-item>
     </template>
     <template #selection="{ item }">
       <div style="width: 100%" class="d-flex">
         <span>{{ item.title }}</span>
-        <span class="grey--text ml-auto">{{ maxModeMagnitude(item) }}A</span>
+        <span class="grey--text ml-auto">{{ maxModeMagnitude(item).toFixed(1) }}A</span>
       </div>
-      <electric-segment-chart v-if="item.segmentsList.length > 1" :mode="item" class="chart mx-n3"/>
+      <electric-segment-chart v-if="showSegmentChart(item)" :mode="item" class="chart mx-n3"/>
     </template>
   </v-select>
 </template>
@@ -70,6 +70,10 @@ export default {
   methods: {
     maxModeMagnitude(mode) {
       return maxMagnitude(mode.segmentsList);
+    },
+    showSegmentChart(mode) {
+      // only show the chart if there are segments and the first segment isn't infinite
+      return mode.segmentsList && mode.segmentsList.length > 0 && mode.segmentsList[0].length
     }
   }
 }
