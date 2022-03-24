@@ -21,6 +21,8 @@ type PlaygroundApiClient interface {
 	AddDeviceTrait(ctx context.Context, in *AddDeviceTraitRequest, opts ...grpc.CallOption) (*AddDeviceTraitResponse, error)
 	ListSupportedTraits(ctx context.Context, in *ListSupportedTraitsRequest, opts ...grpc.CallOption) (*ListSupportedTraitsResponse, error)
 	AddRemoteDevice(ctx context.Context, in *AddRemoteDeviceRequest, opts ...grpc.CallOption) (*AddRemoteDeviceResponse, error)
+	// PullPerformance returns the current performance metrics for the playground.
+	PullPerformance(ctx context.Context, in *PullPerformanceRequest, opts ...grpc.CallOption) (PlaygroundApi_PullPerformanceClient, error)
 }
 
 type playgroundApiClient struct {
@@ -58,6 +60,38 @@ func (c *playgroundApiClient) AddRemoteDevice(ctx context.Context, in *AddRemote
 	return out, nil
 }
 
+func (c *playgroundApiClient) PullPerformance(ctx context.Context, in *PullPerformanceRequest, opts ...grpc.CallOption) (PlaygroundApi_PullPerformanceClient, error) {
+	stream, err := c.cc.NewStream(ctx, &PlaygroundApi_ServiceDesc.Streams[0], "/smartcore.playground.api.PlaygroundApi/PullPerformance", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &playgroundApiPullPerformanceClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type PlaygroundApi_PullPerformanceClient interface {
+	Recv() (*PullPerformanceResponse, error)
+	grpc.ClientStream
+}
+
+type playgroundApiPullPerformanceClient struct {
+	grpc.ClientStream
+}
+
+func (x *playgroundApiPullPerformanceClient) Recv() (*PullPerformanceResponse, error) {
+	m := new(PullPerformanceResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // PlaygroundApiServer is the server API for PlaygroundApi service.
 // All implementations must embed UnimplementedPlaygroundApiServer
 // for forward compatibility
@@ -65,6 +99,8 @@ type PlaygroundApiServer interface {
 	AddDeviceTrait(context.Context, *AddDeviceTraitRequest) (*AddDeviceTraitResponse, error)
 	ListSupportedTraits(context.Context, *ListSupportedTraitsRequest) (*ListSupportedTraitsResponse, error)
 	AddRemoteDevice(context.Context, *AddRemoteDeviceRequest) (*AddRemoteDeviceResponse, error)
+	// PullPerformance returns the current performance metrics for the playground.
+	PullPerformance(*PullPerformanceRequest, PlaygroundApi_PullPerformanceServer) error
 	mustEmbedUnimplementedPlaygroundApiServer()
 }
 
@@ -80,6 +116,9 @@ func (UnimplementedPlaygroundApiServer) ListSupportedTraits(context.Context, *Li
 }
 func (UnimplementedPlaygroundApiServer) AddRemoteDevice(context.Context, *AddRemoteDeviceRequest) (*AddRemoteDeviceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddRemoteDevice not implemented")
+}
+func (UnimplementedPlaygroundApiServer) PullPerformance(*PullPerformanceRequest, PlaygroundApi_PullPerformanceServer) error {
+	return status.Errorf(codes.Unimplemented, "method PullPerformance not implemented")
 }
 func (UnimplementedPlaygroundApiServer) mustEmbedUnimplementedPlaygroundApiServer() {}
 
@@ -148,6 +187,27 @@ func _PlaygroundApi_AddRemoteDevice_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PlaygroundApi_PullPerformance_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(PullPerformanceRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(PlaygroundApiServer).PullPerformance(m, &playgroundApiPullPerformanceServer{stream})
+}
+
+type PlaygroundApi_PullPerformanceServer interface {
+	Send(*PullPerformanceResponse) error
+	grpc.ServerStream
+}
+
+type playgroundApiPullPerformanceServer struct {
+	grpc.ServerStream
+}
+
+func (x *playgroundApiPullPerformanceServer) Send(m *PullPerformanceResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // PlaygroundApi_ServiceDesc is the grpc.ServiceDesc for PlaygroundApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -168,6 +228,12 @@ var PlaygroundApi_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _PlaygroundApi_AddRemoteDevice_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "PullPerformance",
+			Handler:       _PlaygroundApi_PullPerformance_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "pkg/playpb/playground.proto",
 }

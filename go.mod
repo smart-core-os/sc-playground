@@ -10,9 +10,10 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.7.0
 	github.com/smart-core-os/sc-api/go v1.0.0-beta.31
-	github.com/smart-core-os/sc-golang v0.0.0-20220318093940-80bdd74c0b7d
+	github.com/smart-core-os/sc-golang v0.0.0-20220324155620-d0ce737c8674
 	github.com/soheilhy/cmux v0.1.5
 	github.com/tanema/gween v0.0.0-20200427131925-c89ae23cc63c
+	go.uber.org/multierr v1.7.0
 	go.uber.org/zap v1.19.1
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
@@ -27,7 +28,6 @@ require (
 	github.com/mennanov/fmutils v0.1.1 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	go.uber.org/atomic v1.8.0 // indirect
-	go.uber.org/multierr v1.7.0 // indirect
 	golang.org/x/sys v0.0.0-20210616094352-59db8d763f22 // indirect
 	golang.org/x/text v0.3.6 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect

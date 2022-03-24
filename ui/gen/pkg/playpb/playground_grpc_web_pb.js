@@ -11,10 +11,13 @@
 // @ts-nocheck
 
 
-
 const grpc = {};
 grpc.web = require('grpc-web');
 
+
+var google_protobuf_duration_pb = require('google-protobuf/google/protobuf/duration_pb.js')
+
+var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js')
 const proto = {};
 proto.smartcore = {};
 proto.smartcore.playground = {};
@@ -252,6 +255,62 @@ proto.smartcore.playground.api.PlaygroundApiPromiseClient.prototype.addRemoteDev
           request,
           metadata || {},
           methodDescriptor_PlaygroundApi_AddRemoteDevice);
+    };
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.smartcore.playground.api.PullPerformanceRequest,
+ *   !proto.smartcore.playground.api.PullPerformanceResponse>}
+ */
+const methodDescriptor_PlaygroundApi_PullPerformance = new grpc.web.MethodDescriptor(
+    '/smartcore.playground.api.PlaygroundApi/PullPerformance',
+    grpc.web.MethodType.SERVER_STREAMING,
+    proto.smartcore.playground.api.PullPerformanceRequest,
+    proto.smartcore.playground.api.PullPerformanceResponse,
+    /**
+     * @param {!proto.smartcore.playground.api.PullPerformanceRequest} request
+     * @return {!Uint8Array}
+     */
+    function(request) {
+      return request.serializeBinary();
+    },
+    proto.smartcore.playground.api.PullPerformanceResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.smartcore.playground.api.PullPerformanceRequest} request The request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!grpc.web.ClientReadableStream<!proto.smartcore.playground.api.PullPerformanceResponse>}
+ *     The XHR Node Readable Stream
+ */
+proto.smartcore.playground.api.PlaygroundApiClient.prototype.pullPerformance =
+    function(request, metadata) {
+      return this.client_.serverStreaming(this.hostname_ +
+          '/smartcore.playground.api.PlaygroundApi/PullPerformance',
+          request,
+          metadata || {},
+          methodDescriptor_PlaygroundApi_PullPerformance);
+    };
+
+
+/**
+ * @param {!proto.smartcore.playground.api.PullPerformanceRequest} request The request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!grpc.web.ClientReadableStream<!proto.smartcore.playground.api.PullPerformanceResponse>}
+ *     The XHR Node Readable Stream
+ */
+proto.smartcore.playground.api.PlaygroundApiPromiseClient.prototype.pullPerformance =
+    function(request, metadata) {
+      return this.client_.serverStreaming(this.hostname_ +
+          '/smartcore.playground.api.PlaygroundApi/PullPerformance',
+          request,
+          metadata || {},
+          methodDescriptor_PlaygroundApi_PullPerformance);
     };
 
 

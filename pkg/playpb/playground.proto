@@ -4,11 +4,17 @@ package smartcore.playground.api;
 
 option go_package = "github.com/smart-core-os/sc-playground/pkg/playpb";
 
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
 service PlaygroundApi {
   rpc AddDeviceTrait(AddDeviceTraitRequest) returns (AddDeviceTraitResponse);
   rpc ListSupportedTraits(ListSupportedTraitsRequest) returns (ListSupportedTraitsResponse);
 
   rpc AddRemoteDevice(AddRemoteDeviceRequest) returns (AddRemoteDeviceResponse);
+
+  // PullPerformance returns the current performance metrics for the playground.
+  rpc PullPerformance(PullPerformanceRequest) returns (stream PullPerformanceResponse);
 }
 
 message AddDeviceTraitRequest {
@@ -33,3 +39,17 @@ message RemoteTLS {
   string server_ca_cert = 1;
 }
 message AddRemoteDeviceResponse {}
+
+message Performance {
+  google.protobuf.Duration frame = 1;
+  google.protobuf.Duration capture = 2;
+  google.protobuf.Duration scrub = 3;
+  google.protobuf.Duration respond = 4;
+  google.protobuf.Duration idle = 5;
+}
+
+message PullPerformanceRequest {}
+message PullPerformanceResponse {
+  Performance performance = 1;
+  google.protobuf.Timestamp change_time = 2;
+}

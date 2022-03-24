@@ -10,7 +10,7 @@ import (
 	"github.com/smart-core-os/sc-playground/pkg/timeline/skiplisttl"
 )
 
-func CreateSimulation(n *node.Node) (*sim.Loop, error) {
+func CreateSimulation(n *node.Node, opts ...sim.Option) (*sim.Loop, error) {
 	tl := skiplisttl.New()
 	inputQueue := input.NewQueue()
 
@@ -19,6 +19,6 @@ func CreateSimulation(n *node.Node) (*sim.Loop, error) {
 		evcharger.New(fmt.Sprintf("sim/EVC-%02d", i+1), tl, evcharger.WithInputDispatcher(inputQueue)).Publish(n)
 	}
 
-	mainLoop := sim.NewLoop(tl, n, inputQueue)
+	mainLoop := sim.NewLoop(tl, n, inputQueue, opts...)
 	return mainLoop, nil
 }

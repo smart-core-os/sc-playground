@@ -60,6 +60,9 @@
           <v-list-item-title>Traits</v-list-item-title>
         </v-list-item>
       </v-list>
+      <template #append>
+        <performance/>
+      </template>
     </v-navigation-drawer>
     <v-main>
       <router-view/>
@@ -69,9 +72,11 @@
 
 <script>
 import {caCertPath, clientCertPath, serverConfig} from './util/api.js';
+import Performance from "./components/Performance.vue";
 
 export default {
   name: 'App',
+  components: {Performance},
   data() {
     return {
       /** @type {ServerConfig|null} */

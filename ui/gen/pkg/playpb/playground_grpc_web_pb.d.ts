@@ -29,6 +29,11 @@ export class PlaygroundApiClient {
                  response: pkg_playpb_playground_pb.AddRemoteDeviceResponse) => void
   ): grpcWeb.ClientReadableStream<pkg_playpb_playground_pb.AddRemoteDeviceResponse>;
 
+  pullPerformance(
+      request: pkg_playpb_playground_pb.PullPerformanceRequest,
+      metadata?: grpcWeb.Metadata
+  ): grpcWeb.ClientReadableStream<pkg_playpb_playground_pb.PullPerformanceResponse>;
+
 }
 
 export class PlaygroundApiPromiseClient {
@@ -50,6 +55,11 @@ export class PlaygroundApiPromiseClient {
       request: pkg_playpb_playground_pb.AddRemoteDeviceRequest,
       metadata?: grpcWeb.Metadata
   ): Promise<pkg_playpb_playground_pb.AddRemoteDeviceResponse>;
+
+  pullPerformance(
+      request: pkg_playpb_playground_pb.PullPerformanceRequest,
+      metadata?: grpcWeb.Metadata
+  ): grpcWeb.ClientReadableStream<pkg_playpb_playground_pb.PullPerformanceResponse>;
 
 }
 

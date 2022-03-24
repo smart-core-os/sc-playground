@@ -38,7 +38,7 @@ import {
 import Vue from "vue";
 import ElectricModeChooser from "./ElectricModeChooser.vue";
 import TraitCard from "../../components/TraitCard.vue";
-import {durationString, toDate} from "./util.js";
+import {durationString, toDate} from "../../util/time.js";
 
 export default {
   name: 'ElectricCard',

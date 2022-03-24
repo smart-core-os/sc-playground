@@ -13,7 +13,9 @@ import (
 	"github.com/smart-core-os/sc-playground/pkg/node"
 	"github.com/smart-core-os/sc-playground/pkg/playpb"
 	"github.com/smart-core-os/sc-playground/pkg/run"
+	"github.com/smart-core-os/sc-playground/pkg/sim"
 	"github.com/smart-core-os/sc-playground/pkg/sim/boot"
+	"github.com/smart-core-os/sc-playground/pkg/sim/stats"
 	"github.com/smart-core-os/sc-playground/pkg/trait/airtemperature"
 	"github.com/smart-core-os/sc-playground/pkg/trait/booking"
 	"github.com/smart-core-os/sc-playground/pkg/trait/electric"
@@ -66,7 +68,7 @@ func runCtx(ctx context.Context) error {
 	rootApi := playpb.New(rootNode)
 
 	// Setup some devices to start us off
-	simulation, err := boot.CreateSimulation(rootNode)
+	simulation, err := boot.CreateSimulation(rootNode, sim.WithFramer(stats.CFramer(60*5, rootApi)))
 	if err != nil {
 		return err
 	}

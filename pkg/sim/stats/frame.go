@@ -15,6 +15,7 @@ type FrameTiming struct {
 	Capture time.Duration
 	Scrub   time.Duration
 	Respond time.Duration
+	Idle    time.Duration
 }
 
 func FFramer(out io.Writer) Framer {

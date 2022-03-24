@@ -3,7 +3,6 @@ package sim
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/smart-core-os/sc-playground/pkg/sim/input"
@@ -23,15 +22,15 @@ type Loop struct {
 	framer stats.Framer
 }
 
-func NewLoop(tl timeline.TL, model scrub.Scrubber, input input.Capturer) *Loop {
-	return &Loop{
+func NewLoop(tl timeline.TL, model scrub.Scrubber, input input.Capturer, opts ...Option) *Loop {
+	l := &Loop{
 		MinTimePerFrame: time.Second / 60,
 		Input:           input,
 		TL:              tl,
 		Model:           model,
-
-		framer: stats.CFramer(60*5, stats.FFramer(os.Stdout)),
 	}
+	applyOpts(l, opts...)
+	return l
 }
 
 // Run executes the loop for as long as ctx is not cancelled or a critical error has not occurred.

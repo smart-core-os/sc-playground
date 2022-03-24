@@ -5,7 +5,8 @@
 </template>
 <script>
 
-import {durationMillis, maxMagnitude, toDate} from "./util.js";
+import {durationMillis, toDate} from "../../util/time.js";
+import {maxMagnitude} from "./util.js";
 import {interval} from "../../mixin/time.js";
 
 export default {
