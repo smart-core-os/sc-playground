@@ -23,28 +23,19 @@ import (
 
 func Activate(n *node.Node) {
 	logger := zap.NewExample()
-	// create a Source, which all sinks will be registered to
-	sourceName := "ELEC-SOURCE"
-	sourceModel := electric.NewModel(clock.Real())
-	sourceApi := electric.NewModelServer(sourceModel)
-	source := simelectric.NewSource(sourceModel,
-		simelectric.WithSourceLogger(logger.Named("source")),
-	)
 
+	var group *Group // instantiated later
 	settings := electric.NewMemorySettingsApiRouter()
 	devices := electric.NewApiRouter(
 		electric.WithElectricApiClientFactory(electricClientFactory()),
-		router.WithOnChange(registerClientFactory(source, settings, n, logger)),
+		router.WithOnChange(func(change router.Change) {
+			registerClientFactory(change, group, settings, n, logger)
+		}),
 	)
-	devices.Add(sourceName, electric.WrapApi(sourceApi))
 
-	// start the Source simulation
-	go func() {
-		err := source.Simulate(context.Background())
-		if err != nil {
-			log.Printf("electric source %q stopped simulating with error %v", sourceName, err)
-		}
-	}()
+	// combines all electric devices demand into one (well multiple as it supports max, min, average, etc)
+	group = NewGroup(electric.WrapApi(devices))
+	group.Announce(n.Name()+"/g/electric", n, devices)
 
 	n.AddRouter(devices, settings)
 	n.AddTraitFactory(trait.Electric, func(name string, _ proto.Message) error {
@@ -82,34 +73,32 @@ func electricClientFactory() func(name string) (traits.ElectricApiClient, error)
 	}
 }
 
-func registerClientFactory(source *simelectric.Source, settings *electric.MemorySettingsApiRouter, n *node.Node, logger *zap.Logger) func(change router.Change) {
-	return func(change router.Change) {
-		if !change.Auto {
-			return
-		}
-		name := change.Name
-		model, ok := wrap.UnwrapFully(change.New).(*electric.Model)
-		if !ok {
-			return
-		}
-		log.Printf("ElectricApiClient(%v) auto-created", name)
-
-		// register this device with the source
-		source.Downstream.Set(name, model)
-
-		// start the simulation
-		go func() {
-			logger := logger.Named("sink").With(zap.String("name", name))
-			sink := simelectric.NewSink(model, simelectric.WithLogger(logger))
-			err := sink.Simulate(context.Background())
-			if err != nil {
-				log.Printf("electric device %s stopped simulating with an error: %v", name, err)
-			}
-		}()
-
-		settings.Add(name, electric.WrapMemorySettingsApi(electric.NewModelServer(model)))
-		n.Announce(name, node.HasTrait(trait.Electric))
+func registerClientFactory(change router.Change, group *Group, settings *electric.MemorySettingsApiRouter, n *node.Node, logger *zap.Logger) {
+	if !change.Auto {
+		return
 	}
+	name := change.Name
+	model, ok := wrap.UnwrapFully(change.New).(*electric.Model)
+	if !ok {
+		return
+	}
+	log.Printf("ElectricApiClient(%v) auto-created", name)
+
+	// register this device with the source
+	group.Add(name)
+
+	// start the simulation
+	go func() {
+		logger := logger.Named("sink").With(zap.String("name", name))
+		sink := simelectric.NewSink(model, simelectric.WithLogger(logger))
+		err := sink.Simulate(context.Background())
+		if err != nil {
+			log.Printf("electric device %s stopped simulating with an error: %v", name, err)
+		}
+	}()
+
+	settings.Add(name, electric.WrapMemorySettingsApi(electric.NewModelServer(model)))
+	n.Announce(name, node.HasTrait(trait.Electric))
 }
 
 func createElectricModes(device *electric.Model, rating float32) {
