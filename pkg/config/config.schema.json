@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/smart-core-os/power-management-system/config.schema.json",
+  "title": "Playground Device Config",
+  "description": "Configuration for the devices in a Smart Core playground",
+  "type": "object",
+  "properties": {
+    "nodes": {
+      "description": "Smart core nodes the playground will connect to",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/node"
+      }
+    },
+    "devices": {
+      "description": "Individual devices, located in nodes or as virtual devices",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/device"
+      }
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "insecure": {
+          "type": "boolean"
+        }
+      }
+    },
+    "nodeRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/node"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "device": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "node": {
+          "$ref": "#/$defs/nodeRef"
+        },
+        "traits": {
+          "type": "array",
+          "items": {
+            "oneof": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "type": "object"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "deviceRef": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/device"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    }
+  }
+}

@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/smart-core-os/sc-playground/pkg/config"
 	"github.com/smart-core-os/sc-playground/pkg/device/evcharger"
 	"github.com/smart-core-os/sc-playground/pkg/node"
 	"github.com/smart-core-os/sc-playground/pkg/playpb"
@@ -28,6 +29,8 @@ import (
 	"github.com/smart-core-os/sc-playground/pkg/trait/parent"
 	"github.com/smart-core-os/sc-playground/pkg/trait/powersupply"
 	"github.com/smart-core-os/sc-playground/ui"
+	"go.uber.org/multierr"
+	"google.golang.org/protobuf/proto"
 )
 
 var (
@@ -43,6 +46,8 @@ var (
 	forceCertGen = flag.Bool("force-cert-gen", false, "Force the generation of certificates, do not use cached certs. Ignored when specifying cert files")
 	certCacheDir = flag.String("cert-cache-dir", "", "Generated certificates will be placed here and loaded from here unless --force-cert-gen or cert files are specified. "+
 		"Defaults to a directory in TMP.")
+
+	deviceConfig = flag.String("devices", "", "Configuration describing which devices to load into the playground on boot")
 )
 
 func Main() {
@@ -68,7 +73,7 @@ func runCtx(ctx context.Context) error {
 	// setup the playground api
 	rootApi := playpb.New(rootNode)
 
-	// Setup some devices to start us off
+	// Start the simulation loop
 	simulation, err := boot.CreateSimulation(rootNode, sim.WithFramer(stats.CFramer(60*5, rootApi)))
 	if err != nil {
 		return err
@@ -79,6 +84,11 @@ func runCtx(ctx context.Context) error {
 			log.Printf("Simulation ended: %v", err)
 		}
 	}()
+
+	// setup configured devices
+	if err := seedDevices(*deviceConfig, rootNode); err != nil {
+		return fmt.Errorf("--devices %v : %w", *deviceConfig, err)
+	}
 
 	return run.Serve(
 		run.WithContext(ctx),
@@ -170,4 +180,31 @@ func withForceCertGen() run.ConfigOption {
 	} else {
 		return run.NilConfigOption
 	}
+}
+
+func seedDevices(deviceConfig string, rootNode *node.Node) error {
+	devices := new(config.File)
+	if deviceConfig != "" {
+		if err := config.ReadFile(deviceConfig, devices); err != nil {
+			return err
+		}
+	}
+	var err error
+	for name, device := range devices.Devices {
+		if device.IsLocal() {
+			for _, trait := range device.Traits {
+				traitConfig, err2 := trait.Config.UnmarshalProto(proto.UnmarshalOptions{})
+				if err2 != nil {
+					err = multierr.Append(err, err2)
+					continue
+				}
+				err2 = rootNode.CreateDeviceTrait(name, trait.Name, traitConfig)
+				if err2 != nil {
+					err = multierr.Append(err, err2)
+					continue
+				}
+			}
+		}
+	}
+	return err
 }
