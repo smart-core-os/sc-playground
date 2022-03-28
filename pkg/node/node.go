@@ -42,6 +42,11 @@ func New(name string) *Node {
 	}
 }
 
+// Name returns the device name for this node, how this node refers to itself.
+func (n *Node) Name() string {
+	return n.name
+}
+
 // Register implements server.GrpcApi and registers all supported routers with s.
 func (n *Node) Register(s *grpc.Server) {
 	n.parent() // force the parent api to be initialised
