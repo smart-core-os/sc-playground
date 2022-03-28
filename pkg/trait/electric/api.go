@@ -34,7 +34,7 @@ func Activate(n *node.Node) {
 	settings := electric.NewMemorySettingsApiRouter()
 	devices := electric.NewApiRouter(
 		electric.WithElectricApiClientFactory(electricClientFactory()),
-		router.WithOnCommit(registerClientFactory(source, settings, n, logger)),
+		router.WithOnChange(registerClientFactory(source, settings, n, logger)),
 	)
 	devices.Add(sourceName, electric.WrapApi(sourceApi))
 
@@ -82,9 +82,13 @@ func electricClientFactory() func(name string) (traits.ElectricApiClient, error)
 	}
 }
 
-func registerClientFactory(source *simelectric.Source, settings *electric.MemorySettingsApiRouter, n *node.Node, logger *zap.Logger) func(name string, client interface{}) {
-	return func(name string, client interface{}) {
-		model, ok := wrap.UnwrapFully(client).(*electric.Model)
+func registerClientFactory(source *simelectric.Source, settings *electric.MemorySettingsApiRouter, n *node.Node, logger *zap.Logger) func(change router.Change) {
+	return func(change router.Change) {
+		if !change.Auto {
+			return
+		}
+		name := change.Name
+		model, ok := wrap.UnwrapFully(change.New).(*electric.Model)
 		if !ok {
 			return
 		}

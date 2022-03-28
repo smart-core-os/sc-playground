@@ -40,8 +40,12 @@ func Activate(n *node.Node) {
 			model := occupancysensor.NewModel(initial)
 			return occupancysensor.WrapApi(occupancysensor.NewModelServer(model)), nil
 		}),
-		router.WithOnCommit(func(name string, client interface{}) {
-			model, ok := wrap.UnwrapFully(client).(*occupancysensor.Model)
+		router.WithOnChange(func(change router.Change) {
+			if !change.Auto {
+				return
+			}
+			name := change.Name
+			model, ok := wrap.UnwrapFully(change.New).(*occupancysensor.Model)
 			if !ok {
 				return
 			}

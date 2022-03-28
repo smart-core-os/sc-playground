@@ -17,8 +17,12 @@ func Activate(n *node.Node) {
 		light.WithLightApiClientFactory(func(name string) (traits.LightApiClient, error) {
 			return light.WrapApi(light.NewMemoryDevice()), nil
 		}),
-		router.WithOnCommit(func(name string, client interface{}) {
-			model, ok := wrap.UnwrapFully(client).(*light.MemoryDevice)
+		router.WithOnChange(func(change router.Change) {
+			if !change.Auto {
+				return
+			}
+			name := change.Name
+			model, ok := wrap.UnwrapFully(change.New).(*light.MemoryDevice)
 			if !ok {
 				return
 			}

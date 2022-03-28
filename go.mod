@@ -10,7 +10,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.7.0
 	github.com/smart-core-os/sc-api/go v1.0.0-beta.32
-	github.com/smart-core-os/sc-golang v0.0.0-20220325130002-3a0ac506c4ad
+	github.com/smart-core-os/sc-golang v0.0.0-20220328152429-dbeb90c2c81d
 	github.com/soheilhy/cmux v0.1.5
 	github.com/tanema/gween v0.0.0-20200427131925-c89ae23cc63c
 	go.uber.org/multierr v1.7.0

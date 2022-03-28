@@ -24,8 +24,12 @@ func Activate(n *node.Node) {
 			device.SetLoad(float32(math.Round(rand.Float64()*40*100) / 100))
 			return powersupply.WrapApi(device), nil
 		}),
-		router.WithOnCommit(func(name string, client interface{}) {
-			device, ok := wrap.UnwrapFully(client).(*powersupply.MemoryDevice)
+		router.WithOnChange(func(change router.Change) {
+			if !change.Auto {
+				return
+			}
+			name := change.Name
+			device, ok := wrap.UnwrapFully(change.New).(*powersupply.MemoryDevice)
 			if !ok {
 				return
 			}

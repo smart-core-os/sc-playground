@@ -2,7 +2,6 @@ package fanspeed
 
 import (
 	"github.com/smart-core-os/sc-api/go/traits"
-	"github.com/smart-core-os/sc-golang/pkg/router"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/fanspeed"
 	"github.com/smart-core-os/sc-playground/pkg/node"
@@ -15,9 +14,7 @@ func Activate(n *node.Node) {
 		fanspeed.WithFanSpeedApiClientFactory(func(name string) (traits.FanSpeedApiClient, error) {
 			return fanspeed.WrapApi(fanspeed.NewModelServer(fanspeed.NewModel())), nil
 		}),
-		router.WithOnCommit(func(name string, client interface{}) {
-			n.Announce(name, node.HasTrait(trait.FanSpeed))
-		}),
+		n.AnnounceOnRouterChange(trait.FanSpeed),
 	)
 	n.AddRouter(r)
 	n.AddTraitFactory(trait.FanSpeed, func(name string, _ proto.Message) error {

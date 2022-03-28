@@ -17,8 +17,12 @@ func Activate(n *node.Node) {
 		airtemperature.WithAirTemperatureApiClientFactory(func(name string) (traits.AirTemperatureApiClient, error) {
 			return airtemperature.WrapApi(airtemperature.NewMemoryDevice()), nil
 		}),
-		router.WithOnCommit(func(name string, client interface{}) {
-			model, ok := wrap.UnwrapFully(client).(*airtemperature.MemoryDevice)
+		router.WithOnChange(func(change router.Change) {
+			if !change.Auto {
+				return
+			}
+			name := change.Name
+			model, ok := wrap.UnwrapFully(change.New).(*airtemperature.MemoryDevice)
 			if !ok {
 				return
 			}

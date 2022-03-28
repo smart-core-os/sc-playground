@@ -26,8 +26,12 @@ func Activate(n *node.Node) {
 			}
 			return onoff.WrapApi(onoff.NewModelServer(onoff.NewModel(onOrOff))), nil
 		}),
-		router.WithOnCommit(func(name string, client interface{}) {
-			model, ok := wrap.UnwrapFully(client).(*onoff.Model)
+		router.WithOnChange(func(change router.Change) {
+			if !change.Auto {
+				return
+			}
+			name := change.Name
+			model, ok := wrap.UnwrapFully(change.New).(*onoff.Model)
 			if !ok {
 				return
 			}

@@ -2,12 +2,10 @@ package booking
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	scTime "github.com/smart-core-os/sc-api/go/types/time"
-	"github.com/smart-core-os/sc-golang/pkg/router"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/booking"
 	"github.com/smart-core-os/sc-playground/pkg/node"
@@ -21,10 +19,7 @@ func Activate(n *node.Node) {
 		booking.WithBookingApiClientFactory(func(name string) (traits.BookingApiClient, error) {
 			return booking.WrapApi(newBookingApiServer(name)), nil
 		}),
-		router.WithOnCommit(func(name string, client interface{}) {
-			log.Printf("BookingApiClient(%v) auto-created", name)
-			n.Announce(name, node.HasTrait(trait.Booking))
-		}),
+		n.AnnounceOnRouterChange(trait.Booking),
 	)
 	n.AddRouter(r)
 	n.AddTraitFactory(trait.Booking, func(name string, _ proto.Message) error {

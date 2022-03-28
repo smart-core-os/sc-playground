@@ -21,9 +21,13 @@ func Activate(n *node.Node) {
 		energystorage.WithEnergyStorageApiClientFactory(func(name string) (traits.EnergyStorageApiClient, error) {
 			return energystorage.WrapApi(energystorage.NewModelServer(energystorage.NewModel(), energystorage.ReadOnly())), nil
 		}),
-		router.WithOnCommit(func(name string, client interface{}) {
+		router.WithOnChange(func(change router.Change) {
+			if !change.Auto {
+				return
+			}
+			name := change.Name
 			log.Printf("EnergyStorageApiClient(%v) auto-created", name)
-			model, ok := wrap.UnwrapFully(client).(*energystorage.Model)
+			model, ok := wrap.UnwrapFully(change.New).(*energystorage.Model)
 			if !ok {
 				return
 			}

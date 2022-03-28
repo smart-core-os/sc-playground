@@ -144,6 +144,16 @@ func (n *Node) Announce(name string, features ...Feature) {
 	}
 }
 
+// AnnounceOnRouterChange returns a router.Option that announces auto-created router changes with this node.
+func (n *Node) AnnounceOnRouterChange(name trait.Name, opts ...TraitOption) router.Option {
+	return router.WithOnChange(func(change router.Change) {
+		if change.Auto {
+			log.Printf("%vApiClient(%v) auto-created\n", name.Local(), change.Name)
+			n.Announce(change.Name, HasTrait(name, opts...))
+		}
+	})
+}
+
 // Scrub implements the scrub.Scrubber interface and calls Scrub on each device with a simulation feature.
 func (n *Node) Scrub(t time.Time) error {
 	n.t = t
