@@ -110,16 +110,17 @@ func runCtx(ctx context.Context) error {
 func newRootNode(serverDeviceName string) *node.Node {
 	root := node.New(serverDeviceName)
 	// trait apis
+	parent.Activate(root)
+	metadata.Activate(root)
+
 	airtemperature.Activate(root)
 	booking.Activate(root)
 	electric.Activate(root)
 	energystorage.Activate(root)
 	fanspeed.Activate(root)
 	light.Activate(root)
-	metadata.Activate(root)
 	occupancysensor.Activate(root)
 	onoff.Activate(root)
-	parent.Activate(root)
 	powersupply.Activate(root)
 
 	// device apis
@@ -190,6 +191,7 @@ func seedDevices(deviceConfig string, rootNode *node.Node) error {
 		}
 	}
 	var err error
+	log.Printf("Seeding %v devices from config", len(devices.Devices))
 	for name, device := range devices.Devices {
 		if device.IsLocal() {
 			for _, trait := range device.Traits {
