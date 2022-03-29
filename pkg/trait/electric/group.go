@@ -204,6 +204,9 @@ func min(readings []float32) float32 {
 	var min float32
 	var minSet bool
 	for _, reading := range readings {
+		if reading == 0 {
+			continue // don't count devices without load
+		}
 		if !minSet || reading < min {
 			minSet = true
 			min = reading
@@ -220,8 +223,17 @@ func sum(readings []float32) float32 {
 	return total
 }
 
+// average sums the non-zero readings and divides by how many were summed.
 func average(readings []float32) float32 {
-	return sum(readings) / float32(len(readings))
+	var nonZeroReadings float32
+	var total float32
+	for _, reading := range readings {
+		if reading != 0 {
+			nonZeroReadings++
+			total += reading
+		}
+	}
+	return total / nonZeroReadings
 }
 
 type signal interface {
