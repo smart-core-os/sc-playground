@@ -67,7 +67,7 @@ func runCtx(ctx context.Context) error {
 		return err
 	}
 
-	serverDeviceName := "scos/apps/playground"
+	serverDeviceName := "scos/pg"
 	rootNode := newRootNode(serverDeviceName)
 
 	// setup the playground api
@@ -205,6 +205,37 @@ func seedDevices(deviceConfig string, rootNode *node.Node) error {
 					err = multierr.Append(err, err2)
 					continue
 				}
+			}
+		} else {
+			// we should probably cache the connections here, but just want to get it running for now
+			var endpoint config.Node
+			if device.Node.NameOnly {
+				var ok bool
+				endpoint, ok = devices.Nodes[device.Node.Name]
+				if !ok {
+					return fmt.Errorf("devices[%v].node[%v] not found", name, device.Node.Name)
+				}
+			} else {
+				endpoint = device.Node.Node
+			}
+
+			conn, err := endpoint.ResolveRemoteConn(context.Background(), rootNode)
+			if err != nil {
+				return fmt.Errorf("devices[%v] dial %w", name, err)
+			}
+			var err2 error
+			var features []node.Feature
+			for _, traitName := range device.Traits {
+				client, err := rootNode.CreateTraitClient(traitName.Name, conn)
+				if err != nil {
+					err2 = multierr.Append(err2, err)
+					continue
+				}
+				features = append(features, node.HasTrait(traitName.Name, node.WithClients(client), node.NoAddMetadata()))
+			}
+			rootNode.Announce(name, features...)
+			if err2 != nil {
+				err = multierr.Append(err, err2)
 			}
 		}
 	}

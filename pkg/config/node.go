@@ -13,6 +13,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/smart-core-os/sc-playground/pkg/node"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -22,6 +23,21 @@ type Node struct {
 	Address   string     `json:"address,omitempty"`
 	Insecure  bool       `json:"insecure,omitempty"`
 	TLSConfig *TLSConfig `json:"tls,omitempty"`
+}
+
+func (n Node) ResolveRemoteConn(ctx context.Context, rootNode *node.Node) (*grpc.ClientConn, error) {
+	var opts []node.RemoteOption
+	cert, err := n.TLSConfig.ReadServerCACert(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if len(cert) != 0 {
+		opts = append(opts, node.WithRemoteServerCA(cert))
+	}
+	if n.Insecure {
+		opts = append(opts, node.WithRemoteInsecure())
+	}
+	return rootNode.ResolveRemoteConn(ctx, n.Address, opts...)
 }
 
 // Dial calls grpc.DialContext using options based on properties of n.
