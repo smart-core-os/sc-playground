@@ -233,6 +233,9 @@ func average(readings []float32) float32 {
 			total += reading
 		}
 	}
+	if nonZeroReadings == 0 {
+		return 0
+	}
 	return total / nonZeroReadings
 }
 
