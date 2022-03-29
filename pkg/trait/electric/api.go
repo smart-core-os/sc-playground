@@ -5,6 +5,7 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/smart-core-os/sc-api/go/traits"
@@ -35,7 +36,7 @@ func Activate(n *node.Node) {
 
 	// combines all electric devices demand into one (well multiple as it supports max, min, average, etc)
 	group = NewGroup(electric.WrapApi(devices))
-	group.Announce(n.Name()+"/g/electric", n, devices)
+	group.Announce(parentElectricDeviceName(n), n, devices)
 
 	n.AddRouter(devices, settings)
 	n.AddTraitFactory(trait.Electric, func(name string, _ proto.Message) error {
@@ -45,6 +46,10 @@ func Activate(n *node.Node) {
 	n.AddClientFactory(trait.Electric, func(conn *grpc.ClientConn) interface{} {
 		return traits.NewElectricApiClient(conn)
 	})
+}
+
+func parentElectricDeviceName(n *node.Node) string {
+	return n.Name() + "/g/electric"
 }
 
 func electricClientFactory() func(name string) (traits.ElectricApiClient, error) {
@@ -74,18 +79,21 @@ func electricClientFactory() func(name string) (traits.ElectricApiClient, error)
 }
 
 func registerClientFactory(change router.Change, group *Group, settings *electric.MemorySettingsApiRouter, n *node.Node, logger *zap.Logger) {
+	name := change.Name
+	// add all devices to the group, avoiding cycles with the group being added itself
+	if !strings.HasPrefix(name, parentElectricDeviceName(n)) {
+		group.Add(name)
+		log.Printf("%v now contributes towards %v demand", name, parentElectricDeviceName(n))
+	}
+
 	if !change.Auto {
 		return
 	}
-	name := change.Name
 	model, ok := wrap.UnwrapFully(change.New).(*electric.Model)
 	if !ok {
 		return
 	}
 	log.Printf("ElectricApiClient(%v) auto-created", name)
-
-	// register this device with the source
-	group.Add(name)
 
 	// start the simulation
 	go func() {
