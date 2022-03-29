@@ -73,7 +73,10 @@ type TLSConfig struct {
 	ServerCACert string `json:"serverCaCert,omitempty"`
 }
 
-func (t TLSConfig) ReadServerCACert(ctx context.Context) ([]byte, error) {
+func (t *TLSConfig) ReadServerCACert(ctx context.Context) ([]byte, error) {
+	if t == nil {
+		return nil, nil
+	}
 	if t.ServerCACert == "" {
 		return nil, nil
 	}
