@@ -1,7 +1,7 @@
 <template>
   <trait-card :device-id="deviceId" :trait="trait">
     <template #title-append>
-      <span>{{ demand.current.toFixed(2) }}A</span>
+      <span @click="cycleDemandDisplay" style="cursor: pointer">{{ demandStr }}</span>
       <v-icon right>mdi-lightning-bolt</v-icon>
     </template>
     <v-card-text class="mt-2">
@@ -49,6 +49,31 @@ export default {
   },
   data() {
     return {
+      demandDisplayIndex: 0,
+      demandDisplays: [
+        {
+          name: "Amps",
+          calc(demand) {
+            return demand.current.toFixed(2) + 'A';
+          }
+        },
+        {
+          name: "Watts",
+          calc(demand) {
+            let unit = 'W'
+            let watts = demand.current * (demand.voltage || 240);
+            if (watts > 1000) {
+              watts /= 1000;
+              unit = "kW";
+            }
+            if (watts > 1000) {
+              watts /= 1000;
+              unit = "MW";
+            }
+            return watts.toFixed(2) + unit;
+          }
+        }
+      ],
       resources: {
         demand: {
           /** @type {ElectricDemand.AsObject} */
@@ -83,6 +108,9 @@ export default {
   computed: {
     demand() {
       return this.resources.demand.value || {current: 0};
+    },
+    demandStr() {
+      return this.demandDisplays[this.demandDisplayIndex].calc(this.demand);
     },
     activeMode() {
       return this.resources.activeMode.value;
@@ -214,6 +242,10 @@ export default {
       await api.updateActiveMode(new UpdateActiveModeRequest().setName(this.deviceId)
           .setActiveMode(new ElectricMode().setId(mode.id)))
       // todo: error handling
+    },
+    cycleDemandDisplay() {
+      console.log('display index changed')
+      this.demandDisplayIndex = (this.demandDisplayIndex + 1) % this.demandDisplays.length;
     }
   }
 };
