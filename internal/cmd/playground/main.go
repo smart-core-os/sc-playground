@@ -67,7 +67,7 @@ func runCtx(ctx context.Context) error {
 		return err
 	}
 
-	serverDeviceName := "scos/pg"
+	serverDeviceName := "scos/play"
 	rootNode := newRootNode(serverDeviceName)
 
 	// setup the playground api
