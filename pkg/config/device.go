@@ -13,7 +13,13 @@ type Device struct {
 }
 
 func (d Device) IsLocal() bool {
-	return d.Node == nil || d.Node.Name == ""
+	if d.Node == nil {
+		return true
+	}
+	if d.Node.NameOnly {
+		return false
+	}
+	return d.Node.Address == ""
 }
 
 type DeviceRef struct {
