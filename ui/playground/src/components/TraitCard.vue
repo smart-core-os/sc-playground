@@ -1,5 +1,5 @@
 <template>
-  <v-card width="400">
+  <v-card :width="width" v-bind="$attrs">
     <v-card-title>
       <span>{{ deviceId }}</span>
       <v-spacer/>
@@ -26,7 +26,11 @@ export default {
   props: {
     deviceId: [String],
     trait: [Object],
-    icon: [String]
+    icon: [String],
+    width: {
+      type: [Number, String],
+      default: 400
+    }
   },
   computed: {
     traitLocalName() {
