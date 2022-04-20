@@ -1,10 +1,8 @@
 <template>
   <div class="fill-height">
     <v-container class="card-grid" fluid>
-      <template v-for="child in children">
-        <template v-for="trait in child.traitsList">
-          <component :is="traitToComponent(trait)" :deviceId="child.name" :trait="trait"/>
-        </template>
+      <template v-for="({child, trait}) in filteredChildTraits">
+        <component :is="traitToComponent(trait)" :deviceId="child.name" :trait="trait" v-bind="overrides[child.name]"/>
       </template>
     </v-container>
     <add-device-fab/>
@@ -42,10 +40,53 @@ export default {
       childrenStream: null,
       /** @type {Child.AsObject[]} */
       children: [],
-      manualNextDeviceId: null
+      manualNextDeviceId: null,
+
+      first: ["scos/play/g/electric/sum", "birmingham6", "birmingham14", "AV", "Background Audio", "BMS", "Lighting", "Plant", "Signage"],
+      filterName: {},
+      filterTrait: {"smartcore.traits.Metadata": true},
+      overrides: {
+        "birmingham6": {color: "#72e0aa", elevation: 8},
+        "birmingham14": {color: "#72e0aa", elevation: 8},
+        "scos/play/g/electric/sum": {color: "#6bd9d9", elevation: 8, style: "grid-column: 1 / -1", width: "auto"},
+      }
     };
   },
-  computed: {},
+  computed: {
+    filteredChildTraits() {
+      const firstIndex = this.first.reduce((all, name, i) => {
+        all[name] = i;
+        return all;
+      }, {})
+      const firstItems = [];
+      const res = [];
+      for (const child of this.children) {
+        for (const trait of child.traitsList) {
+          // filter out metadata (for now)
+          if (this.filterTrait[trait.name]) {
+            continue
+          }
+          if (this.filterName[child.name]) {
+            continue
+          }
+          if (firstIndex.hasOwnProperty(child.name)) {
+            firstItems.push({child, trait});
+          } else {
+            res.push({child, trait});
+          }
+        }
+      }
+
+      firstItems.sort((a, b) => {
+        return firstIndex[a.child.name] - firstIndex[b.child.name];
+      })
+      res.sort((a, b) => {
+        return a.child.name.localeCompare(b.child.name);
+      })
+
+      return [...firstItems, ...res];
+    }
+  },
   mounted() {
     this.pull()
         .catch(err => console.error('during initial pull', err));
