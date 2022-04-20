@@ -1,17 +1,17 @@
 <template>
-  <trait-card :device-id="deviceId" :trait="trait">
+  <trait-card :device-id="deviceId" :trait="trait" v-bind="$attrs" :color="color">
     <template #title-append>
       <span @click="cycleDemandDisplay" style="cursor: pointer">{{ demandStr }}</span>
       <v-icon right>mdi-lightning-bolt</v-icon>
     </template>
-    <v-card-text class="mt-2">
+    <v-card-text class="mt-2" v-if="activeMode && modes.length > 0">
       <electric-mode-chooser :mode="activeMode" @update:mode="setMode" :modes="modes"
                              :label="`Active mode (of ${modes.length})`"/>
     </v-card-text>
-    <v-card-text class="px-0">
+    <v-card-text class="px-0 pt-0">
       <v-expansion-panels flat accordion>
         <v-expansion-panel>
-          <v-expansion-panel-header>More Details</v-expansion-panel-header>
+          <v-expansion-panel-header :color="color">More Details</v-expansion-panel-header>
           <v-expansion-panel-content>
             <pre>{{ allData }}</pre>
           </v-expansion-panel-content>
@@ -45,7 +45,8 @@ export default {
   components: {TraitCard, ElectricModeChooser},
   props: {
     deviceId: [String],
-    trait: [Object]
+    trait: [Object],
+    color: [String]
   },
   data() {
     return {
@@ -252,4 +253,8 @@ export default {
 </script>
 
 <style scoped>
+>>> .v-expansion-panel-header {
+  padding-left: 16px;
+  padding-right: 16px;
+}
 </style>
