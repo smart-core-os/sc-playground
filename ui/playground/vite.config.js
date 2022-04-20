@@ -7,6 +7,7 @@ const traits = [
   'parent',
   'electric',
   'energy_storage',
+  'on_off',
   'metadata',
   'power_supply'
 ]
