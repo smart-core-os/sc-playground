@@ -216,5 +216,5 @@ func quantityDescription(p float32) traits.EnergyLevel_Quantity_Threshold {
 	case p > 1:
 		return traits.EnergyLevel_Quantity_CRITICALLY_HIGH
 	}
-	return traits.EnergyLevel_Quantity_THRESHOLD_UNKNOWN
+	return traits.EnergyLevel_Quantity_THRESHOLD_UNSPECIFIED
 }

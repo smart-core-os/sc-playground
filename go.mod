@@ -9,8 +9,8 @@ require (
 	github.com/olebedev/emitter v0.0.0-20190110104742-e8d1457e6aee
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.7.0
-	github.com/smart-core-os/sc-api/go v1.0.0-beta.32
-	github.com/smart-core-os/sc-golang v0.0.0-20220328171011-b4d705f5d00d
+	github.com/smart-core-os/sc-api/go v1.0.0-beta.34.0.20220428130713-050052731afc
+	github.com/smart-core-os/sc-golang v0.0.0-20220428131133-2c0613eaff50
 	github.com/soheilhy/cmux v0.1.5
 	github.com/tanema/gween v0.0.0-20200427131925-c89ae23cc63c
 	go.uber.org/multierr v1.7.0
