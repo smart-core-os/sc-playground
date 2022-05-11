@@ -109,6 +109,10 @@ github.com/smart-core-os/sc-api/go v1.0.0-beta.34.0.20220428130713-050052731afc 
 github.com/smart-core-os/sc-api/go v1.0.0-beta.34.0.20220428130713-050052731afc/go.mod h1:6mSjMPKk2EMSZWcAu4BUZuOFvyO9Vs09z7c3PGDLlmY=
 github.com/smart-core-os/sc-golang v0.0.0-20220428131133-2c0613eaff50 h1:37CRQZ0bkWgcgESpmOh62wzS+bZxmiVfmv5RJVaYBvo=
 github.com/smart-core-os/sc-golang v0.0.0-20220428131133-2c0613eaff50/go.mod h1:zlYTSFyQjfed0WgPyNaBHgjtMLJHkc2QyuBYOs0Q8ZY=
+github.com/smart-core-os/sc-golang v0.0.0-20220503145102-25e0619b7889 h1:re36PVFe3V2TPaZC1+h3XxcjRdQElqMVHi5DRKW1spw=
+github.com/smart-core-os/sc-golang v0.0.0-20220503145102-25e0619b7889/go.mod h1:zlYTSFyQjfed0WgPyNaBHgjtMLJHkc2QyuBYOs0Q8ZY=
+github.com/smart-core-os/sc-golang v0.0.0-20220511142735-87533ddb2fdd h1:BEBs5FmkvC2h/Wj9GH4/c6jgfVVz6m4lMfzaKFygFCw=
+github.com/smart-core-os/sc-golang v0.0.0-20220511142735-87533ddb2fdd/go.mod h1:zlYTSFyQjfed0WgPyNaBHgjtMLJHkc2QyuBYOs0Q8ZY=
 github.com/soheilhy/cmux v0.1.5 h1:jjzc5WVemNEDTLwv9tlmemhC73tI08BNOIGwBOo10Js=
 github.com/soheilhy/cmux v0.1.5/go.mod h1:T7TcVDs9LWfQgPlPsdngu6I6QIoyIFZDDC6sNE1GqG0=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
