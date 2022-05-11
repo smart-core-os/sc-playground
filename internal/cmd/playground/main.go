@@ -24,6 +24,7 @@ import (
 	"github.com/smart-core-os/sc-playground/pkg/trait/fanspeed"
 	"github.com/smart-core-os/sc-playground/pkg/trait/light"
 	"github.com/smart-core-os/sc-playground/pkg/trait/metadata"
+	"github.com/smart-core-os/sc-playground/pkg/trait/mode"
 	"github.com/smart-core-os/sc-playground/pkg/trait/occupancysensor"
 	"github.com/smart-core-os/sc-playground/pkg/trait/onoff"
 	"github.com/smart-core-os/sc-playground/pkg/trait/parent"
@@ -119,6 +120,7 @@ func newRootNode(serverDeviceName string) *node.Node {
 	energystorage.Activate(root)
 	fanspeed.Activate(root)
 	light.Activate(root)
+	mode.Activate(root)
 	occupancysensor.Activate(root)
 	onoff.Activate(root)
 	powersupply.Activate(root)
