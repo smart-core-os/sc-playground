@@ -4,8 +4,8 @@ package smartcore.playground.device.evcharger;
 
 option go_package = "github.com/smart-core-os/sc-playground/pkg/device/evcharger";
 
-import "github.com/smart-core-os/sc-api/protobuf/traits/electric.proto";
-import "github.com/smart-core-os/sc-api/protobuf/traits/energy_storage.proto";
+import "traits/electric.proto";
+import "traits/energy_storage.proto";
 
 service EVChargerApi {
   rpc PlugIn(PlugInRequest) returns (PlugInResponse);

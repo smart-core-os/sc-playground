@@ -5,7 +5,6 @@ package evcharger
 import (
 	context "context"
 	fmt "fmt"
-
 	router "github.com/smart-core-os/sc-golang/pkg/router"
 	grpc "google.golang.org/grpc"
 )
