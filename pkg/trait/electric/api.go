@@ -25,7 +25,7 @@ import (
 func Activate(n *node.Node) {
 	logger := zap.NewExample()
 
-	var group *Group // instantiated later
+	var group GroupFunc // instantiated later
 	settings := electric.NewMemorySettingsApiRouter()
 	devices := electric.NewApiRouter(
 		electric.WithElectricApiClientFactory(electricClientFactory()),
@@ -34,9 +34,9 @@ func Activate(n *node.Node) {
 		}),
 	)
 
-	// combines all electric devices demand into one (well multiple as it supports max, min, average, etc)
-	group = NewGroup(electric.WrapApi(devices))
-	group.Announce(parentElectricDeviceName(n), n, devices)
+	// combines all electric devices demand into one (well multiple as it supports max, min, average, etc).
+	// created lazily once the first electric device is made.
+	group = NewGroupFunc(n, devices)
 
 	n.AddRouter(devices, settings)
 	n.AddTraitFactory(trait.Electric, func(name string, _ proto.Message) error {
@@ -78,11 +78,11 @@ func electricClientFactory() func(name string) (traits.ElectricApiClient, error)
 	}
 }
 
-func registerClientFactory(change router.Change, group *Group, settings *electric.MemorySettingsApiRouter, n *node.Node, logger *zap.Logger) {
+func registerClientFactory(change router.Change, group GroupFunc, settings *electric.MemorySettingsApiRouter, n *node.Node, logger *zap.Logger) {
 	name := change.Name
 	// add all devices to the group, avoiding cycles with the group being added itself
 	if !strings.HasPrefix(name, parentElectricDeviceName(n)) {
-		group.Add(name)
+		group().Add(name)
 		log.Printf("%v now contributes towards %v demand", name, parentElectricDeviceName(n))
 	}
 

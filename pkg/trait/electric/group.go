@@ -29,6 +29,8 @@ type Group struct {
 	startOnce sync.Once
 }
 
+type GroupFunc func() *Group
+
 func NewGroup(client traits.ElectricApiClient) *Group {
 	g := &Group{
 		client:  client,
@@ -43,6 +45,20 @@ func NewGroup(client traits.ElectricApiClient) *Group {
 	}
 
 	return g
+}
+
+func NewGroupFunc(n *node.Node, devices *electric.ApiRouter) GroupFunc {
+	var once sync.Once
+	var group *Group
+
+	return func() *Group {
+		once.Do(func() {
+			group = NewGroup(electric.WrapApi(devices))
+			group.Announce(parentElectricDeviceName(n), n, devices)
+		})
+
+		return group
+	}
 }
 
 // Announce registers this group with the given node and router.
