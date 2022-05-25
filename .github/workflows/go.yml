@@ -26,8 +26,5 @@ jobs:
             ${{ runner.os }}-go-
       - name: Private repo auth
         run: git config --global url."https://${{ secrets.GO_MOD_TOKEN }}:x-oauth-basic@github.com/smart-core-os".insteadOf "https://github.com/smart-core-os"
-      - name: go:embed setup
-        # Needed so `//go:embed ./dist` doesn't fail when compiled - because we don't `yarn build` and ./dist isn't in vcs
-        run: mkdir -p ui/playground/dist && touch ui/playground/dist/embedkeep
       - name: Test
         run: go test ./...
