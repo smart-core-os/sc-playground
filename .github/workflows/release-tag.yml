@@ -31,7 +31,7 @@ jobs:
       # Build the go playground app, and release it
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.17.x
+          go-version: 1.18.x
       - name: Private repo auth
         run: git config --global url."https://${{ secrets.GO_MOD_TOKEN }}:x-oauth-basic@github.com/smart-core-os".insteadOf "https://github.com/smart-core-os"
       - uses: actions/cache@v2
