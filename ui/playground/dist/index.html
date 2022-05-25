@@ -2,16 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <link rel="icon" href="/favicon.ico"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Smart Core: Playground</title>
-  <script type="module" crossorigin src="/assets/index.98b96488.js"></script>
-  <link rel="modulepreload" href="/assets/vendor.a1947ae6.js">
-  <link rel="stylesheet" href="/assets/vendor.40d7235a.css">
-  <link rel="stylesheet" href="/assets/index.d270445c.css">
 </head>
 <body>
-<div id="app"></div>
+<p>
+  It appears you are trying to access the <em>Smart Core Playground UI</em> via <code>go get</code> or via
+  <code>go build</code> output, this does not work out of the box.
+</p>
+
+<p>Don't panic, you have some options</p>
+<ol>
+  <li>
+    Download the playground application from the project
+    <a href="https://github.com/smart-core-os/sc-playground/releases">releases</a> page.
+    This includes the full Playground UI, built and updated as part of each release. <b>Recommended</b>
+  </li>
+  <li>
+    Run the UI manually from source. Clone the <a href="https://github.com/smart-core-os/sc-playground">repository</a>
+    and follow the instructions in the <code>ui/playground</code> directory. This is useful for local development of the
+    playground itself but might have issues if the server and ui are different versions.
+  </li>
+</ol>
 
 </body>
 </html>

@@ -7,6 +7,6 @@ import (
 	"io/fs"
 )
 
-//go:embed playground/dist
+//go:embed all:playground/dist
 var playground embed.FS
 var Playground, _ = fs.Sub(playground, "playground/dist")

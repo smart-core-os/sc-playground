@@ -1,7 +1,0 @@
-.card-grid[data-v-10758277] {
-  display: grid;
-  grid-gap: 12px;
-  grid-template-columns:repeat(auto-fill, 400px);
-  grid-auto-columns: 400px;
-  justify-content: center
-}
