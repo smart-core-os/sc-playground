@@ -134,7 +134,15 @@ func Serve(opts ...ConfigOption) error {
 		}
 		// expose the hosted FS
 		if config.hostedFS != nil {
-			mux.Handle("/", http.FileServer(http.FS(config.hostedFS)))
+			var notFoundHandler FSHandler404
+			if len(config.hostedFSNotFound) > 0 {
+				notFoundHandler = func(w http.ResponseWriter, r *http.Request) (doDefaultFileServe bool) {
+					w.WriteHeader(http.StatusNotFound)
+					w.Write(config.hostedFSNotFound)
+					return
+				}
+			}
+			mux.Handle("/", FileServerWith404(http.FS(config.hostedFS), notFoundHandler))
 		}
 
 		httpServer.Handler = InterceptHttp(mux, interceptors...)

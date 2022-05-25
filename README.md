@@ -4,11 +4,12 @@ Tools for playing with Smart Core.
 
 This repository creates a virtual smart building you can connect to and write your client applications against.
 
-Run using `go run github.com/smart-core-os/sc-playground`, the Smart Core server will be hosted on port `23557` and
-secured using a self signed cert. The playground ui will be hosted at https://localhost:8443.
+The recommended way to run the playground is to download a binary for your system from the [releases](./releases) page.
+When run it will start a Smart Core server that you can interact with from your client code, it also hosts a web UI
+to get you going even quicker.
 
-Install using `go install github.com/smart-core-os/sc-playground@latest`, ensure `GOBIN` is on your path and
-execute `sc-playground --help` to verify the installation.
+The Smart Core server will be hosted on port `23557` and secured using a self signed cert.
+The playground ui will be hosted at https://localhost:8443.
 
 Use the program argument `--help` for configuration options (ssl certs, ports, etc).
 
@@ -17,7 +18,7 @@ Use the program argument `--help` for configuration options (ssl certs, ports, e
 ### Simple build process
 
 ```shell
-# build the playground ui, dist/ will be embedded in the go executable
+# build the playground ui, dist/embed/ will be embedded in the go executable
 cd ui/playground
 yarn install
 yarn build

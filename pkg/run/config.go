@@ -24,8 +24,9 @@ type Config struct {
 	httpAddress  string // includes http hosting and grpc-web over http
 	httpsAddress string // includes https hosting and grpc-web over https
 
-	hostedFS       fs.FS  // serve these files over http
-	httpHealthPath string // expose this http path as a simple health api
+	hostedFS         fs.FS  // serve these files over http
+	hostedFSNotFound []byte // serve these bytes on 404 for hosted fs
+	httpHealthPath   string // expose this http path as a simple health api
 
 	insecure bool // don't generate tls certs when they aren't provided
 	mTLS     bool // turn on mutual-TLS support. Requires self-signed certs or the clientCaPEM option
@@ -142,6 +143,12 @@ func WithHttpHealth(path string) ConfigOption {
 func WithHostedFS(fs fs.FS) ConfigOption {
 	return func(config *Config) {
 		config.hostedFS = fs
+	}
+}
+
+func WithHostedFSNotFound(html []byte) ConfigOption {
+	return func(config *Config) {
+		config.hostedFSNotFound = html
 	}
 }
 

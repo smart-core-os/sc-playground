@@ -40,6 +40,7 @@ export default defineConfig({
     }
   },
   build: {
-    commonjsOptions: {include: []}
+    commonjsOptions: {include: []},
+    outDir: 'dist/embed'
   }
 })

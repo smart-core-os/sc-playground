@@ -100,6 +100,7 @@ func runCtx(ctx context.Context) error {
 		run.WithHttpAddress(*httpBind),
 		run.WithHttpsAddress(*httpsBind),
 		run.WithHostedFS(ui.Playground),
+		run.WithHostedFSNotFound(ui.NotFound),
 		withInsecure(),
 		withMTLS(),
 		run.WithGrpcTls(serverTlsConfig),
