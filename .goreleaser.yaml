@@ -24,15 +24,16 @@ changelog:
   sort: asc
   groups:
     - title: ':tada: New Features'
-      regexp: "^.*feat[(\\w)]*:+.*$"
+      regexp: "^.*feat[(\\w/\\-_)]*:+.*$"
       order: 0
     - title: ':hammer: Bug Fixes'
-      regexp: "^.*fix[(\\w)]*:+.*$"
+      regexp: "^.*fix[(\\w/\\-_)]*:+.*$"
       order: 1
     - title: 'Other changes'
       order: 999
   filters:
     exclude:
-      - '^test:'
-      - '^typo:'
-      - '^chore'
+      - '^dev\\W'
+      - '^test\\W'
+      - '^typo\\W'
+      - '^chore\\W'
