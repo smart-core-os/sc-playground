@@ -5,7 +5,6 @@ go 1.17
 require (
 	github.com/MauriceGit/skiplist v0.0.0-20211105230623-77f5c8d3e145
 	github.com/google/go-cmp v0.5.6
-	github.com/google/uuid v1.1.2
 	github.com/improbable-eng/grpc-web v0.14.0
 	github.com/olebedev/emitter v0.0.0-20190110104742-e8d1457e6aee
 	github.com/pkg/errors v0.9.1
