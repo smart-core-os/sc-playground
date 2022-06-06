@@ -50,6 +50,7 @@ export default {
         const api = new PlaygroundApiPromiseClient(serverEndpoint, null, null);
         const response = await api.listSupportedTraits(new ListSupportedTraitsRequest());
         this.supportedTraits = response.getTraitNameList();
+        this.supportedTraits.sort();
       } finally {
         this.supportedTraitsLoading = false;
       }
