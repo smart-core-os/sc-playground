@@ -22,6 +22,7 @@ import ElectricCard from '../../traits/electric/ElectricCard.vue';
 import MetadataCard from '../../traits/metadata/MetadataCard.vue';
 import AddDeviceFab from "../../components/add/AddDeviceFab.vue";
 import OnOffCard from "../../traits/onoff/OnOffCard.vue";
+import PublicationCard from "../../traits/publication/PublicationCard.vue";
 
 export default {
   name: 'TraitCards',
@@ -32,6 +33,7 @@ export default {
     OnOffCard,
     MetadataCard,
     PowerSupplyCard,
+    PublicationCard,
     UnknownTraitCard
   },
   data() {
@@ -151,12 +153,14 @@ export default {
           return 'ElectricCard';
         case 'smartcore.traits.EnergyStorage':
           return 'EnergyStorageCard';
+        case 'smartcore.traits.Metadata':
+          return 'MetadataCard';
         case 'smartcore.traits.OnOff':
           return 'OnOffCard';
         case 'smartcore.traits.PowerSupply':
           return 'PowerSupplyCard';
-        case 'smartcore.traits.Metadata':
-          return 'MetadataCard';
+        case 'smartcore.traits.Publication':
+          return 'PublicationCard';
         default:
           return 'UnknownTraitCard';
       }

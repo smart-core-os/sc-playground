@@ -9,7 +9,8 @@ const traits = [
   'energy_storage',
   'on_off',
   'metadata',
-  'power_supply'
+  'power_supply',
+  'publication',
 ]
 const includes = traits.reduce((arr, trait) => {
   arr.push(`@smart-core-os/sc-api-grpc-web/traits/${trait}_pb.js`);
