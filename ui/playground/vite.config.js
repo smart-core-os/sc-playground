@@ -9,7 +9,6 @@ const traits = [
   'energy_storage',
   'on_off',
   'metadata',
-  'power_supply',
   'publication',
 ]
 const includes = traits.reduce((arr, trait) => {

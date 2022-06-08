@@ -29,10 +29,10 @@ var global = (function() {
   return Function('return this')();
 }.call(null));
 
-var github_com_smart$core$os_sc$api_protobuf_traits_electric_pb = require('@smart-core-os/sc-api-grpc-web/traits/electric_pb.js');
-goog.object.extend(proto, github_com_smart$core$os_sc$api_protobuf_traits_electric_pb);
-var github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb = require('@smart-core-os/sc-api-grpc-web/traits/energy_storage_pb.js');
-goog.object.extend(proto, github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb);
+var traits_electric_pb = require('../../../traits/electric_pb.js');
+goog.object.extend(proto, traits_electric_pb);
+var traits_energy_storage_pb = require('../../../traits/energy_storage_pb.js');
+goog.object.extend(proto, traits_energy_storage_pb);
 goog.exportSymbol('proto.smartcore.playground.device.evcharger.ChargeStartRequest', null, global);
 goog.exportSymbol('proto.smartcore.playground.device.evcharger.ChargeStartResponse', null, global);
 goog.exportSymbol('proto.smartcore.playground.device.evcharger.PlugInEvent', null, global);
@@ -248,8 +248,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    */
   proto.smartcore.playground.device.evcharger.PlugInEvent.toObject = function(includeInstance, msg) {
     var f, obj = {
-      full: (f = msg.getFull()) && github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity.toObject(includeInstance, f),
-      level: (f = msg.getLevel()) && github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity.toObject(includeInstance, f),
+      full: (f = msg.getFull()) && traits_energy_storage_pb.EnergyLevel.Quantity.toObject(includeInstance, f),
+      level: (f = msg.getLevel()) && traits_energy_storage_pb.EnergyLevel.Quantity.toObject(includeInstance, f),
       modesList: jspb.Message.toObjectList(msg.getModesList(),
           proto.smartcore.playground.device.evcharger.PlugInEvent.ChargeMode.toObject, includeInstance)
     };
@@ -289,13 +289,13 @@ proto.smartcore.playground.device.evcharger.PlugInEvent.deserializeBinaryFromRea
     var field = reader.getFieldNumber();
     switch (field) {
       case 1:
-        var value = new github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity;
-        reader.readMessage(value, github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity.deserializeBinaryFromReader);
+        var value = new traits_energy_storage_pb.EnergyLevel.Quantity;
+        reader.readMessage(value, traits_energy_storage_pb.EnergyLevel.Quantity.deserializeBinaryFromReader);
         msg.setFull(value);
         break;
       case 2:
-        var value = new github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity;
-        reader.readMessage(value, github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity.deserializeBinaryFromReader);
+        var value = new traits_energy_storage_pb.EnergyLevel.Quantity;
+        reader.readMessage(value, traits_energy_storage_pb.EnergyLevel.Quantity.deserializeBinaryFromReader);
         msg.setLevel(value);
         break;
       case 3:
@@ -337,7 +337,7 @@ proto.smartcore.playground.device.evcharger.PlugInEvent.serializeBinaryToWriter 
     writer.writeMessage(
         1,
         f,
-        github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity.serializeBinaryToWriter
+        traits_energy_storage_pb.EnergyLevel.Quantity.serializeBinaryToWriter
     );
   }
   f = message.getLevel();
@@ -345,7 +345,7 @@ proto.smartcore.playground.device.evcharger.PlugInEvent.serializeBinaryToWriter 
     writer.writeMessage(
         2,
         f,
-        github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity.serializeBinaryToWriter
+        traits_energy_storage_pb.EnergyLevel.Quantity.serializeBinaryToWriter
     );
   }
   f = message.getModesList();
@@ -402,7 +402,7 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
       title: jspb.Message.getFieldWithDefault(msg, 2, ''),
       description: jspb.Message.getFieldWithDefault(msg, 3, ''),
       segmentsList: jspb.Message.toObjectList(msg.getSegmentsList(),
-          github_com_smart$core$os_sc$api_protobuf_traits_electric_pb.ElectricMode.Segment.toObject, includeInstance)
+          traits_electric_pb.ElectricMode.Segment.toObject, includeInstance)
     };
 
     if (includeInstance) {
@@ -452,8 +452,8 @@ proto.smartcore.playground.device.evcharger.PlugInEvent.ChargeMode.deserializeBi
         msg.setDescription(value);
         break;
       case 4:
-        var value = new github_com_smart$core$os_sc$api_protobuf_traits_electric_pb.ElectricMode.Segment;
-        reader.readMessage(value, github_com_smart$core$os_sc$api_protobuf_traits_electric_pb.ElectricMode.Segment.deserializeBinaryFromReader);
+        var value = new traits_electric_pb.ElectricMode.Segment;
+        reader.readMessage(value, traits_electric_pb.ElectricMode.Segment.deserializeBinaryFromReader);
         msg.addSegments(value);
         break;
       default:
@@ -511,7 +511,7 @@ proto.smartcore.playground.device.evcharger.PlugInEvent.ChargeMode.serializeBina
     writer.writeRepeatedMessage(
         4,
         f,
-        github_com_smart$core$os_sc$api_protobuf_traits_electric_pb.ElectricMode.Segment.serializeBinaryToWriter
+        traits_electric_pb.ElectricMode.Segment.serializeBinaryToWriter
     );
   }
 };
@@ -577,7 +577,7 @@ proto.smartcore.playground.device.evcharger.PlugInEvent.ChargeMode.prototype.set
  */
 proto.smartcore.playground.device.evcharger.PlugInEvent.ChargeMode.prototype.getSegmentsList = function() {
   return /** @type{!Array<!proto.smartcore.traits.ElectricMode.Segment>} */ (
-      jspb.Message.getRepeatedWrapperField(this, github_com_smart$core$os_sc$api_protobuf_traits_electric_pb.ElectricMode.Segment, 4));
+      jspb.Message.getRepeatedWrapperField(this, traits_electric_pb.ElectricMode.Segment, 4));
 };
 
 
@@ -615,7 +615,7 @@ proto.smartcore.playground.device.evcharger.PlugInEvent.ChargeMode.prototype.cle
  */
 proto.smartcore.playground.device.evcharger.PlugInEvent.prototype.getFull = function() {
   return /** @type{?proto.smartcore.traits.EnergyLevel.Quantity} */ (
-      jspb.Message.getWrapperField(this, github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity, 1));
+      jspb.Message.getWrapperField(this, traits_energy_storage_pb.EnergyLevel.Quantity, 1));
 };
 
 
@@ -652,7 +652,7 @@ proto.smartcore.playground.device.evcharger.PlugInEvent.prototype.hasFull = func
  */
 proto.smartcore.playground.device.evcharger.PlugInEvent.prototype.getLevel = function() {
   return /** @type{?proto.smartcore.traits.EnergyLevel.Quantity} */ (
-      jspb.Message.getWrapperField(this, github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity, 2));
+      jspb.Message.getWrapperField(this, traits_energy_storage_pb.EnergyLevel.Quantity, 2));
 };
 
 

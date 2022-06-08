@@ -1,28 +1,36 @@
 import * as jspb from 'google-protobuf'
 
-import * as github_com_smart$core$os_sc$api_protobuf_traits_electric_pb
-  from '@smart-core-os/sc-api-grpc-web/traits/electric_pb';
-import * as github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb
-  from '@smart-core-os/sc-api-grpc-web/traits/energy_storage_pb';
+import * as traits_electric_pb from '../../../traits/electric_pb';
+import * as traits_energy_storage_pb from '../../../traits/energy_storage_pb';
 
 
 export class PlugInEvent extends jspb.Message {
-  getFull(): github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity | undefined;
-  setFull(value?: github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity): PlugInEvent;
+  getFull(): traits_energy_storage_pb.EnergyLevel.Quantity | undefined;
+
+  setFull(value?: traits_energy_storage_pb.EnergyLevel.Quantity): PlugInEvent;
+
   hasFull(): boolean;
+
   clearFull(): PlugInEvent;
 
-  getLevel(): github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity | undefined;
-  setLevel(value?: github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity): PlugInEvent;
+  getLevel(): traits_energy_storage_pb.EnergyLevel.Quantity | undefined;
+
+  setLevel(value?: traits_energy_storage_pb.EnergyLevel.Quantity): PlugInEvent;
+
   hasLevel(): boolean;
+
   clearLevel(): PlugInEvent;
 
   getModesList(): Array<PlugInEvent.ChargeMode>;
+
   setModesList(value: Array<PlugInEvent.ChargeMode>): PlugInEvent;
+
   clearModesList(): PlugInEvent;
+
   addModes(value?: PlugInEvent.ChargeMode, index?: number): PlugInEvent.ChargeMode;
 
   serializeBinary(): Uint8Array;
+
   toObject(includeInstance?: boolean): PlugInEvent.AsObject;
   static toObject(includeInstance: boolean, msg: PlugInEvent): PlugInEvent.AsObject;
   static serializeBinaryToWriter(message: PlugInEvent, writer: jspb.BinaryWriter): void;
@@ -32,31 +40,42 @@ export class PlugInEvent extends jspb.Message {
 
 export namespace PlugInEvent {
   export type AsObject = {
-    full?: github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity.AsObject,
-    level?: github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb.EnergyLevel.Quantity.AsObject,
+    full?: traits_energy_storage_pb.EnergyLevel.Quantity.AsObject,
+    level?: traits_energy_storage_pb.EnergyLevel.Quantity.AsObject,
     modesList: Array<PlugInEvent.ChargeMode.AsObject>,
   }
 
   export class ChargeMode extends jspb.Message {
     getId(): string;
+
     setId(value: string): ChargeMode;
 
     getTitle(): string;
+
     setTitle(value: string): ChargeMode;
 
     getDescription(): string;
+
     setDescription(value: string): ChargeMode;
 
-    getSegmentsList(): Array<github_com_smart$core$os_sc$api_protobuf_traits_electric_pb.ElectricMode.Segment>;
-    setSegmentsList(value: Array<github_com_smart$core$os_sc$api_protobuf_traits_electric_pb.ElectricMode.Segment>): ChargeMode;
+    getSegmentsList(): Array<traits_electric_pb.ElectricMode.Segment>;
+
+    setSegmentsList(value: Array<traits_electric_pb.ElectricMode.Segment>): ChargeMode;
+
     clearSegmentsList(): ChargeMode;
-    addSegments(value?: github_com_smart$core$os_sc$api_protobuf_traits_electric_pb.ElectricMode.Segment, index?: number): github_com_smart$core$os_sc$api_protobuf_traits_electric_pb.ElectricMode.Segment;
+
+    addSegments(value?: traits_electric_pb.ElectricMode.Segment, index?: number): traits_electric_pb.ElectricMode.Segment;
 
     serializeBinary(): Uint8Array;
+
     toObject(includeInstance?: boolean): ChargeMode.AsObject;
+
     static toObject(includeInstance: boolean, msg: ChargeMode): ChargeMode.AsObject;
+
     static serializeBinaryToWriter(message: ChargeMode, writer: jspb.BinaryWriter): void;
+
     static deserializeBinary(bytes: Uint8Array): ChargeMode;
+
     static deserializeBinaryFromReader(message: ChargeMode, reader: jspb.BinaryReader): ChargeMode;
   }
 
@@ -65,7 +84,7 @@ export namespace PlugInEvent {
       id: string,
       title: string,
       description: string,
-      segmentsList: Array<github_com_smart$core$os_sc$api_protobuf_traits_electric_pb.ElectricMode.Segment.AsObject>,
+      segmentsList: Array<traits_electric_pb.ElectricMode.Segment.AsObject>,
     }
   }
 

@@ -29,7 +29,6 @@ import (
 	"github.com/smart-core-os/sc-playground/pkg/trait/onoff"
 	"github.com/smart-core-os/sc-playground/pkg/trait/openclose"
 	"github.com/smart-core-os/sc-playground/pkg/trait/parent"
-	"github.com/smart-core-os/sc-playground/pkg/trait/powersupply"
 	"github.com/smart-core-os/sc-playground/pkg/trait/publication"
 	"github.com/smart-core-os/sc-playground/ui"
 	"go.uber.org/multierr"
@@ -127,7 +126,6 @@ func newRootNode(serverDeviceName string) *node.Node {
 	occupancysensor.Activate(root)
 	onoff.Activate(root)
 	openclose.Activate(root)
-	powersupply.Activate(root)
 	publication.Activate(root)
 
 	// device apis

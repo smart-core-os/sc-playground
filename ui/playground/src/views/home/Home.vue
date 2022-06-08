@@ -1,7 +1,5 @@
 <template>
   <v-container class="card-grid">
-    <power-supply-card v-for="deviceId in devices" :device-id="deviceId" :key="deviceId"/>
-
     <form @submit.prevent="addDevice">
       <v-card>
         <v-card-title>Add or expose another device</v-card-title>
@@ -19,15 +17,13 @@
 
 <script>
 
-import PowerSupplyCard from '../../traits/powersupply/PowerSupplyCard.vue';
-import {grpcWebEndpoint} from "../../util/api.js";
-import {ParentApiPromiseClient} from "@smart-core-os/sc-api-grpc-web/traits/parent_grpc_web_pb.js";
-import {ListChildrenRequest, PullChildrenRequest} from "@smart-core-os/sc-api-grpc-web/traits/parent_pb.js";
-import Vue from "vue";
+import {grpcWebEndpoint} from '../../util/api.js';
+import {ParentApiPromiseClient} from '@smart-core-os/sc-api-grpc-web/traits/parent_grpc_web_pb.js';
+import {ListChildrenRequest, PullChildrenRequest} from '@smart-core-os/sc-api-grpc-web/traits/parent_pb.js';
+import Vue from 'vue';
 
 export default {
   name: 'Home',
-  components: {PowerSupplyCard},
   data() {
     return {
       serverName: '',

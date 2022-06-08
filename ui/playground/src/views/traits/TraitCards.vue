@@ -11,7 +11,6 @@
 
 <script>
 
-import PowerSupplyCard from '../../traits/powersupply/PowerSupplyCard.vue';
 import {grpcWebEndpoint} from '../../util/api.js';
 import {ParentApiPromiseClient} from '@smart-core-os/sc-api-grpc-web/traits/parent_grpc_web_pb.js';
 import {ListChildrenRequest, PullChildrenRequest} from '@smart-core-os/sc-api-grpc-web/traits/parent_pb.js';
@@ -20,9 +19,9 @@ import EnergyStorageCard from '../../traits/energystorage/EnergyStorageCard.vue'
 import UnknownTraitCard from '../../traits/unknown/UnknownTraitCard.vue';
 import ElectricCard from '../../traits/electric/ElectricCard.vue';
 import MetadataCard from '../../traits/metadata/MetadataCard.vue';
-import AddDeviceFab from "../../components/add/AddDeviceFab.vue";
-import OnOffCard from "../../traits/onoff/OnOffCard.vue";
-import PublicationCard from "../../traits/publication/PublicationCard.vue";
+import AddDeviceFab from '../../components/add/AddDeviceFab.vue';
+import OnOffCard from '../../traits/onoff/OnOffCard.vue';
+import PublicationCard from '../../traits/publication/PublicationCard.vue';
 
 export default {
   name: 'TraitCards',
@@ -32,7 +31,6 @@ export default {
     EnergyStorageCard,
     OnOffCard,
     MetadataCard,
-    PowerSupplyCard,
     PublicationCard,
     UnknownTraitCard
   },
@@ -157,8 +155,6 @@ export default {
           return 'MetadataCard';
         case 'smartcore.traits.OnOff':
           return 'OnOffCard';
-        case 'smartcore.traits.PowerSupply':
-          return 'PowerSupplyCard';
         case 'smartcore.traits.Publication':
           return 'PublicationCard';
         default:

@@ -16,9 +16,9 @@ const grpc = {};
 grpc.web = require('grpc-web');
 
 
-var github_com_smart$core$os_sc$api_protobuf_traits_electric_pb = require('@smart-core-os/sc-api-grpc-web/traits/electric_pb.js')
+var traits_electric_pb = require('../../../traits/electric_pb.js')
 
-var github_com_smart$core$os_sc$api_protobuf_traits_energy_storage_pb = require('@smart-core-os/sc-api-grpc-web/traits/energy_storage_pb.js')
+var traits_energy_storage_pb = require('../../../traits/energy_storage_pb.js')
 const proto = {};
 proto.smartcore = {};
 proto.smartcore.playground = {};

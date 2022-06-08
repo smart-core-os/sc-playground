@@ -189,14 +189,14 @@ func testGrpcCall(t *testing.T, ctx context.Context, clientTlsConfig *tls.Config
 		t.Fatal(err)
 	}
 
-	powerSupplyClient := traits.NewPowerSupplyApiClient(conn)
-	capacity, err := powerSupplyClient.GetPowerCapacity(ctx, &traits.GetPowerCapacityRequest{
+	client := traits.NewOnOffApiClient(conn)
+	onOff, err := client.GetOnOff(ctx, &traits.GetOnOffRequest{
 		Name: "TST-001",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf("capacity %v", capacity)
+	t.Logf("on or off? %v", onOff)
 }
 
 func get(t *testing.T, client *http.Client, url string) {

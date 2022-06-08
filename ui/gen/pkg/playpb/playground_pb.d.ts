@@ -6,11 +6,9 @@ import * as google_protobuf_timestamp_pb from 'google-protobuf/google/protobuf/t
 
 export class AddDeviceTraitRequest extends jspb.Message {
   getName(): string;
-
   setName(value: string): AddDeviceTraitRequest;
 
   getTraitName(): string;
-
   setTraitName(value: string): AddDeviceTraitRequest;
 
   serializeBinary(): Uint8Array;
@@ -132,15 +130,10 @@ export namespace RemoteTLS {
 
 export class AddRemoteDeviceResponse extends jspb.Message {
   serializeBinary(): Uint8Array;
-
   toObject(includeInstance?: boolean): AddRemoteDeviceResponse.AsObject;
-
   static toObject(includeInstance: boolean, msg: AddRemoteDeviceResponse): AddRemoteDeviceResponse.AsObject;
-
   static serializeBinaryToWriter(message: AddRemoteDeviceResponse, writer: jspb.BinaryWriter): void;
-
   static deserializeBinary(bytes: Uint8Array): AddRemoteDeviceResponse;
-
   static deserializeBinaryFromReader(message: AddRemoteDeviceResponse, reader: jspb.BinaryReader): AddRemoteDeviceResponse;
 }
 
@@ -150,55 +143,35 @@ export namespace AddRemoteDeviceResponse {
 
 export class Performance extends jspb.Message {
   getFrame(): google_protobuf_duration_pb.Duration | undefined;
-
   setFrame(value?: google_protobuf_duration_pb.Duration): Performance;
-
   hasFrame(): boolean;
-
   clearFrame(): Performance;
 
   getCapture(): google_protobuf_duration_pb.Duration | undefined;
-
   setCapture(value?: google_protobuf_duration_pb.Duration): Performance;
-
   hasCapture(): boolean;
-
   clearCapture(): Performance;
 
   getScrub(): google_protobuf_duration_pb.Duration | undefined;
-
   setScrub(value?: google_protobuf_duration_pb.Duration): Performance;
-
   hasScrub(): boolean;
-
   clearScrub(): Performance;
 
   getRespond(): google_protobuf_duration_pb.Duration | undefined;
-
   setRespond(value?: google_protobuf_duration_pb.Duration): Performance;
-
   hasRespond(): boolean;
-
   clearRespond(): Performance;
 
   getIdle(): google_protobuf_duration_pb.Duration | undefined;
-
   setIdle(value?: google_protobuf_duration_pb.Duration): Performance;
-
   hasIdle(): boolean;
-
   clearIdle(): Performance;
 
   serializeBinary(): Uint8Array;
-
   toObject(includeInstance?: boolean): Performance.AsObject;
-
   static toObject(includeInstance: boolean, msg: Performance): Performance.AsObject;
-
   static serializeBinaryToWriter(message: Performance, writer: jspb.BinaryWriter): void;
-
   static deserializeBinary(bytes: Uint8Array): Performance;
-
   static deserializeBinaryFromReader(message: Performance, reader: jspb.BinaryReader): Performance;
 }
 
@@ -214,15 +187,10 @@ export namespace Performance {
 
 export class PullPerformanceRequest extends jspb.Message {
   serializeBinary(): Uint8Array;
-
   toObject(includeInstance?: boolean): PullPerformanceRequest.AsObject;
-
   static toObject(includeInstance: boolean, msg: PullPerformanceRequest): PullPerformanceRequest.AsObject;
-
   static serializeBinaryToWriter(message: PullPerformanceRequest, writer: jspb.BinaryWriter): void;
-
   static deserializeBinary(bytes: Uint8Array): PullPerformanceRequest;
-
   static deserializeBinaryFromReader(message: PullPerformanceRequest, reader: jspb.BinaryReader): PullPerformanceRequest;
 }
 
@@ -232,31 +200,20 @@ export namespace PullPerformanceRequest {
 
 export class PullPerformanceResponse extends jspb.Message {
   getPerformance(): Performance | undefined;
-
   setPerformance(value?: Performance): PullPerformanceResponse;
-
   hasPerformance(): boolean;
-
   clearPerformance(): PullPerformanceResponse;
 
   getChangeTime(): google_protobuf_timestamp_pb.Timestamp | undefined;
-
   setChangeTime(value?: google_protobuf_timestamp_pb.Timestamp): PullPerformanceResponse;
-
   hasChangeTime(): boolean;
-
   clearChangeTime(): PullPerformanceResponse;
 
   serializeBinary(): Uint8Array;
-
   toObject(includeInstance?: boolean): PullPerformanceResponse.AsObject;
-
   static toObject(includeInstance: boolean, msg: PullPerformanceResponse): PullPerformanceResponse.AsObject;
-
   static serializeBinaryToWriter(message: PullPerformanceResponse, writer: jspb.BinaryWriter): void;
-
   static deserializeBinary(bytes: Uint8Array): PullPerformanceResponse;
-
   static deserializeBinaryFromReader(message: PullPerformanceResponse, reader: jspb.BinaryReader): PullPerformanceResponse;
 }
 

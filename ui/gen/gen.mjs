@@ -2,7 +2,6 @@ import {execSync} from 'child_process';
 import replace from 'replace-in-file';
 
 const protoFiles = [
-  'trait/powersupply/memory_settings.proto',
   'pkg/device/evcharger/evcharger.proto',
   'pkg/playpb/playground.proto'
 ];
