@@ -1,7 +1,6 @@
 package booking
 
 import (
-	"context"
 	"time"
 
 	"github.com/smart-core-os/sc-api/go/traits"
@@ -17,7 +16,7 @@ import (
 func Activate(n *node.Node) {
 	r := booking.NewApiRouter(
 		booking.WithBookingApiClientFactory(func(name string) (traits.BookingApiClient, error) {
-			return booking.WrapApi(newBookingApiServer(name)), nil
+			return booking.WrapApi(booking.NewModelServer(newBookingModel())), nil
 		}),
 		n.AnnounceOnRouterChange(trait.Booking),
 	)
@@ -31,29 +30,29 @@ func Activate(n *node.Node) {
 	})
 }
 
-func newBookingApiServer(name string) *booking.MemoryDevice {
-	api := booking.NewMemoryDevice()
+func newBookingModel() *booking.Model {
+	model := booking.NewModel()
 
 	// we want the start of the day in local time, .Truncate(24*Hour) uses UTC
 	now := time.Now().In(time.Local)
 	startOfToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 
 	// create a few bookings to make working with the data easier
-	_, _ = api.CreateBooking(context.Background(), &traits.CreateBookingRequest{Name: name, Booking: &traits.Booking{
+	_, _ = model.CreateBooking(&traits.Booking{
 		Title:     "Test booking at 12:00",
 		OwnerName: "Memo Ry",
 		Booked: &scTime.Period{
 			StartTime: timestamppb.New(startOfToday.Add(12 * time.Hour)),
 			EndTime:   timestamppb.New(startOfToday.Add(13 * time.Hour)),
 		},
-	}})
-	_, _ = api.CreateBooking(context.Background(), &traits.CreateBookingRequest{Name: name, Booking: &traits.Booking{
+	})
+	_, _ = model.CreateBooking(&traits.Booking{
 		Title:     "Test booking at 16:10",
 		OwnerName: "Memo Ry",
 		Booked: &scTime.Period{
 			StartTime: timestamppb.New(startOfToday.Add(16*time.Hour + 10*time.Minute)),
 			EndTime:   timestamppb.New(startOfToday.Add(17 * time.Hour)),
 		},
-	}})
-	return api
+	})
+	return model
 }
