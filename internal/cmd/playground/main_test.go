@@ -18,6 +18,7 @@ import (
 	"golang.org/x/net/http2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	credInsecure "google.golang.org/grpc/credentials/insecure"
 )
 
 const (
@@ -177,7 +178,7 @@ func readClientTlsFromUrl(t *testing.T, url string) tls.Certificate {
 func testGrpcCall(t *testing.T, ctx context.Context, clientTlsConfig *tls.Config) {
 	var options []grpc.DialOption
 	if clientTlsConfig == nil {
-		options = append(options, grpc.WithInsecure())
+		options = append(options, grpc.WithTransportCredentials(credInsecure.NewCredentials()))
 	} else {
 		clientTls := credentials.NewTLS(clientTlsConfig)
 		options = append(options, grpc.WithTransportCredentials(clientTls))

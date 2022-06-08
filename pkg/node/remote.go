@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type remoteNode struct {
@@ -64,7 +65,7 @@ func (n *Node) ResolveRemoteConn(ctx context.Context, endpoint string, opts ...R
 func createRemoteConnection(ctx context.Context, node *remoteNode) remoteNode {
 	var grpcOpts []grpc.DialOption
 	if node.insecure {
-		grpcOpts = append(grpcOpts, grpc.WithInsecure())
+		grpcOpts = append(grpcOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	} else {
 		tlsConfig := node.tls
 		if tlsConfig == nil {

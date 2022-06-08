@@ -9,16 +9,16 @@ require (
 	github.com/olebedev/emitter v0.0.0-20190110104742-e8d1457e6aee
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.7.0
-	github.com/smart-core-os/sc-api/go v1.0.0-beta.36.0.20220606102732-9ce233efef86
-	github.com/smart-core-os/sc-golang v0.0.0-20220606142043-b91fc1970115
+	github.com/smart-core-os/sc-api/go v1.0.0-beta.38
+	github.com/smart-core-os/sc-golang v0.0.0-20220608070726-1fd99a6c77ec
 	github.com/soheilhy/cmux v0.1.5
 	github.com/tanema/gween v0.0.0-20200427131925-c89ae23cc63c
 	go.uber.org/multierr v1.7.0
 	go.uber.org/zap v1.19.1
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	google.golang.org/grpc v1.38.0
-	google.golang.org/protobuf v1.26.0
+	google.golang.org/grpc v1.47.0
+	google.golang.org/protobuf v1.27.1
 )
 
 require (

@@ -16,6 +16,7 @@ import (
 	"github.com/smart-core-os/sc-playground/pkg/node"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Node struct {
@@ -59,7 +60,7 @@ func (n Node) Dial(ctx context.Context) (*grpc.ClientConn, error) {
 
 func (n Node) tlsDialOptions(ctx context.Context, opts []grpc.DialOption) ([]grpc.DialOption, error) {
 	if n.Insecure {
-		opts = append(opts, grpc.WithInsecure())
+		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	} else {
 		tlsConfig := &tls.Config{}
 
