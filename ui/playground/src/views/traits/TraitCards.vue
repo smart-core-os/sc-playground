@@ -21,6 +21,7 @@ import ElectricCard from '../../traits/electric/ElectricCard.vue';
 import MetadataCard from '../../traits/metadata/MetadataCard.vue';
 import AddDeviceFab from '../../components/add/AddDeviceFab.vue';
 import OnOffCard from '../../traits/onoff/OnOffCard.vue';
+import OccupancyCard from '../../traits/occupancy/OccupancyCard.vue';
 import PublicationCard from '../../traits/publication/PublicationCard.vue';
 
 export default {
@@ -30,6 +31,7 @@ export default {
     ElectricCard,
     EnergyStorageCard,
     OnOffCard,
+    OccupancyCard,
     MetadataCard,
     PublicationCard,
     UnknownTraitCard
@@ -155,6 +157,8 @@ export default {
           return 'MetadataCard';
         case 'smartcore.traits.OnOff':
           return 'OnOffCard';
+        case 'smartcore.traits.OccupancySensor':
+          return 'OccupancyCard';
         case 'smartcore.traits.Publication':
           return 'PublicationCard';
         default:

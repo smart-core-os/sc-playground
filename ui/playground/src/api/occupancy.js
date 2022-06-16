@@ -4,8 +4,8 @@ import {pullResource, setValue} from './resource.js';
 
 /**
  * @param {string} name
- * @param {ResourceValue<AirTemperature.AsObject>} [resource]
- * @returns {ResourceValue<AirTemperature.AsObject>}
+ * @param {ResourceValue<Occupancy.AsObject>} [resource]
+ * @returns {ResourceValue<Occupancy.AsObject>}
  */
 export function pullOccupancy(name, resource = null) {
   return pullResource('OccupancySensor.Occupancy', resource, endpoint => {
