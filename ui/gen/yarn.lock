@@ -2,13 +2,13 @@
 # yarn lockfile v1
 
 
-"@smart-core-os/sc-api-grpc-web@^1.0.0-beta.31":
-  version "1.0.0-beta.31"
-  resolved "https://nexus.vanti.co.uk/repository/npm-releases/@smart-core-os/sc-api-grpc-web/-/sc-api-grpc-web-1.0.0-beta.31.tgz#96e9d22eea7658db466b6ee5cdd587d2990f3dac"
-  integrity sha512-sGK7taIxFozWH84K6KyW7YxtpYz9cPDP1d/XFT0A544X5p111V7s7FVQDPpb2wJ59cnJ09kz0LXT6bCfTAAd7Q==
+"@smart-core-os/sc-api-grpc-web@^1.0.0-beta.38":
+  version "1.0.0-beta.38"
+  resolved "https://nexus.vanti.co.uk/repository/npm-releases/@smart-core-os/sc-api-grpc-web/-/sc-api-grpc-web-1.0.0-beta.38.tgz#9a0f69dbb09173054d6b4d14bf169f372bd9d401"
+  integrity sha512-r3ayNIiadz0+2TW/O3cWJy633GffxkhYBk0790YCjFp3kVr259IOSanEHX68HUgRW/Q7mh8So1mG1S483z+TYg==
   dependencies:
-    google-protobuf "^3.19.3"
-    grpc-web "^1.3.0"
+    google-protobuf "^3.19.4"
+    grpc-web "^1.3.1"
 
 "@types/google-protobuf@^3.15.3":
   version "3.15.5"
@@ -106,20 +106,15 @@ glob@^7.2.0:
     once "^1.3.0"
     path-is-absolute "^1.0.0"
 
-google-protobuf@^3.19.3:
-  version "3.19.3"
-  resolved "https://registry.yarnpkg.com/google-protobuf/-/google-protobuf-3.19.3.tgz#2d5fb0c77584d675fca509a1fbc80c64fff471c9"
-  integrity sha512-3GRDj8o9XjcALYjgxNKeD7Wm6w/V8r1Jo4sLYMic9+VaIMLBx8TQeHP9yaoRoDymNONhnkmmveDPyjw/Fpw8+A==
-
 google-protobuf@^3.19.4:
   version "3.19.4"
   resolved "https://registry.yarnpkg.com/google-protobuf/-/google-protobuf-3.19.4.tgz#8d32c3e34be9250956f28c0fb90955d13f311888"
   integrity sha512-OIPNCxsG2lkIvf+P5FNfJ/Km95CsXOBecS9ZcAU6m2Rq3svc0Apl9nB3GMDNKfQ9asNv4KjyAqGwPQFrVle3Yg==
 
-grpc-web@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/grpc-web/-/grpc-web-1.3.0.tgz#4c36d97e7a7b6102a7df463e7822cd86d4f65ed8"
-  integrity sha512-nePImtnrnkZLErFq00Sr1H6AqaRrRptOJEhjUnlTB6RiJgs8ULYvRI9cX2hDwMvyYgakmO3H/wThYvS+Ibdreg==
+grpc-web@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/grpc-web/-/grpc-web-1.3.1.tgz#6d8affe75a103790b7ad570824e765a1d6a418e4"
+  integrity sha512-VxyYEAGsatecAFY3xieRDzsuhm92yQBsJD7fd5Z3MY150hZWPwkrUWetzJ0QK5W0uym4+VedPQrei38wk0eIjQ==
 
 has-flag@^4.0.0:
   version "4.0.0"

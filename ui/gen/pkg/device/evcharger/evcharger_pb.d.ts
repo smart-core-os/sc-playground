@@ -1,7 +1,7 @@
 import * as jspb from 'google-protobuf'
 
-import * as traits_electric_pb from '../../../traits/electric_pb';
-import * as traits_energy_storage_pb from '../../../traits/energy_storage_pb';
+import * as traits_electric_pb from '@smart-core-os/sc-api-grpc-web/traits/electric_pb';
+import * as traits_energy_storage_pb from '@smart-core-os/sc-api-grpc-web/traits/energy_storage_pb';
 
 
 export class PlugInEvent extends jspb.Message {
@@ -32,9 +32,13 @@ export class PlugInEvent extends jspb.Message {
   serializeBinary(): Uint8Array;
 
   toObject(includeInstance?: boolean): PlugInEvent.AsObject;
+
   static toObject(includeInstance: boolean, msg: PlugInEvent): PlugInEvent.AsObject;
+
   static serializeBinaryToWriter(message: PlugInEvent, writer: jspb.BinaryWriter): void;
+
   static deserializeBinary(bytes: Uint8Array): PlugInEvent;
+
   static deserializeBinaryFromReader(message: PlugInEvent, reader: jspb.BinaryReader): PlugInEvent;
 }
 
@@ -92,18 +96,27 @@ export namespace PlugInEvent {
 
 export class PlugInRequest extends jspb.Message {
   getName(): string;
+
   setName(value: string): PlugInRequest;
 
   getEvent(): PlugInEvent | undefined;
+
   setEvent(value?: PlugInEvent): PlugInRequest;
+
   hasEvent(): boolean;
+
   clearEvent(): PlugInRequest;
 
   serializeBinary(): Uint8Array;
+
   toObject(includeInstance?: boolean): PlugInRequest.AsObject;
+
   static toObject(includeInstance: boolean, msg: PlugInRequest): PlugInRequest.AsObject;
+
   static serializeBinaryToWriter(message: PlugInRequest, writer: jspb.BinaryWriter): void;
+
   static deserializeBinary(bytes: Uint8Array): PlugInRequest;
+
   static deserializeBinaryFromReader(message: PlugInRequest, reader: jspb.BinaryReader): PlugInRequest;
 }
 
@@ -116,10 +129,15 @@ export namespace PlugInRequest {
 
 export class PlugInResponse extends jspb.Message {
   serializeBinary(): Uint8Array;
+
   toObject(includeInstance?: boolean): PlugInResponse.AsObject;
+
   static toObject(includeInstance: boolean, msg: PlugInResponse): PlugInResponse.AsObject;
+
   static serializeBinaryToWriter(message: PlugInResponse, writer: jspb.BinaryWriter): void;
+
   static deserializeBinary(bytes: Uint8Array): PlugInResponse;
+
   static deserializeBinaryFromReader(message: PlugInResponse, reader: jspb.BinaryReader): PlugInResponse;
 }
 
@@ -129,13 +147,19 @@ export namespace PlugInResponse {
 
 export class ChargeStartRequest extends jspb.Message {
   getName(): string;
+
   setName(value: string): ChargeStartRequest;
 
   serializeBinary(): Uint8Array;
+
   toObject(includeInstance?: boolean): ChargeStartRequest.AsObject;
+
   static toObject(includeInstance: boolean, msg: ChargeStartRequest): ChargeStartRequest.AsObject;
+
   static serializeBinaryToWriter(message: ChargeStartRequest, writer: jspb.BinaryWriter): void;
+
   static deserializeBinary(bytes: Uint8Array): ChargeStartRequest;
+
   static deserializeBinaryFromReader(message: ChargeStartRequest, reader: jspb.BinaryReader): ChargeStartRequest;
 }
 
@@ -147,10 +171,15 @@ export namespace ChargeStartRequest {
 
 export class ChargeStartResponse extends jspb.Message {
   serializeBinary(): Uint8Array;
+
   toObject(includeInstance?: boolean): ChargeStartResponse.AsObject;
+
   static toObject(includeInstance: boolean, msg: ChargeStartResponse): ChargeStartResponse.AsObject;
+
   static serializeBinaryToWriter(message: ChargeStartResponse, writer: jspb.BinaryWriter): void;
+
   static deserializeBinary(bytes: Uint8Array): ChargeStartResponse;
+
   static deserializeBinaryFromReader(message: ChargeStartResponse, reader: jspb.BinaryReader): ChargeStartResponse;
 }
 
@@ -160,13 +189,19 @@ export namespace ChargeStartResponse {
 
 export class UnplugRequest extends jspb.Message {
   getName(): string;
+
   setName(value: string): UnplugRequest;
 
   serializeBinary(): Uint8Array;
+
   toObject(includeInstance?: boolean): UnplugRequest.AsObject;
+
   static toObject(includeInstance: boolean, msg: UnplugRequest): UnplugRequest.AsObject;
+
   static serializeBinaryToWriter(message: UnplugRequest, writer: jspb.BinaryWriter): void;
+
   static deserializeBinary(bytes: Uint8Array): UnplugRequest;
+
   static deserializeBinaryFromReader(message: UnplugRequest, reader: jspb.BinaryReader): UnplugRequest;
 }
 
@@ -178,10 +213,15 @@ export namespace UnplugRequest {
 
 export class UnplugResponse extends jspb.Message {
   serializeBinary(): Uint8Array;
+
   toObject(includeInstance?: boolean): UnplugResponse.AsObject;
+
   static toObject(includeInstance: boolean, msg: UnplugResponse): UnplugResponse.AsObject;
+
   static serializeBinaryToWriter(message: UnplugResponse, writer: jspb.BinaryWriter): void;
+
   static deserializeBinary(bytes: Uint8Array): UnplugResponse;
+
   static deserializeBinaryFromReader(message: UnplugResponse, reader: jspb.BinaryReader): UnplugResponse;
 }
 

@@ -29,9 +29,9 @@ var global = (function() {
   return Function('return this')();
 }.call(null));
 
-var traits_electric_pb = require('../../../traits/electric_pb.js');
+var traits_electric_pb = require('@smart-core-os/sc-api-grpc-web/traits/electric_pb.js');
 goog.object.extend(proto, traits_electric_pb);
-var traits_energy_storage_pb = require('../../../traits/energy_storage_pb.js');
+var traits_energy_storage_pb = require('@smart-core-os/sc-api-grpc-web/traits/energy_storage_pb.js');
 goog.object.extend(proto, traits_energy_storage_pb);
 goog.exportSymbol('proto.smartcore.playground.device.evcharger.ChargeStartRequest', null, global);
 goog.exportSymbol('proto.smartcore.playground.device.evcharger.ChargeStartResponse', null, global);
@@ -218,7 +218,6 @@ if (goog.DEBUG && !COMPILED) {
 proto.smartcore.playground.device.evcharger.PlugInEvent.repeatedFields_ = [3];
 
 
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
    * Creates an object representation of this proto.
@@ -359,14 +358,12 @@ proto.smartcore.playground.device.evcharger.PlugInEvent.serializeBinaryToWriter 
 };
 
 
-
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
  * @const
  */
 proto.smartcore.playground.device.evcharger.PlugInEvent.ChargeMode.repeatedFields_ = [4];
-
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {

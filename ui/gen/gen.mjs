@@ -11,18 +11,18 @@ const out = execSync(`protomod protoc -- -I../.. ${protocPluginOpts} ${protoFile
 console.log(out.toString());
 
 // update the generated files to replace
-// `require('../../../github.com/smart-core-os/sc-api/grpc-web/...')`
+// `require('../../../traits/*_pb.js');`
 // with `require('@smart-core-os/sc-api-grpc-web/...')`
 
 // replace .js imports
 replace.sync({
   files: ['pkg/**/*_pb.js', 'trait/**/*_pb.js'],
-  from: /require\('(?:\.\.\/)*github\.com\/smart-core-os\/sc-api\/protobuf\/(.+)'\)/g,
+  from: /require\('(?:\.\.\/){3,}((?:traits|types|info)\/.+_pb.js)'\)/g,
   to: `require('@smart-core-os/sc-api-grpc-web/$1')`
 });
 // replace .d.ts imports
 replace.sync({
   files: ['pkg/**/*_pb.d.ts', 'trait/**/*_pb.d.ts'],
-  from: /from '(?:\.\.\/)*github.com\/smart-core-os\/sc-api\/protobuf\/(.+)'/g,
+  from: /from '(?:\.\.\/){3,}((?:traits|types|info)\/.+_pb)'/g,
   to: `from '@smart-core-os/sc-api-grpc-web/$1'`
 });

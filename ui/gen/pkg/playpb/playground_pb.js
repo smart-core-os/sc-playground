@@ -255,7 +255,6 @@ if (goog.DEBUG && !COMPILED) {
 }
 
 
-
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
    * Creates an object representation of this proto.
@@ -605,14 +604,12 @@ proto.smartcore.playground.api.ListSupportedTraitsRequest.serializeBinaryToWrite
 };
 
 
-
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
  * @const
  */
 proto.smartcore.playground.api.ListSupportedTraitsResponse.repeatedFields_ = [1];
-
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -761,14 +758,12 @@ proto.smartcore.playground.api.ListSupportedTraitsResponse.prototype.clearTraitN
 };
 
 
-
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
  * @const
  */
 proto.smartcore.playground.api.AddRemoteDeviceRequest.repeatedFields_ = [3];
-
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
