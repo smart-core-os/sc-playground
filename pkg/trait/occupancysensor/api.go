@@ -73,7 +73,7 @@ func Activate(n *node.Node) {
 func randomOccupancy() *traits.Occupancy {
 	var occupiedOrNot traits.Occupancy_State
 	n := rand.Intn(10)
-	if n < 5 {
+	if n > 2 {
 		occupiedOrNot = traits.Occupancy_OCCUPIED
 	} else {
 		occupiedOrNot = traits.Occupancy_UNOCCUPIED
