@@ -23,11 +23,13 @@ import AddDeviceFab from '../../components/add/AddDeviceFab.vue';
 import OnOffCard from '../../traits/onoff/OnOffCard.vue';
 import OccupancyCard from '../../traits/occupancy/OccupancyCard.vue';
 import PublicationCard from '../../traits/publication/PublicationCard.vue';
+import AirTemperatureCard from "../../traits/airtemperature/AirTemperatureCard.vue";
 
 export default {
   name: 'TraitCards',
   components: {
     AddDeviceFab,
+    AirTemperatureCard,
     ElectricCard,
     EnergyStorageCard,
     OnOffCard,
@@ -149,6 +151,8 @@ export default {
      */
     traitToComponent(trait) {
       switch (trait.name) {
+        case 'smartcore.traits.AirTemperature':
+          return 'AirTemperatureCard';
         case 'smartcore.traits.Electric':
           return 'ElectricCard';
         case 'smartcore.traits.EnergyStorage':

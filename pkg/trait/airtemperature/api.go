@@ -13,7 +13,7 @@ import (
 )
 
 func Activate(n *node.Node) {
-	n.AddRouter(airtemperature.NewApiRouter(
+	r := airtemperature.NewApiRouter(
 		airtemperature.WithAirTemperatureApiClientFactory(func(name string) (traits.AirTemperatureApiClient, error) {
 			return airtemperature.WrapApi(airtemperature.NewMemoryDevice()), nil
 		}),
@@ -35,5 +35,13 @@ func Activate(n *node.Node) {
 			}
 			n.Announce(name, node.HasTrait(trait.AirTemperature))
 		}),
-	))
+	)
+	n.AddRouter(r)
+	n.AddTraitFactory(trait.AirTemperature, func(name string, _ proto.Message) error {
+		_, err := r.Get(name)
+		return err
+	})
+	n.AddClientFactory(trait.AirTemperature, func(conn *grpc.ClientConn) interface{} {
+		return traits.NewAirTemperatureApiClient(conn)
+	})
 }
