@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"flag"
 	"fmt"
+	"github.com/smart-core-os/sc-playground/pkg/trait/airquality"
 	"log"
 	"os"
 
@@ -116,6 +117,7 @@ func newRootNode(serverDeviceName string) *node.Node {
 	parent.Activate(root)
 	metadata.Activate(root)
 
+	airquality.Activate(root)
 	airtemperature.Activate(root)
 	booking.Activate(root)
 	electric.Activate(root)
