@@ -1,0 +1,10 @@
+{
+  "nodes": {
+    "ac1": {"address": "10.1.0.100:23557"}
+  },
+  "devices": {
+    "remoteDevice1": {"node": "ac1", "traits": ["smartcore.traits.Electric"]},
+    "remoteDevice2": {"node": {"address": "10.1.0.101:23557"}, "traits": ["smartcore.traits.EnergyStorage"]},
+    "virtualDevice1": {"traits": ["smartcore.traits.OnOff"]}
+  }
+}
