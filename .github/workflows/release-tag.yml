@@ -23,6 +23,7 @@ jobs:
           npm set always-auth true
           npm set @smart-core-os:registry https://nexus.vanti.co.uk/repository/npm-releases
           npm set //nexus.vanti.co.uk/repository/npm-releases/:_authToken ${{ secrets.NEXUS_TOKEN }}
+          npm set //nexus.vanti.co.uk/repository/npm-public/:_authToken ${{ secrets.NEXUS_TOKEN }}
       - working-directory: ./ui/playground
         run: yarn install --frozen-lockfile
       - working-directory: ./ui/playground
