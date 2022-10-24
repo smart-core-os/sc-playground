@@ -14,20 +14,8 @@
 var jspb = require('google-protobuf');
 var goog = jspb;
 var global = (function() {
-  if (this) {
-    return this;
-  }
-  if (typeof window !== 'undefined') {
-    return window;
-  }
-  if (typeof global !== 'undefined') {
-    return global;
-  }
-  if (typeof self !== 'undefined') {
-    return self;
-  }
-  return Function('return this')();
-}.call(null));
+  return this || window || global || self || Function('return this')();
+}).call(null);
 
 var traits_electric_pb = require('@smart-core-os/sc-api-grpc-web/traits/electric_pb.js');
 goog.object.extend(proto, traits_electric_pb);

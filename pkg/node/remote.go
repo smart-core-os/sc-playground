@@ -45,6 +45,14 @@ func WithRemoteInsecure() RemoteOption {
 	}
 }
 
+func WithRemoteSkipVerify() RemoteOption {
+	return func(n *remoteNode) {
+		n.tls = &tls.Config{
+			InsecureSkipVerify: true,
+		}
+	}
+}
+
 func (n *Node) ResolveRemoteConn(ctx context.Context, endpoint string, opts ...RemoteOption) (*grpc.ClientConn, error) {
 	rn := &remoteNode{endpoint: endpoint}
 	for _, opt := range opts {

@@ -14,20 +14,8 @@
 var jspb = require('google-protobuf');
 var goog = jspb;
 var global = (function() {
-  if (this) {
-    return this;
-  }
-  if (typeof window !== 'undefined') {
-    return window;
-  }
-  if (typeof global !== 'undefined') {
-    return global;
-  }
-  if (typeof self !== 'undefined') {
-    return self;
-  }
-  return Function('return this')();
-}.call(null));
+  return this || window || global || self || Function('return this')();
+}).call(null);
 
 var google_protobuf_duration_pb = require('google-protobuf/google/protobuf/duration_pb.js');
 goog.object.extend(proto, google_protobuf_duration_pb);
@@ -1082,7 +1070,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    */
   proto.smartcore.playground.api.RemoteTLS.toObject = function(includeInstance, msg) {
     var f, obj = {
-      serverCaCert: jspb.Message.getFieldWithDefault(msg, 1, '')
+      serverCaCert: jspb.Message.getFieldWithDefault(msg, 1, ''),
+      skipVerify: jspb.Message.getBooleanFieldWithDefault(msg, 2, false)
     };
 
     if (includeInstance) {
@@ -1123,6 +1112,10 @@ proto.smartcore.playground.api.RemoteTLS.deserializeBinaryFromReader = function(
         var value = /** @type {string} */ (reader.readString());
         msg.setServerCaCert(value);
         break;
+      case 2:
+        var value = /** @type {boolean} */ (reader.readBool());
+        msg.setSkipVerify(value);
+        break;
       default:
         reader.skipField();
         break;
@@ -1159,6 +1152,13 @@ proto.smartcore.playground.api.RemoteTLS.serializeBinaryToWriter = function(mess
         f
     );
   }
+  f = message.getSkipVerify();
+  if (f) {
+    writer.writeBool(
+        2,
+        f
+    );
+  }
 };
 
 
@@ -1177,6 +1177,24 @@ proto.smartcore.playground.api.RemoteTLS.prototype.getServerCaCert = function() 
  */
 proto.smartcore.playground.api.RemoteTLS.prototype.setServerCaCert = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional bool skip_verify = 2;
+ * @return {boolean}
+ */
+proto.smartcore.playground.api.RemoteTLS.prototype.getSkipVerify = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 2, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.smartcore.playground.api.RemoteTLS} returns this
+ */
+proto.smartcore.playground.api.RemoteTLS.prototype.setSkipVerify = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 2, value);
 };
 
 

@@ -64,6 +64,9 @@ func (s *Server) AddRemoteDevice(ctx context.Context, req *AddRemoteDeviceReques
 		if len(req.Tls.ServerCaCert) > 0 {
 			remoteOpts = append(remoteOpts, node.WithRemoteServerCA([]byte(req.Tls.ServerCaCert)))
 		}
+		if req.Tls.SkipVerify {
+			remoteOpts = append(remoteOpts, node.WithRemoteSkipVerify())
+		}
 	}
 	conn, err := s.node.ResolveRemoteConn(ctx, req.Endpoint, remoteOpts...)
 	if err != nil {

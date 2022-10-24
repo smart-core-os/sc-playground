@@ -5,6 +5,7 @@
       <v-text-field hide-details label="Device name" v-model="name"/>
       <v-text-field hide-details type="url" label="Endpoint" v-model="endpoint"/>
       <v-checkbox v-model="tlsInsecure" label="No TLS (insecure)" hide-details/>
+      <v-checkbox v-model="tlsSkipVerify" label="Skip Verify (insecure)" hide-details/>
       <v-textarea hide-details label="Server CA Certificate" v-model="tlsServerCACert" class="ca"
                   :disabled="tlsInsecure"/>
       <v-item-group multiple v-model="selectedTraits">
@@ -44,6 +45,7 @@ export default {
       selectedTraits: [],
 
       tlsInsecure: false,
+      tlsSkipVerify: false,
       tlsServerCACert: null
     };
   },
@@ -67,6 +69,7 @@ export default {
       this.endpoint = '';
       this.selectedTraits = [];
       this.tlsInsecure = false;
+      this.tlsSkipVerify = false;
       this.tlsServerCACert = '';
     },
     async add() {
@@ -77,9 +80,10 @@ export default {
         const traitNames = this.selectedTraits.map(i => this.supportedTraits[i])
         let tls = null;
         if (!this.tlsInsecure) {
-          if (this.tlsServerCACert) {
+          if (this.tlsServerCACert || this.tlsSkipVerify) {
             tls = new RemoteTLS()
             tls.setServerCaCert(this.tlsServerCACert);
+            tls.setSkipVerify(this.tlsSkipVerify);
           }
         }
         await api.addRemoteDevice(new AddRemoteDeviceRequest()

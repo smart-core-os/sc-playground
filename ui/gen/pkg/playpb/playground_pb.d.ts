@@ -154,6 +154,10 @@ export class RemoteTLS extends jspb.Message {
 
   setServerCaCert(value: string): RemoteTLS;
 
+  getSkipVerify(): boolean;
+
+  setSkipVerify(value: boolean): RemoteTLS;
+
   serializeBinary(): Uint8Array;
 
   toObject(includeInstance?: boolean): RemoteTLS.AsObject;
@@ -170,6 +174,7 @@ export class RemoteTLS extends jspb.Message {
 export namespace RemoteTLS {
   export type AsObject = {
     serverCaCert: string,
+    skipVerify: boolean,
   }
 }
 
