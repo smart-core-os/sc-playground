@@ -10,7 +10,6 @@ import (
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/resource"
-	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
 	"github.com/smart-core-os/sc-playground/pkg/node"
@@ -39,10 +38,10 @@ func NewGroup(client traits.ElectricApiClient) *Group {
 	}
 	g.closeCtx, g.close = context.WithCancel(context.Background())
 	g.children = []reducer{
-		{"max", electric.NewModel(electric.WithClock(clock.Real())), max},
-		{"min", electric.NewModel(electric.WithClock(clock.Real())), min},
-		{"sum", electric.NewModel(electric.WithClock(clock.Real())), sum},
-		{"average", electric.NewModel(electric.WithClock(clock.Real())), average},
+		{"max", electric.NewModel(), max},
+		{"min", electric.NewModel(), min},
+		{"sum", electric.NewModel(), sum},
+		{"average", electric.NewModel(), average},
 	}
 
 	return g

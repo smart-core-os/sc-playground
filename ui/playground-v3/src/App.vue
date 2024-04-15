@@ -53,7 +53,6 @@
 
 <script>
 import {caCertPath, clientCertPath, serverConfig} from '@/util/api';
-import TraitCards from '@/pages/TraitCards.vue';
 
 export default {
   name: 'App',

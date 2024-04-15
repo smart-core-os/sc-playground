@@ -1,15 +1,16 @@
 <template>
-  <v-container class="fill-height">
-    <v-responsive
-      class="align-centerfill-height mx-auto"
-      max-width="900"
-    >
-      <template v-for="({child, trait}) in filteredChildTraits">
-        <component :is="traitToComponent(trait)" :deviceId="child.name" :trait="trait" v-bind="overrides[child.name]"/>
-      </template>
-    <add-device-fab/>
-    </v-responsive>
-  </v-container>
+  <add-device-fab/>
+  <v-responsive class="align-centerfill-height mx-auto"
+  max-width="1500"
+  >
+
+      <v-row>
+        <v-col v-for="({child, trait}) in filteredChildTraits">
+          <component :is="traitToComponent(trait)" :deviceId="child.name" :trait="trait" v-bind="overrides[child.name]"/>
+        </v-col>
+      </v-row>
+
+  </v-responsive>
 </template>
 
 <script>

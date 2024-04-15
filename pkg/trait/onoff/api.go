@@ -4,14 +4,15 @@ import (
 	"log"
 	"math/rand"
 
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/proto"
+
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/router"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/onoff"
 	"github.com/smart-core-os/sc-golang/pkg/wrap"
 	"github.com/smart-core-os/sc-playground/pkg/node"
-	"google.golang.org/grpc"
-	"google.golang.org/protobuf/proto"
 )
 
 func Activate(n *node.Node) {
@@ -24,7 +25,9 @@ func Activate(n *node.Node) {
 			} else {
 				onOrOff = traits.OnOff_ON
 			}
-			return onoff.WrapApi(onoff.NewModelServer(onoff.NewModel(onOrOff))), nil
+			var onOffTrait traits.OnOff
+			onOffTrait.State = onOrOff
+			return onoff.WrapApi(onoff.NewModelServer(onoff.NewModel(onoff.WithInitialOnOff(&onOffTrait)))), nil
 		}),
 		router.WithOnChange(func(change router.Change) {
 			if !change.Auto {

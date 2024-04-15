@@ -1,23 +1,23 @@
 <template>
-  <v-container>
-
-    <v-row>
-      <v-btn fab small @click="addTrait" :elevation="labelElevation">
-        Add Trait
-        <v-icon>mdi-view-grid-plus</v-icon>
-      </v-btn>
-    </v-row>
-
-    <v-row>
-      <v-btn fab small @click="addRemote" :elevation="labelElevation">
-        Add Network Device
-        <v-icon>mdi-plus-network-outline</v-icon>
-      </v-btn>
-    </v-row>
-    <v-dialog v-model="dialogOpen" width="400">
-      <add-trait-card v-if="dialogFlavor === 'trait'" @done="dialogOpen = false"/>
-      <add-remote-device-card v-if="dialogFlavor === 'remote'" @done="dialogOpen = false"/>
-    </v-dialog>
+  <v-container class="align-centerfill-height mx-auto">
+      <v-row align="center" justify="center" class="align-content-center">
+        <v-col cols="auto">
+          <v-btn @click="addTrait" :elevation="labelElevation">
+            Add Trait
+            <v-icon>mdi-view-grid-plus</v-icon>
+          </v-btn>
+        </v-col>
+        <v-col cols="auto">
+        <v-btn @click="addRemote" :elevation="labelElevation">
+          Add Network Device
+          <v-icon>mdi-plus-network-outline</v-icon>
+        </v-btn>
+        </v-col>
+      </v-row>
+      <v-dialog v-model="dialogOpen" width="400">
+        <add-trait-card v-if="dialogFlavor === 'trait'" @done="dialogOpen = false"/>
+        <add-remote-device-card v-if="dialogFlavor === 'remote'" @done="dialogOpen = false"/>
+      </v-dialog>
   </v-container>
 </template>
 

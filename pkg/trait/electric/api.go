@@ -15,7 +15,6 @@ import (
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/router"
-	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
 	"github.com/smart-core-os/sc-golang/pkg/wrap"
@@ -55,7 +54,7 @@ func parentElectricDeviceName(n *node.Node) string {
 
 func electricClientFactory() func(name string) (traits.ElectricApiClient, error) {
 	return func(name string) (traits.ElectricApiClient, error) {
-		model := electric.NewModel(electric.WithClock(clock.Real()))
+		model := electric.NewModel()
 
 		// seed with a random load
 		var voltage float32 = 240

@@ -1,4 +1,5 @@
 <template>
+  <add-device-fab/>
   <v-container fluid class="card-grid">
     <component v-for="child of resources.children.value" :key="child.name"
                :is="childToComponent(child)"
@@ -7,6 +8,7 @@
 </template>
 
 <script>
+import AddDeviceFab from '@/components/add/AddDeviceFab.vue';
 import {grpcWebEndpoint} from '@/util/api';
 import {MetadataApiPromiseClient} from '@smart-core-os/sc-api-grpc-web/traits/metadata_grpc_web_pb.js';
 import {GetMetadataRequest, PullMetadataRequest} from '@smart-core-os/sc-api-grpc-web/traits/metadata_pb.js';
@@ -18,7 +20,7 @@ import UnknownDeviceCard from '../devices/unknown/UnknownDeviceCard.vue';
 
 export default {
   name: 'DevicesView',
-  components: {MetadataPanel, EVChargerCard, UnknownDeviceCard},
+  components: {AddDeviceFab, MetadataPanel, EVChargerCard, UnknownDeviceCard},
   data() {
     return {
       serverName: '',
