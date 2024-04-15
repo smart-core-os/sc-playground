@@ -1,11 +1,16 @@
 package airtemperature
 
 import (
-	"github.com/smart-core-os/sc-api/go/types"
-	"google.golang.org/grpc"
 	"log"
 	"math/rand"
 	"time"
+
+	"github.com/smart-core-os/sc-api/go/types"
+	"github.com/smart-core-os/sc-golang/pkg/resource"
+
+	"google.golang.org/grpc"
+
+	"google.golang.org/protobuf/proto"
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/router"
@@ -13,7 +18,6 @@ import (
 	"github.com/smart-core-os/sc-golang/pkg/trait/airtemperature"
 	"github.com/smart-core-os/sc-golang/pkg/wrap"
 	"github.com/smart-core-os/sc-playground/pkg/node"
-	"google.golang.org/protobuf/proto"
 )
 
 func Activate(n *node.Node) {
@@ -39,7 +43,7 @@ func Activate(n *node.Node) {
 		airtemperature.WithAirTemperatureApiClientFactory(func(name string) (traits.AirTemperatureApiClient, error) {
 			log.Printf("Creating AirTemperatureApiClient(%v)", name)
 			initial := randomTemperature()
-			model := airtemperature.NewModel(initial)
+			model := airtemperature.NewModel(resource.WithInitialValue(initial))
 			return airtemperature.WrapApi(airtemperature.NewModelServer(model)), nil
 		}),
 		router.WithOnChange(func(change router.Change) {

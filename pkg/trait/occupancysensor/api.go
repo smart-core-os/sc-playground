@@ -5,14 +5,16 @@ import (
 	"math/rand"
 	"time"
 
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/proto"
+
 	"github.com/smart-core-os/sc-api/go/traits"
+	"github.com/smart-core-os/sc-golang/pkg/resource"
 	"github.com/smart-core-os/sc-golang/pkg/router"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/occupancysensor"
 	"github.com/smart-core-os/sc-golang/pkg/wrap"
 	"github.com/smart-core-os/sc-playground/pkg/node"
-	"google.golang.org/grpc"
-	"google.golang.org/protobuf/proto"
 )
 
 func Activate(n *node.Node) {
@@ -37,7 +39,7 @@ func Activate(n *node.Node) {
 		occupancysensor.WithOccupancySensorApiClientFactory(func(name string) (traits.OccupancySensorApiClient, error) {
 			initial := randomOccupancy()
 			log.Printf("Creating OccupancyApiClient(%v) %v (people=%v)", name, initial.State, initial.PeopleCount)
-			model := occupancysensor.NewModel(initial)
+			model := occupancysensor.NewModel(resource.WithInitialValue(initial))
 			return occupancysensor.WrapApi(occupancysensor.NewModelServer(model)), nil
 		}),
 		router.WithOnChange(func(change router.Change) {

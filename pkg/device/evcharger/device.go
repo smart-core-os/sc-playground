@@ -48,7 +48,7 @@ func New(name string, tl timeline.TL, opts ...Opt) *Device {
 		tl = tlutil.FilterByName(tl, name)
 	}
 
-	electricModel := electric.NewModel(setup.clock)
+	electricModel := electric.NewModel(electric.WithClock(setup.clock))
 	energyStorageModel := energystorage.NewModel()
 	metadataModel := metadata.NewModel(resource.WithInitialValue(newMetadata(name)))
 

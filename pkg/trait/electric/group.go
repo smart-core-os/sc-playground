@@ -6,13 +6,14 @@ import (
 	"log"
 	"sync"
 
+	"go.uber.org/multierr"
+
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/resource"
 	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
 	"github.com/smart-core-os/sc-playground/pkg/node"
-	"go.uber.org/multierr"
 )
 
 // Group presents a group of named ElectricApiClients as a unified device.
@@ -38,10 +39,10 @@ func NewGroup(client traits.ElectricApiClient) *Group {
 	}
 	g.closeCtx, g.close = context.WithCancel(context.Background())
 	g.children = []reducer{
-		{"max", electric.NewModel(clock.Real()), max},
-		{"min", electric.NewModel(clock.Real()), min},
-		{"sum", electric.NewModel(clock.Real()), sum},
-		{"average", electric.NewModel(clock.Real()), average},
+		{"max", electric.NewModel(electric.WithClock(clock.Real())), max},
+		{"min", electric.NewModel(electric.WithClock(clock.Real())), min},
+		{"sum", electric.NewModel(electric.WithClock(clock.Real())), sum},
+		{"average", electric.NewModel(electric.WithClock(clock.Real())), average},
 	}
 
 	return g

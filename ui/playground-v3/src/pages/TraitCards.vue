@@ -1,0 +1,179 @@
+<template>
+  <v-container class="fill-height">
+    <v-responsive
+      class="align-centerfill-height mx-auto"
+      max-width="900"
+    >
+      <template v-for="({child, trait}) in filteredChildTraits">
+        <component :is="traitToComponent(trait)" :deviceId="child.name" :trait="trait" v-bind="overrides[child.name]"/>
+      </template>
+    <add-device-fab/>
+    </v-responsive>
+  </v-container>
+</template>
+
+<script>
+import {grpcWebEndpoint} from '@/util/api';
+import {ParentApiPromiseClient} from '@smart-core-os/sc-api-grpc-web/traits/parent_grpc_web_pb'
+import {ListChildrenRequest, PullChildrenRequest} from '@smart-core-os/sc-api-grpc-web/traits/parent_pb'
+import AddDeviceFab from '../components/add/AddDeviceFab.vue';
+import AirTemperatureCard from "../traits/airtemperature/AirTemperatureCard.vue";
+import ElectricCard from '../traits/electric/ElectricCard.vue';
+import EnergyStorageCard from '../traits/energystorage/EnergyStorageCard.vue';
+import MetadataCard from '../traits/metadata/MetadataCard.vue';
+import OccupancyCard from '../traits/occupancy/OccupancyCard.vue';
+import OnOffCard from '../traits/onoff/OnOffCard.vue';
+import PublicationCard from '../traits/publication/PublicationCard.vue';
+import UnknownTraitCard from '../traits/unknown/UnknownTraitCard.vue';
+
+export default {
+  name: 'TraitCards',
+  components: {
+    AddDeviceFab,
+    AirTemperatureCard,
+    ElectricCard,
+    EnergyStorageCard,
+    OnOffCard,
+    OccupancyCard,
+    MetadataCard,
+    PublicationCard,
+    UnknownTraitCard
+  },
+  data() {
+    return {
+      serverName: '',
+      childrenStream: null,
+      /** @type {Child.AsObject[]} */
+      children: [],
+      manualNextDeviceId: null,
+
+      first: ["scos/play/g/electric/sum", "birmingham6", "birmingham14", "AV", "Background Audio", "BMS", "Lighting", "Plant", "Signage"],
+      filterName: {},
+      filterTrait: {"smartcore.traits.Metadata": true},
+      overrides: {
+        "birmingham6": {color: "#72e0aa", elevation: 8},
+        "birmingham14": {color: "#72e0aa", elevation: 8},
+        "scos/play/g/electric/sum": {color: "#6bd9d9", elevation: 8, style: "grid-column: 1 / -1", width: "auto"},
+      }
+    };
+  },
+  computed: {
+    filteredChildTraits() {
+      const firstIndex = this.first.reduce((all, name, i) => {
+        all[name] = i;
+        return all;
+      }, {})
+      const firstItems = [];
+      const res = [];
+      for (const child of this.children) {
+        for (const trait of child.traitsList) {
+          // filter out metadata (for now)
+          if (this.filterTrait[trait.name]) {
+            continue
+          }
+          if (this.filterName[child.name]) {
+            continue
+          }
+          if (firstIndex.hasOwnProperty(child.name)) {
+            firstItems.push({child, trait});
+          } else {
+            res.push({child, trait});
+          }
+        }
+      }
+
+      firstItems.sort((a, b) => {
+        return firstIndex[a.child.name] - firstIndex[b.child.name];
+      })
+      res.sort((a, b) => {
+        return a.child.name.localeCompare(b.child.name);
+      })
+
+      return [...firstItems, ...res];
+    }
+  },
+  mounted() {
+    this.pull()
+      .catch(err => console.error('during initial pull', err));
+  },
+  beforeDestroy() {
+    if (this.childrenStream) this.childrenStream.cancel();
+  },
+  methods: {
+    async pull() {
+      await Promise.all([
+        this.pullChildren()
+      ]);
+    },
+    async pullChildren() {
+      const serverEndpoint = await grpcWebEndpoint();
+      const api = new ParentApiPromiseClient(serverEndpoint, null, null);
+      // children
+      if (this.childrenStream) this.childrenStream.cancel();
+      // get
+      let childrenRes = await api.listChildren(new ListChildrenRequest().setName(this.serverName));
+      this.children = childrenRes.getChildrenList().map(c => c.toObject());
+      while (childrenRes.getNextPageToken()) {
+        childrenRes = await api.listChildren(new ListChildrenRequest()
+          .setName(this.serverName)
+          .setPageToken(childrenRes.getNextPageToken()));
+        this.children.push(...childrenRes.getChildrenList().map(c => c.toObject()))
+      }
+      // pull
+      const childrenStream = api.pullChildren(new PullChildrenRequest().setName(this.serverName));
+      this.childrenStream = childrenStream;
+      childrenStream.on('data', res => {
+        /** @type {PullChildrenResponse.Change[]} */
+        const changes = res.getChangesList();
+        for (const change of changes) {
+          if (!change.getNewValue()) {
+            // value was removed
+            const old = change.getOldValue();
+            if (!old) continue; // sanity check
+            const oldIndex = this.children.findIndex(c => c.name === old.getName());
+            if (oldIndex >= 0) {
+              this.children.splice(oldIndex, 1);
+            }
+          } else {
+            const newValue = change.getNewValue().toObject()
+            const index = this.children.findIndex(c => c.name === newValue.name);
+            if (index < 0) {
+              this.children.push(newValue)
+            } else {
+              this.children[index] =  newValue
+            }
+          }
+        }
+      });
+    },
+    /**
+     * @param {Trait.AsObject} trait
+     * @return {string}
+     */
+    traitToComponent(trait) {
+      switch (trait.name) {
+        case 'smartcore.traits.AirTemperature':
+          return 'AirTemperatureCard';
+        case 'smartcore.traits.Electric':
+          return 'ElectricCard';
+        case 'smartcore.traits.EnergyStorage':
+          return 'EnergyStorageCard';
+        case 'smartcore.traits.Metadata':
+          return 'MetadataCard';
+        case 'smartcore.traits.OnOff':
+          return 'OnOffCard';
+        case 'smartcore.traits.OccupancySensor':
+          return 'OccupancyCard';
+        case 'smartcore.traits.Publication':
+          return 'PublicationCard';
+        default:
+          return 'UnknownTraitCard';
+      }
+    }
+  }
+};
+</script>
+
+<style scoped>
+
+</style>
