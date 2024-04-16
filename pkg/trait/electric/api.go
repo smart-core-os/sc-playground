@@ -8,18 +8,18 @@ import (
 	"strings"
 	"time"
 
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/durationpb"
+
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/router"
-	"github.com/smart-core-os/sc-golang/pkg/time/clock"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/trait/electric"
 	"github.com/smart-core-os/sc-golang/pkg/wrap"
 	simelectric "github.com/smart-core-os/sc-playground/internal/simulated/electric"
 	"github.com/smart-core-os/sc-playground/pkg/node"
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 func Activate(n *node.Node) {
@@ -54,7 +54,7 @@ func parentElectricDeviceName(n *node.Node) string {
 
 func electricClientFactory() func(name string) (traits.ElectricApiClient, error) {
 	return func(name string) (traits.ElectricApiClient, error) {
-		model := electric.NewModel(clock.Real())
+		model := electric.NewModel()
 
 		// seed with a random load
 		var voltage float32 = 240

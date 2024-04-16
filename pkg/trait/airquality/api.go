@@ -1,18 +1,22 @@
 package airquality
 
 import (
-	"github.com/smart-core-os/sc-golang/pkg/trait/airqualitysensor"
-	"google.golang.org/grpc"
 	"log"
 	"math/rand"
 	"time"
+
+	"google.golang.org/grpc"
+
+	"github.com/smart-core-os/sc-golang/pkg/resource"
+	"github.com/smart-core-os/sc-golang/pkg/trait/airqualitysensor"
+
+	"google.golang.org/protobuf/proto"
 
 	"github.com/smart-core-os/sc-api/go/traits"
 	"github.com/smart-core-os/sc-golang/pkg/router"
 	"github.com/smart-core-os/sc-golang/pkg/trait"
 	"github.com/smart-core-os/sc-golang/pkg/wrap"
 	"github.com/smart-core-os/sc-playground/pkg/node"
-	"google.golang.org/protobuf/proto"
 )
 
 func Activate(n *node.Node) {
@@ -37,7 +41,7 @@ func Activate(n *node.Node) {
 		airqualitysensor.WithAirQualitySensorApiClientFactory(func(name string) (traits.AirQualitySensorApiClient, error) {
 			log.Printf("Creating AirQualitySensorApiClient(%v)", name)
 			initial := randomAirQuality()
-			model := airqualitysensor.NewModel(initial)
+			model := airqualitysensor.NewModel(resource.WithInitialValue(initial))
 			return airqualitysensor.WrapApi(airqualitysensor.NewModelServer(model)), nil
 		}),
 		router.WithOnChange(func(change router.Change) {
