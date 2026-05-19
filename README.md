@@ -1,5 +1,9 @@
 # Smart Core Playground
 
+> [!WARNING]  
+> This project has been superceded by [sc-bos](https://github.com/smart-core-os/sc-bos) which provides a full smart building operating system platform.
+> If you are looking for some way to test the Smart Core API, you can use the pre-built example building images provided in that project.
+
 Tools for playing with Smart Core.
 
 This repository creates a virtual smart building you can connect to and write your client applications against.
